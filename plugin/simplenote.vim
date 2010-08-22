@@ -26,6 +26,41 @@ if !executable('openssl')
   finish
 endif
 "
+" User interface
+"
+
+function! s:SimpleNote(line1, line2, ...)
+  let args = (a:0 > 0) ? split(a:1, ' ') : []
+  for arg in args
+    if arg =~ '^\(-l\|--list\)$'
+      let listnotes = 1
+    elseif arg =~ '^\(-u\|--update\)$'
+      let updatenote = 1
+    elseif len(arg) > 0
+      echoerr 'Invalid arguments'
+      unlet args
+      return 0
+    endif
+  endfor
+  unlet args
+  if listnotes == 1
+    let notes = call s:GetNoteList(s:user, s:token)
+    let winnum = bufwinnr(bufnr('note: index'))
+    if winnum != -1
+      if winnum != bufwinnr('%')
+        exe "normal \<c-w>".winnum."w"
+      endif
+      setlocal modifiable
+    else
+      exec 'silent split note: index'
+    endif
+  endif
+
+endfunction
+
+
+
+"
 " API functions
 "
 
@@ -75,3 +110,6 @@ endfunction
 function! s:Base64Encode(string)
   return system('echo -n "'.a:string.'| openssl base64')
 endfunction
+
+" set the simplenote command
+command! -nargs=? -range=% SimpleNote :call SimpleNote(<line1>, <line2>, <f-args>)
