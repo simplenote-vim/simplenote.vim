@@ -60,6 +60,13 @@ function! s:UpdateNote(user, token, noteid, content)
   system('curl -s '.curl_params.' '.url.params)
 endfunction
 
+" function to get the note list
+function! s:GetNoteList(user, token)
+  let url = 'https://simple-note.appspot.com/api/index?'
+  let params = 'auth='.a:token.'&email='.a:user
+  let res = system('curl -s '.url.params)
+endfunction
+
 "
 " Helper functions
 "
