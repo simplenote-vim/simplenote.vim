@@ -6,6 +6,11 @@ Now you can take simple notes directly from your favourite editor.
 As I am working on this at the moment, it probably won't work until at least version
 `0.1.0`. So watch out for the tag.
 
+## Dependencies
+The plugin relies on the following executables being in your `$PATH`:
+* curl
+* openssl
+
 ## Thanks
 [mattn][2], [Tim Pope][3] and [Scrooloose][4] who write awesome vim plugins
 which I took as a basis to learn how to write vim plugins.
