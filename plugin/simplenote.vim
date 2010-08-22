@@ -26,6 +26,33 @@ if !executable('openssl')
   finish
 endif
 "
+" API functions
+"
+
+" function to get simplenote auth token
+function! s:SimpleNoteAuth(user, password)
+  let url = 'https://simple-note.appspot.com/api/login'
+  let auth_params = 'email='.a:user.'&password='.a:password
+  let auth_b64 = call s:Base64Encode(auth_params)
+  let curl_params = '-s -X POST -d'.auth_b64
+  let token = system('curl '.curl_params)
+  if res =~# 'Traceback'
+    echoerr "Simplenote: Auth failed."
+  else
+    return res
+  endif
+endfunction
+
+" function to get a specific note
+function! s:GetNote(user, token, noteid)
+  let url = 'https://simple-note.appspot.com/api/note?'
+  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
+  let note = system('curl -s '.url.params)
+  return note
+endfunction
+
+
+"
 " Helper functions
 "
 
