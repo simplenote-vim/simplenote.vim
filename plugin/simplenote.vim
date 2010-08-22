@@ -51,6 +51,14 @@ function! s:GetNote(user, token, noteid)
   return note
 endfunction
 
+" function to update a specific note
+function! s:UpdateNote(user, token, noteid, content)
+  let url = 'https://simple-note.appspot.com/api/note?'
+  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
+  let enc_content = call s:Base64Encode(content)
+  let curl_params = '-X POST -d'.enc_content
+  system('curl -s '.curl_params.' '.url.params)
+endfunction
 
 "
 " Helper functions
