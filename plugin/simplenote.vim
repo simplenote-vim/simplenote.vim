@@ -26,6 +26,59 @@ if !executable('openssl')
   finish
 endif
 "
+" Helper functions
+"
+
+" function to wrap openssl base64 encoding
+function! s:Base64Encode(string)
+  return system('echo -n "'.a:string.'" | openssl base64')
+endfunction
+
+
+
+"
+" API functions
+"
+
+" function to get simplenote auth token
+function! s:SimpleNoteAuth(user, password)
+  let url = 'https://simple-note.appspot.com/api/login'
+  let auth_params = 'email='.a:user.'&password='.a:password
+  let auth_b64 = s:Base64Encode(auth_params)
+  let curl_params = '-s -X POST -d'.auth_b64
+  let token = system('curl '.curl_params)
+  if token =~# 'Traceback'
+    echoerr "Simplenote: Auth failed."
+  else
+    return token
+  endif
+endfunction
+
+" function to get a specific note
+function! s:GetNote(user, token, noteid)
+  let url = 'https://simple-note.appspot.com/api/note?'
+  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
+  let note = system('curl -s '.url.params)
+  return note
+endfunction
+
+" function to update a specific note
+function! s:UpdateNote(user, token, noteid, content)
+  let url = 'https://simple-note.appspot.com/api/note?'
+  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
+  let enc_content = s:Base64Encode(content)
+  let curl_params = '-X POST -d'.enc_content
+  system('curl -s '.curl_params.' '.url.params)
+endfunction
+
+" function to get the note list
+function! s:GetNoteList(user, token)
+  let url = 'https://simple-note.appspot.com/api/index?'
+  let params = 'auth='.a:token.'&email='.a:user
+  let res = system('curl -s '.url.params)
+endfunction
+
+"
 " User interface
 "
 
@@ -44,7 +97,7 @@ function! s:SimpleNote(line1, line2, ...)
   endfor
   unlet args
   if listnotes == 1
-    let notes = call s:GetNoteList(s:user, s:token)
+    let notes = s:GetNoteList(s:user, s:token)
     let winnum = bufwinnr(bufnr('note: index'))
     if winnum != -1
       if winnum != bufwinnr('%')
@@ -58,58 +111,8 @@ function! s:SimpleNote(line1, line2, ...)
 
 endfunction
 
-
-
-"
-" API functions
-"
-
-" function to get simplenote auth token
-function! s:SimpleNoteAuth(user, password)
-  let url = 'https://simple-note.appspot.com/api/login'
-  let auth_params = 'email='.a:user.'&password='.a:password
-  let auth_b64 = call s:Base64Encode(auth_params)
-  let curl_params = '-s -X POST -d'.auth_b64
-  let token = system('curl '.curl_params)
-  if res =~# 'Traceback'
-    echoerr "Simplenote: Auth failed."
-  else
-    return res
-  endif
-endfunction
-
-" function to get a specific note
-function! s:GetNote(user, token, noteid)
-  let url = 'https://simple-note.appspot.com/api/note?'
-  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
-  let note = system('curl -s '.url.params)
-  return note
-endfunction
-
-" function to update a specific note
-function! s:UpdateNote(user, token, noteid, content)
-  let url = 'https://simple-note.appspot.com/api/note?'
-  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
-  let enc_content = call s:Base64Encode(content)
-  let curl_params = '-X POST -d'.enc_content
-  system('curl -s '.curl_params.' '.url.params)
-endfunction
-
-" function to get the note list
-function! s:GetNoteList(user, token)
-  let url = 'https://simple-note.appspot.com/api/index?'
-  let params = 'auth='.a:token.'&email='.a:user
-  let res = system('curl -s '.url.params)
-endfunction
-
-"
-" Helper functions
-"
-
-" function to wrap openssl base64 encoding
-function! s:Base64Encode(string)
-  return system('echo -n "'.a:string.'| openssl base64')
-endfunction
+let s:token = s:SimpleNoteAuth(g:user, g:password)
 
 " set the simplenote command
 command! -nargs=? -range=% SimpleNote :call SimpleNote(<line1>, <line2>, <f-args>)
+" vim:set et:
