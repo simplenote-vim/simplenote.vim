@@ -83,6 +83,7 @@ endfunction
 "
 
 function! s:SimpleNote(line1, line2, ...)
+  let listnotes = 0
   let args = (a:0 > 0) ? split(a:1, ' ') : []
   for arg in args
     if arg =~ '^\(-l\|--list\)$'
