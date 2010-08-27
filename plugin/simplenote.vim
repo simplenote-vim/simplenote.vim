@@ -114,5 +114,5 @@ endfunction
 let s:token = s:SimpleNoteAuth(g:user, g:password)
 
 " set the simplenote command
-command! -nargs=? -range=% SimpleNote :call SimpleNote(<line1>, <line2>, <f-args>)
+command! -nargs=? -range=% SimpleNote :call <SID>SimpleNote(<line1>, <line2>, <f-args>)
 " vim:set et:
