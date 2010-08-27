@@ -75,7 +75,8 @@ endfunction
 function! s:GetNoteList(user, token)
   let url = 'https://simple-note.appspot.com/api/index?'
   let params = 'auth='.a:token.'&email='.a:user
-  let res = system('curl -s '.url.params)
+  let res = system('curl -s "'.url.''.params.'"')
+  return res
 endfunction
 
 "
