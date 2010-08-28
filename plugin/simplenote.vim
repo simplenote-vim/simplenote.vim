@@ -25,6 +25,10 @@ if !executable('openssl')
   echoerr "Simplenote: 'openssl' command required"
   finish
 endif
+
+let g:user = system('head -n1 `echo $HOME`/.vim/simplenoterc')
+let g:password = system('tail -n1 `echo $HOME`/.vim/simplenoterc')
+
 "
 " Helper functions
 "
