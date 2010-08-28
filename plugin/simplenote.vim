@@ -99,8 +99,8 @@ function! s:SimpleNote(line1, line2, ...)
   endfor
   unlet args
   if listnotes == 1
-    let notes = s:GetNoteList(s:user, s:token)
     let winnum = bufwinnr(bufnr('note: index'))
+    let notes = s:GetNoteList(g:user, s:token)
     if winnum != -1
       if winnum != bufwinnr('%')
         exe "normal \<c-w>".winnum."w"
