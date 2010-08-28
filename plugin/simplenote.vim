@@ -99,15 +99,15 @@ function! s:SimpleNote(line1, line2, ...)
   endfor
   unlet args
   if listnotes == 1
-    let winnum = bufwinnr(bufnr('note: index'))
     let notes = s:GetNoteList(g:user, s:token)
+    let winnum = bufwinnr(bufnr('notes:'.g:user))
     if winnum != -1
       if winnum != bufwinnr('%')
         exe "normal \<c-w>".winnum."w"
       endif
       setlocal modifiable
     else
-      exec 'silent split note: index'
+      exec 'silent split notes:'.g:user
     endif
   endif
 
