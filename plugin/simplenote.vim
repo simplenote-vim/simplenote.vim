@@ -49,7 +49,7 @@ function! s:SimpleNoteAuth(user, password)
   let url = 'https://simple-note.appspot.com/api/login'
   let auth_params = 'email='.a:user.'&password='.a:password
   let auth_b64 = s:Base64Encode(auth_params)
-  let curl_params = '-s -X POST -d'.auth_b64
+  let curl_params = '-s -X POST -d "'.auth_b64.'"'
   let token = system('curl '.curl_params)
   if token =~# 'Traceback'
     echoerr "Simplenote: Auth failed."
@@ -62,7 +62,7 @@ endfunction
 function! s:GetNote(user, token, noteid)
   let url = 'https://simple-note.appspot.com/api/note?'
   let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
-  let note = system('curl -s '.url.params)
+  let note = system('curl -s "'.url.params.'"')
   return note
 endfunction
 
@@ -71,8 +71,8 @@ function! s:UpdateNote(user, token, noteid, content)
   let url = 'https://simple-note.appspot.com/api/note?'
   let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
   let enc_content = s:Base64Encode(content)
-  let curl_params = '-X POST -d'.enc_content
-  system('curl -s '.curl_params.' '.url.params)
+  let curl_params = '-X POST -d "'.enc_content.'"'
+  system('curl -s '.curl_params.' "'.url.params.'"')
 endfunction
 
 " function to get the note list
