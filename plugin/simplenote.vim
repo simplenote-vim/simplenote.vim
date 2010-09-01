@@ -119,21 +119,21 @@ function! s:SimpleNote(line1, line2, ...)
   endfor
   unlet args
   if listnotes == 1
-    let notes = s:GetNoteList(g:user, s:token)
-    let winnum = bufwinnr(bufnr('notes:'.g:user))
+    let notes = s:GetNoteList(s:user, s:token)
+    let winnum = bufwinnr(bufnr('notes:'.s:user))
     if winnum != -1
       if winnum != bufwinnr('%')
         exe "normal \<c-w>".winnum."w"
       endif
       setlocal modifiable
     else
-      exec 'silent split notes:'.g:user
+      exec 'silent split notes:'.s:user
     endif
   endif
 
 endfunction
 
-let s:token = s:SimpleNoteAuth(g:user, g:password)
+let s:token = s:SimpleNoteAuth(s:user, s:password)
 
 " set the simplenote command
 command! -nargs=? -range=% SimpleNote :call <SID>SimpleNote(<line1>, <line2>, <f-args>)
