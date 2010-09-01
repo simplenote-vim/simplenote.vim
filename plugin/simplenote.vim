@@ -26,11 +26,22 @@ if !executable('openssl')
   finish
 endif
 
-let g:user = system('head -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
-let g:password = system('tail -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
 if !executable('head') && !executable('tail') && !executable('tr')
   echoerr "'head', 'tail' and 'tr' are required for automatic auth parsing"
   echoerr "However you can enter your credentials directly in the script."
+  finish
+endif
+
+" user auth settings
+let s:rcfile = '`echo $HOME`/.vim/simplenoterc'
+let s:user = ""
+let s:password = ""
+
+let s:user = system('head -n1 '.s:rcfile.' 2>/dev/null | tr -d "\n"')
+let s:password = system('tail -n1 '.s:rcfile.' 2>/dev/null | tr -d "\n"')
+
+if (s:user == "") || (s:password == "")
+  echoerr "No valid username or password."
   finish
 endif
 
