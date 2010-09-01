@@ -50,7 +50,7 @@ function! s:SimpleNoteAuth(user, password)
   let auth_params = 'email='.a:user.'&password='.a:password
   let auth_b64 = s:Base64Encode(auth_params)
   let curl_params = '-s -X POST -d "'.auth_b64.'"'
-  let token = system('curl '.curl_params)
+  let token = system('curl '.curl_params.' "'.url.'"')
   if token =~# 'Traceback'
     echoerr "Simplenote: Auth failed."
   else
