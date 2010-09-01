@@ -26,8 +26,8 @@ if !executable('openssl')
   finish
 endif
 
-let g:user = system('head -n1 `echo $HOME`/.vim/simplenoterc')
-let g:password = system('tail -n1 `echo $HOME`/.vim/simplenoterc')
+let g:user = system('head -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
+let g:password = system('tail -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
 
 "
 " Helper functions
