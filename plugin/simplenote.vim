@@ -28,6 +28,11 @@ endif
 
 let g:user = system('head -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
 let g:password = system('tail -n1 `echo $HOME`/.vim/simplenoterc | tr -d "\n"')
+if !executable('head') && !executable('tail') && !executable('tr')
+  echoerr "'head', 'tail' and 'tr' are required for automatic auth parsing"
+  echoerr "However you can enter your credentials directly in the script."
+  finish
+endif
 
 "
 " Helper functions
