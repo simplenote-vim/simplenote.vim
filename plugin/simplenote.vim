@@ -80,11 +80,26 @@ endfunction
 
 " function to update a specific note
 function! s:UpdateNote(user, token, noteid, content)
-  let url = 'https://simple-note.appspot.com/api/note?'
-  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
-  let enc_content = s:Base64Encode(content)
-  let curl_params = '-X POST -d "'.enc_content.'"'
-  system('curl -s '.curl_params.' "'.url.params.'"')
+python << ENDPYTHON
+import vim, urllib,  urllib2, json
+#params
+user = vim.eval("a:user")
+token = vim.eval("a:token")
+noteid = vim.eval("a:noteid")
+content = vim.eval("a:content")
+
+url = 'https://simple-note.appspot.com/api2/data/'
+params = '%s?auth=%s&email=%s' % (noteid, token, user)
+noteobject = {}
+noteobject["content"] = content
+note = json.dumps(noteobject)
+values = urllib.urlencode(note)
+request = urllib2.Request(url+params, values)
+try:
+    response = urllib2.urlopen(request)
+except IOError, e:
+    vim.command('echoerr "Connection failed."')
+ENDPYTHON
 endfunction
 
 " function to get the note list
