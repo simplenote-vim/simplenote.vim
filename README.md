@@ -28,15 +28,11 @@ Deletes the note in your current buffer.
 Updates the note in the current buffer with its content. If the buffer has no
 corresponding note, a new one is created.
 
-    SimpleNote -s "searchterm"
-
-Searches your notes for the given search term.
-
 ## Dependencies
-The plugin relies on the following executables being in your `$PATH`:
-
-* curl
-* openssl
+Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
+really play nice together, basic parts of this plugin are implemented in
+python. Therefore you vim to be compiled with python support in order to use
+this plugin.
 
 ## Thanks
 [mattn][2], [Tim Pope][3] and [Scrooloose][4] who write awesome vim plugins
