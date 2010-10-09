@@ -14,22 +14,6 @@ if &cp || (exists('g:loaded_simplenote_vim') && g:loaded_simplenote_vim)
 endif
 let g:loaded_simplenote_vim = 1
 
-if !executable('curl')
-  echoerr "Simplenote: 'curl' command required"
-  finish
-endif
-
-if !executable('openssl')
-  echoerr "Simplenote: 'openssl' command required"
-  finish
-endif
-
-if !executable('head') && !executable('tail') && !executable('tr')
-  echoerr "'head', 'tail' and 'tr' are required for automatic auth parsing"
-  echoerr "However you can enter your credentials directly in the script."
-  finish
-endif
-
 " user auth settings
 let s:rcfile = '`echo $HOME`/.vim/simplenoterc'
 let s:user = ""
