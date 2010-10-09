@@ -37,16 +37,23 @@ endif
 
 " function to get simplenote auth token
 function! s:SimpleNoteAuth(user, password)
-  let url = 'https://simple-note.appspot.com/api/login'
-  let auth_params = 'email='.a:user.'&password='.a:password
-  let auth_b64 = s:Base64Encode(auth_params)
-  let curl_params = '-s -X POST -d "'.auth_b64.'"'
-  let token = system('curl '.curl_params.' "'.url.'"')
-  if token =~# 'Traceback'
-    echoerr "Simplenote: Auth failed."
-  else
-    return token
-  endif
+python << ENDPYTHON
+import vim, urllib, urllib2, base64
+url = 'https://simple-note.appspot.com/api/login'
+# params parsing
+user = vim.eval("a:user")
+password = vim.eval("a:password")
+auth_params = "email=%s&password=%s" % (user, password)
+auth_b64 = base64.encodestring(auth_params)
+values = urllib.urlencode(auth_b64)
+request = urllib2.Request(url, values)
+try:
+  token = urllib2.urlopen(request)
+except IOError, e: # no connection exception
+  vim.command('echoerr "Simplenote: Auth failed."')
+  vim.command("return -1")
+vim.command("return %s" % token)
+ENDPYTHON
 endfunction
 
 " function to get a specific note
