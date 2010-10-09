@@ -2,8 +2,6 @@
 "
 " File: simplenote.vim
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
-" Last Change: 21-Aug-2010.
-" Version: ??
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
 " Usage:
