@@ -31,13 +31,6 @@ endif
 " Helper functions
 "
 
-" function to wrap openssl base64 encoding
-function! s:Base64Encode(string)
-  return system('echo -n "'.a:string.'" | openssl base64')
-endfunction
-
-
-
 "
 " API functions
 "
