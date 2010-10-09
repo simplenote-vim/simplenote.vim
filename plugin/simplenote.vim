@@ -58,10 +58,24 @@ endfunction
 
 " function to get a specific note
 function! s:GetNote(user, token, noteid)
-  let url = 'https://simple-note.appspot.com/api/note?'
-  let params = 'key='.a:noteid.'&auth='.a:token.'&email='.a:user
-  let note = system('curl -s "'.url.params.'"')
-  return note
+python << ENDPYTHON
+import vim, urllib2, json
+# params
+user = vim.eval("a:user")
+token = vim.eval("a:token")
+noteid = vim.eval("a:noteid")
+# request note
+url = 'https://simple-note.appspot.com/api2/data/'
+params = '%s?auth=%s&email=%s' % (noteid, token, user)
+request = urllib2.Request(url+params)
+try:
+    response = urllib2.urlopen(request)
+except IOError, e:
+    vim.command('echoerr "Connection failed."')
+    response = ""
+note = json.loads(response.read())
+vim.command("return %s" % note["content"])
+ENDPYTHON
 endfunction
 
 " function to update a specific note
