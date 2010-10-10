@@ -41,24 +41,31 @@ endif
 " API functions
 "
 
-" function to get simplenote auth token
+"
+" @brief function to get simplenote auth token
+"
+" @param user -> simplenote email address
+" @param password -> simplenote password
+"
+" @return simplenote API token
+"
 function! s:SimpleNoteAuth(user, password)
 python << ENDPYTHON
-import vim, urllib, urllib2, base64
+import vim, urllib2, base64
 url = 'https://simple-note.appspot.com/api/login'
 # params parsing
 user = vim.eval("a:user")
 password = vim.eval("a:password")
 auth_params = "email=%s&password=%s" % (user, password)
-auth_b64 = base64.encodestring(auth_params)
-values = urllib.urlencode(auth_b64)
+values = base64.encodestring(auth_params)
 request = urllib2.Request(url, values)
 try:
-  token = urllib2.urlopen(request)
+  token = urllib2.urlopen(request).read()
 except IOError, e: # no connection exception
   vim.command('echoerr "Simplenote: Auth failed."')
   vim.command("return -1")
-vim.command("return %s" % token)
+
+vim.command('return "%s"' % token)
 ENDPYTHON
 endfunction
 
