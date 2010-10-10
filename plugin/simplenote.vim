@@ -69,7 +69,15 @@ vim.command('return "%s"' % token)
 ENDPYTHON
 endfunction
 
-" function to get a specific note
+"
+" @brief function to get a specific note
+"
+" @param user -> simplenote username
+" @param token -> simplenote API token
+" @param noteid -> ID of the note to get
+"
+" @return content of the desired note
+"
 function! s:GetNote(user, token, noteid)
 python << ENDPYTHON
 import vim, urllib2, json
@@ -91,7 +99,16 @@ vim.command("return %s" % note["content"])
 ENDPYTHON
 endfunction
 
-" function to update a specific note
+"
+" @brief function to update a specific note
+"
+" @param user -> simplenote username
+" @param token -> simplenote API token
+" @param noteid -> noteid to update
+" @param content -> content of the note to update
+"
+" @return
+"
 function! s:UpdateNote(user, token, noteid, content)
 python << ENDPYTHON
 import vim, urllib,  urllib2, json
