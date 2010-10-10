@@ -132,12 +132,34 @@ except IOError, e:
 ENDPYTHON
 endfunction
 
-" function to get the note list
+"
+" @brief function to get the note list
+"
+" @param user -> simplenote username
+" @param token -> simplenote API token
+"
+" @return list of note titles
+"
 function! s:GetNoteList(user, token)
-  let url = 'https://simple-note.appspot.com/api/index?'
-  let params = 'auth='.a:token.'&email='.a:user
-  let res = system('curl -s "'.url.''.params.'"')
-  return res
+python << ENDPYTHON
+import vim, json, urllib2
+# params
+user = vim.eval("a:user")
+token = vim.eval("a:token")
+url = 'https://simple-note.appspot.com/api2/index?'
+params = 'auth=%s&email=%s' % (token, user)
+request = urllib2.Request(url+params)
+try:
+  response = json.loads(urllib2.urlopen(request).read())
+except IOError, e:
+  response = { "data" : [] }
+ret = []
+# parse data fields in response
+for d in response["data"]:
+    ret.append(d["key"])
+
+vim.command('return "%s"' % ret)
+ENDPYTHON
 endfunction
 
 "
