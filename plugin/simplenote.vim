@@ -14,6 +14,12 @@ if &cp || (exists('g:loaded_simplenote_vim') && g:loaded_simplenote_vim)
 endif
 let g:loaded_simplenote_vim = 1
 
+" check for python
+if !has("python")
+  echoerr "Simplenote: Plugin needs vim to be compiled with python support."
+  finish
+endif
+
 " user auth settings
 let s:rcfile = '`echo $HOME`/.vim/simplenoterc'
 let s:user = ""
