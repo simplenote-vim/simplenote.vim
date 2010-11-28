@@ -21,12 +21,11 @@ if !has("python")
 endif
 
 " user auth settings
-let s:rcfile = '`echo $HOME`/.vim/simplenoterc'
 let s:user = ""
 let s:password = ""
 
-let s:user = system('head -n1 '.s:rcfile.' 2>/dev/null | tr -d "\n"')
-let s:password = system('tail -n1 '.s:rcfile.' 2>/dev/null | tr -d "\n"')
+let s:user = g:SimpleNoteUserName
+let s:password = g:SimpleNotePassword
 
 if (s:user == "") || (s:password == "")
   echoerr "No valid username or password."
