@@ -8,9 +8,10 @@ Now you can take simple notes directly from your favourite editor.
 Just copy `simplenote.vim` into your plugin folder. But you really want to use
 [pathogen][5] for your plugin management.
 
-Your credentials have to be stored in `~/.vim/simplenoterc`. The first line has
-to contain your login user and the second line has to contain the password.
-Nothing else is allowed in this file.
+Your credentials have to be stored in your `vimrc`:
+
+    let g:SimpleNoteUserName = "your simplenote username"
+    let g:SimpleNotePassword = "your simplenote password"
 
 ## Usage
 The plugin provides the following commands to interact with Simplenote:
@@ -27,6 +28,10 @@ Deletes the note in your current buffer.
 
 Updates the note in the current buffer with its content. If the buffer has no
 corresponding note, a new one is created.
+
+## Missing
+- Notes syncing
+- Tag support
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
