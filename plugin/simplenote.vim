@@ -142,37 +142,21 @@ ENDPYTHON
 " User interface
 "
 
-function! s:SimpleNote(line1, line2, ...)
-  let listnotes = 0
-  let args = (a:0 > 0) ? split(a:1, ' ') : []
-  for arg in args
-    if arg =~ '^\(-l\|--list\)$'
-      let listnotes = 1
-    elseif arg =~ '^\(-u\|--update\)$'
-      let updatenote = 1
-    elseif len(arg) > 0
-      echoerr 'Invalid arguments'
-      unlet args
-      return 0
-    endif
-  endfor
-  unlet args
-  if listnotes == 1
-    let notes = s:GetNoteList(s:user, s:token)
-    let winnum = bufwinnr(bufnr('notes:'.s:user))
-    if winnum != -1
-      if winnum != bufwinnr('%')
-        exe "normal \<c-w>".winnum."w"
-      endif
-    else
-      exec 'silent split notes:'.s:user
-    endif
-    silent %d _
-    exec 'silent r! '.s:GetNoteList(s:user, s:token).''
-  endif
+function! s:SimpleNote(param)
+python << EOF
+param = vim.eval("a:param")
+if param == "-l":
+    print "List notes"
+elif param == "-d":
+    print "Delete note"
+elif param == "-u":
+    print "Update note"
+else:
+    print "Unknown argument"
 
+EOF
 endfunction
 
 
 " set the simplenote command
-command! -nargs=? -range=% SimpleNote :call <SID>SimpleNote(<line1>, <line2>, <f-args>)
+command! -nargs=1 SimpleNote :call <SID>SimpleNote(<f-args>)
