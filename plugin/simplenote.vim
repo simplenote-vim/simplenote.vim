@@ -40,126 +40,103 @@ endif
 " API functions
 "
 
-"
-" @brief function to get simplenote auth token
-"
-" @param user -> simplenote email address
-" @param password -> simplenote password
-"
-" @return simplenote API token
-"
-function! s:SimpleNoteAuth(user, password)
 python << ENDPYTHON
-import vim, urllib2, base64
-url = 'https://simple-note.appspot.com/api/login'
-# params parsing
-user = vim.eval("a:user")
-password = vim.eval("a:password")
-auth_params = "email=%s&password=%s" % (user, password)
-values = base64.encodestring(auth_params)
-request = urllib2.Request(url, values)
-try:
-  token = urllib2.urlopen(request).read()
-except IOError, e: # no connection exception
-  vim.command('echoerr "Simplenote: Auth failed."')
-  vim.command("return -1")
+import vim
+import urllib2
+import base64
+import json
 
-vim.command('return "%s"' % token)
+AUTH_URL = 'https://simple-note.appspot.com/api/login'
+DATA_URL = 'https://simple-note.appspot.com/api2/data/'
+INDX_URL = 'https://simple-note.appspot.com/api2/index?'
+
+#
+# @brief function to get simplenote auth token
+#
+# @param user -> simplenote email address
+# @param password -> simplenote password
+#
+# @return simplenote API token
+#
+def simple_note_auth(user, password):
+    auth_params = "email=%s&password=%s" % (user, password)
+    values = base64.encodestring(auth_params)
+    request = urllib2.Request(AUTH_URL, values)
+    try:
+        token = urllib2.urlopen(request).read()
+    except IOError, e: # no connection exception
+        token = None
+    return token
+
+#
+# @brief function to get a specific note
+#
+# @param user -> simplenote username
+# @param token -> simplenote API token
+# @param noteid -> ID of the note to get
+#
+# @return content of the desired note
+
+def get_note(user, token, noteid):
+    # request note
+    params = '%s?auth=%s&email=%s' % (noteid, token, user)
+    request = urllib2.Request(DATA_URL+params)
+    try:
+        response = urllib2.urlopen(request)
+    except IOError, e:
+        return None
+    note = json.loads(response.read())
+    return note["content"]
+
+#
+# @brief function to update a specific note
+#
+# @param user -> simplenote username
+# @param token -> simplenote API token
+# @param noteid -> noteid to update
+# @param content -> content of the note to update
+#
+# @return
+#
+def update_note(user, token, noteid, content):
+    params = '%s?auth=%s&email=%s' % (noteid, token, user)
+    noteobject = {}
+    noteobject["content"] = content
+    note = json.dumps(noteobject)
+    values = urllib.urlencode(note)
+    request = urllib2.Request(DATA_URL+params, values)
+    try:
+        response = urllib2.urlopen(request)
+    except IOError, e:
+        return False
+    return True
+
+#
+# @brief function to get the note list
+#
+# @param user -> simplenote username
+# @param token -> simplenote API token
+#
+# @return list of note titles
+#
+def get_note_list(user, token):
+    params = 'auth=%s&email=%s' % (token, user)
+    request = urllib2.Request(INDX_URL+params)
+    try:
+      response = json.loads(urllib2.urlopen(request).read())
+    except IOError, e:
+      response = { "data" : [] }
+    ret = []
+    # parse data fields in response
+    for d in response["data"]:
+        ret.append(d["key"])
+
+    return ret
+
+# retrieve a token to interact with the API
+SN_TOKEN = simple_note_auth(vim.eval("s:user"), vim.eval("s:password"))
+
 ENDPYTHON
-endfunction
-
-"
-" @brief function to get a specific note
-"
-" @param user -> simplenote username
-" @param token -> simplenote API token
-" @param noteid -> ID of the note to get
-"
-" @return content of the desired note
-"
-function! s:GetNote(user, token, noteid)
-python << ENDPYTHON
-import vim, urllib2, json
-# params
-user = vim.eval("a:user")
-token = vim.eval("a:token")
-noteid = vim.eval("a:noteid")
-# request note
-url = 'https://simple-note.appspot.com/api2/data/'
-params = '%s?auth=%s&email=%s' % (noteid, token, user)
-request = urllib2.Request(url+params)
-try:
-    response = urllib2.urlopen(request)
-except IOError, e:
-    vim.command('echoerr "Connection failed."')
-    response = ""
-note = json.loads(response.read())
-vim.command("return %s" % note["content"])
-ENDPYTHON
-endfunction
-
-"
-" @brief function to update a specific note
-"
-" @param user -> simplenote username
-" @param token -> simplenote API token
-" @param noteid -> noteid to update
-" @param content -> content of the note to update
-"
-" @return
-"
-function! s:UpdateNote(user, token, noteid, content)
-python << ENDPYTHON
-import vim, urllib,  urllib2, json
-#params
-user = vim.eval("a:user")
-token = vim.eval("a:token")
-noteid = vim.eval("a:noteid")
-content = vim.eval("a:content")
-
-url = 'https://simple-note.appspot.com/api2/data/'
-params = '%s?auth=%s&email=%s' % (noteid, token, user)
-noteobject = {}
-noteobject["content"] = content
-note = json.dumps(noteobject)
-values = urllib.urlencode(note)
-request = urllib2.Request(url+params, values)
-try:
-    response = urllib2.urlopen(request)
-except IOError, e:
-    vim.command('echoerr "Connection failed."')
-ENDPYTHON
-endfunction
-
-"
-" @brief function to get the note list
-"
-" @param user -> simplenote username
-" @param token -> simplenote API token
-"
-" @return list of note titles
-"
-function! s:GetNoteList(user, token)
-python << ENDPYTHON
-import vim, json, urllib2
-# params
-user = vim.eval("a:user")
-token = vim.eval("a:token")
-url = 'https://simple-note.appspot.com/api2/index?'
-params = 'auth=%s&email=%s' % (token, user)
-request = urllib2.Request(url+params)
-try:
-  response = json.loads(urllib2.urlopen(request).read())
-except IOError, e:
-  response = { "data" : [] }
-ret = []
-# parse data fields in response
-for d in response["data"]:
-    ret.append(d["key"])
-
-vim.command('return "%s"' % ret)
-ENDPYTHON
-endfunction
 
 "
 " User interface
@@ -187,16 +164,15 @@ function! s:SimpleNote(line1, line2, ...)
       if winnum != bufwinnr('%')
         exe "normal \<c-w>".winnum."w"
       endif
-      setlocal modifiable
     else
       exec 'silent split notes:'.s:user
     endif
+    silent %d _
+    exec 'silent r! '.s:GetNoteList(s:user, s:token).''
   endif
 
 endfunction
 
-let s:token = s:SimpleNoteAuth(s:user, s:password)
 
 " set the simplenote command
 command! -nargs=? -range=% SimpleNote :call <SID>SimpleNote(<line1>, <line2>, <f-args>)
-" vim:set et:
