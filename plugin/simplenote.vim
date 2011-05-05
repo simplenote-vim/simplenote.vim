@@ -36,8 +36,41 @@ endif
 " Helper functions
 "
 
+" Everything is displayed in a scratch buffer named SimpleNote
+let g:simplenote_scratch_buffer = 'SimpleNote'
+
+" Function that opens or navigates to the scratch buffer.
+function! s:ScratchBufferOpen(name)
+
+    let scr_bufnum = bufnr(a:name)
+    if scr_bufnum == -1
+        exe "new " . a:name
+    else
+        let scr_winnum = bufwinnr(scr_bufnum)
+        if scr_winnum != -1
+            if winnr() != scr_winnum
+                exe scr_winnum . "wincmd w"
+            endif
+        else
+            exe "split +buffer" . scr_bufnum
+        endif
+    endif
+    call ScratchBuffer()
+endfunction
+
+" After opening the scratch buffer, this sets some properties for it.
+function! ScratchBuffer()
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal buflisted
+    setlocal cursorline
+    setlocal filetype=txt
+endfunction
+
+
 "
-" API functions
+" python functions
 "
 
 python << ENDPYTHON
@@ -49,6 +82,11 @@ import json
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data/'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
+DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
+
+def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
+    """ Opens a scratch buffer from python """
+    vim.command("call s:ScratchBufferOpen('%s')" % sb_name)
 
 #
 # @brief function to get simplenote auth token
@@ -117,29 +155,32 @@ def update_note(user, token, noteid, content):
 # @param user -> simplenote username
 # @param token -> simplenote API token
 #
-# @return list of note titles
+# @return list of note titles and success status
 #
 def get_note_list(user, token):
     params = 'auth=%s&email=%s' % (token, user)
     request = urllib2.Request(INDX_URL+params)
+    status = 0
     try:
       response = json.loads(urllib2.urlopen(request).read())
     except IOError, e:
+      status = -1
       response = { "data" : [] }
     ret = []
     # parse data fields in response
     for d in response["data"]:
         ret.append(d["key"])
 
-    return ret
+    return ret, status
 
 # retrieve a token to interact with the API
-SN_TOKEN = simple_note_auth(vim.eval("s:user"), vim.eval("s:password"))
+SN_USER = vim.eval("s:user")
+SN_TOKEN = simple_note_auth(SN_USER, vim.eval("s:password"))
 
 ENDPYTHON
 
 "
-" User interface
+" interface functions
 "
 
 function! s:SimpleNote(param)
@@ -147,6 +188,21 @@ python << EOF
 param = vim.eval("a:param")
 if param == "-l":
     print "List notes"
+    # Initialize the scratch buffer
+    scratch_buffer()
+    del vim.current.buffer[:]
+    buffer = vim.current.buffer
+    notes, status = get_note_list(SN_USER, SN_TOKEN)
+    if status == 0:
+        for n in notes:
+            print "appending %s to buffer" % n
+            buffer.append(str(n))
+            print "appended"
+    else:
+        print "Error: Unable to connect to server."
+    # map <CR> to call get_note()
+    #vim.command("map <buffer> <CR> <Esc>:call get_note()<CR>")
+
 elif param == "-d":
     print "Delete note"
 elif param == "-u":
