@@ -136,7 +136,7 @@ def get_note(user, token, noteid):
 #
 # @return
 #
-def update_note(user, token, noteid, content):
+def update_note(user=SN_USER, token=SN_USER, noteid, content):
     params = '%s?auth=%s&email=%s' % (noteid, token, user)
     noteobject = {}
     noteobject["content"] = content
@@ -183,11 +183,22 @@ ENDPYTHON
 " interface functions
 "
 
+
+" function to get a note and display in current buffer
+function! s:GetNoteToCurrentBuffer()
+python << EOF
+line = vim.current.line
+note = get_note(SN_USER, SN_TOKEN, line)
+buffer = vim.current.buffer
+del buffer[:]
+buffer.append(note)
+EOF
+endfunction
+
 function! s:SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
 if param == "-l":
-    print "List notes"
     # Initialize the scratch buffer
     scratch_buffer()
     del vim.current.buffer[:]
@@ -195,13 +206,21 @@ if param == "-l":
     notes, status = get_note_list(SN_USER, SN_TOKEN)
     if status == 0:
         for n in notes:
-            print "appending %s to buffer" % n
-            buffer.append(str(n))
-            print "appended"
+            # get note from server
+            note = get_note(SN_USER, SN_TOKEN, n)
+            # fetch first line and display as title
+             note_lines = note.split("\n")
+             if len(note_lines) > 0:
+                 title = note_lines[0]
+             else:
+                 title = str(n)
+
+            buffer.append(title)
     else:
         print "Error: Unable to connect to server."
+
     # map <CR> to call get_note()
-    vim.command("map <buffer> <CR> <Esc>:call get_note()<CR>")
+    vim.command("map <buffer> <CR> <Esc>:call GetNoteToCurrentBuffer()<CR>")
 
 elif param == "-d":
     print "Delete note"
