@@ -36,6 +36,9 @@ endif
 " Helper functions
 "
 
+" the id of the note currently edited is stored in a global variable
+let g:simplenote_current_note_id = ""
+
 " Everything is displayed in a scratch buffer named SimpleNote
 let g:simplenote_scratch_buffer = 'SimpleNote'
 
@@ -136,7 +139,7 @@ def get_note(user, token, noteid):
 #
 # @return
 #
-def update_note(user=SN_USER, token=SN_USER, noteid, content):
+def update_note(user, token, noteid, content):
     params = '%s?auth=%s&email=%s' % (noteid, token, user)
     noteobject = {}
     noteobject["content"] = content
@@ -188,10 +191,24 @@ ENDPYTHON
 function! s:GetNoteToCurrentBuffer()
 python << EOF
 line = vim.current.line
+vim.eval(""" let g:simplenote_current_note_id="%s" """ % line)
 note = get_note(SN_USER, SN_TOKEN, line)
 buffer = vim.current.buffer
 del buffer[:]
 buffer.append(note)
+EOF
+endfunction
+
+" function to update the note from the current buffer
+function! s:UpdateNoteFromCurrentBuffer()
+python << EOF
+note_id = vim.eval("g:simplenote_current_note_id")
+content = vim.current.buffer[:]
+result = update_note(SN_USER, SN_TOKEN, note_id, content)
+if result == True:
+    print "Update successful."
+else:
+    print "Update failed."
 EOF
 endfunction
 
