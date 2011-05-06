@@ -201,7 +201,7 @@ if param == "-l":
     else:
         print "Error: Unable to connect to server."
     # map <CR> to call get_note()
-    #vim.command("map <buffer> <CR> <Esc>:call get_note()<CR>")
+    vim.command("map <buffer> <CR> <Esc>:call get_note()<CR>")
 
 elif param == "-d":
     print "Delete note"
