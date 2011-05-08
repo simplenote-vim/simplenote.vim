@@ -120,7 +120,7 @@ def simple_note_auth(user, password):
 
 def get_note(user, token, noteid):
     # request note
-    params = '%s?auth=%s&email=%s' % (noteid, token, user)
+    params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
     request = urllib2.Request(DATA_URL+params)
     try:
         response = urllib2.urlopen(request)
@@ -226,13 +226,13 @@ if param == "-l":
             # get note from server
             note = get_note(SN_USER, SN_TOKEN, n)
             # fetch first line and display as title
-             note_lines = note.split("\n")
-             if len(note_lines) > 0:
-                 title = note_lines[0]
-             else:
-                 title = str(n)
+            note_lines = note.split("\n")
+            if len(note_lines) > 0:
+                title = "%s[%s]" % (note_lines[0],n)
+            else:
+                title = "%s[%s]" % (n,n)
 
-            buffer.append(title)
+            buffer.append(str(title))
     else:
         print "Error: Unable to connect to server."
 
