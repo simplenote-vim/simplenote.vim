@@ -141,13 +141,10 @@ def get_note(user, token, noteid):
 def update_note_object(user, token, note):
     url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
     request = urllib2.Request(url, json.dumps(note))
-    print "Request: %s" % request
     try:
         response = urllib2.urlopen(request)
     except IOError, e:
         return False, e
-    print response.code
-    print response
     return True, "Ok."
 
 #
@@ -193,6 +190,23 @@ def get_note_list(user, token):
 
     return ret, status
 
+#
+# @brief function to move a note to the trash
+#
+# @param user -> simplenote username
+# @param token -> simplenote API token
+# @param note_id -> id of the note to trash
+#
+# @return list of note titles and success status
+#
+def trash_note(user, token, note_id):
+    # get note
+    note = get_note(SN_USER, SN_TOKEN, note_id)
+    # set deleted property
+    note["deleted"] = 1
+    # update note
+    return update_note_object(SN_USER, SN_TOKEN, note)
+
 # retrieve a token to interact with the API
 SN_USER = vim.eval("s:user")
 SN_TOKEN = simple_note_auth(SN_USER, vim.eval("s:password"))
@@ -232,6 +246,18 @@ else:
 EOF
 endfunction
 
+" function to trash the note in the current buffer
+function! s:TrashCurrentNote()
+python << EOF
+note_id = vim.eval("g:simplenote_current_note_id")
+result, err_msg = trash_note(SN_USER, SN_TOKEN, note_id)
+if result == True:
+    print "Note moved to trash."
+else:
+    print "Moving note to trash failed.: %s" % err_msg
+EOF
+endfunction
+
 function! s:SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
@@ -263,10 +289,9 @@ if param == "-l":
     vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 elif param == "-d":
-    print "Delete note"
+    vim.command("call <SID>TrashCurrentNote()")
 
 elif param == "-u":
-    print "Update note"
     vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
 else:
     print "Unknown argument"
