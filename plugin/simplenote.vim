@@ -116,7 +116,7 @@ def simple_note_auth(user, password):
 # @param token -> simplenote API token
 # @param noteid -> ID of the note to get
 #
-# @return content of the desired note
+# @return the desired note
 
 def get_note(user, token, noteid):
     # request note
@@ -127,7 +127,7 @@ def get_note(user, token, noteid):
     except IOError, e:
         return None
     note = json.loads(response.read())
-    return note["content"]
+    return note
 
 #
 # @brief function to update a specific note
@@ -190,12 +190,17 @@ ENDPYTHON
 " function to get a note and display in current buffer
 function! s:GetNoteToCurrentBuffer()
 python << EOF
-line = vim.current.line
-vim.eval(""" let g:simplenote_current_note_id="%s" """ % line)
+# get the notes id which is shown in brackets in the current line
+line = vim.current.line.split("[")[-1].split("]")[0]
+# store it as a global script variable
+vim.command(""" let g:simplenote_current_note_id="%s" """ % line)
 note = get_note(SN_USER, SN_TOKEN, line)
 buffer = vim.current.buffer
+# remove cursorline
+vim.command("setlocal nocursorline")
 del buffer[:]
-buffer.append(note)
+for noteline in note["content"].split("\n"):
+    buffer.append(str(noteline))
 EOF
 endfunction
 
@@ -226,18 +231,18 @@ if param == "-l":
             # get note from server
             note = get_note(SN_USER, SN_TOKEN, n)
             # fetch first line and display as title
-            note_lines = note.split("\n")
+            note_lines = note["content"].split("\n")
             if len(note_lines) > 0:
-                title = "%s[%s]" % (note_lines[0],n)
+                title = "%s  [%s]" % (note_lines[0],n)
             else:
-                title = "%s[%s]" % (n,n)
+                title = "%s  [%s]" % (n,n)
 
             buffer.append(str(title))
     else:
         print "Error: Unable to connect to server."
 
     # map <CR> to call get_note()
-    vim.command("map <buffer> <CR> <Esc>:call GetNoteToCurrentBuffer()<CR>")
+    vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 elif param == "-d":
     print "Delete note"
