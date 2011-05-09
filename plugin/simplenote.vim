@@ -223,10 +223,10 @@ param = vim.eval("a:param")
 if param == "-l":
     # Initialize the scratch buffer
     scratch_buffer()
-    del vim.current.buffer[:]
     buffer = vim.current.buffer
     notes, status = get_note_list(SN_USER, SN_TOKEN)
     if status == 0:
+        note_titles = []
         for n in notes:
             # get note from server
             note = get_note(SN_USER, SN_TOKEN, n)
@@ -237,7 +237,10 @@ if param == "-l":
             else:
                 title = "%s  [%s]" % (n,n)
 
-            buffer.append(str(title))
+            note_titles.append(str(title))
+
+        buffer[:] = note_titles
+
     else:
         print "Error: Unable to connect to server."
 
