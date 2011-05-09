@@ -130,27 +130,44 @@ def get_note(user, token, noteid):
     return note
 
 #
-# @brief function to update a specific note
+# @brief function to update a specific note object
 #
 # @param user -> simplenote username
 # @param token -> simplenote API token
-# @param noteid -> noteid to update
-# @param content -> content of the note to update
+# @param note -> note object to update
 #
-# @return
+# @return True on success, False with error message  otherwise
 #
-def update_note(user, token, noteid, content):
-    params = '%s?auth=%s&email=%s' % (noteid, token, user)
-    noteobject = {}
-    noteobject["content"] = content
-    note = json.dumps(noteobject)
-    values = urllib.urlencode(note)
-    request = urllib2.Request(DATA_URL+params, values)
+def update_note_object(user, token, note):
+    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+    request = urllib2.Request(url, json.dumps(note))
+    print "Request: %s" % request
     try:
         response = urllib2.urlopen(request)
     except IOError, e:
-        return False
-    return True
+        return False, e
+    print response.code
+    print response
+    return True, "Ok."
+
+#
+# @brief function to update a note's content
+#
+# @param user -> simplenote username
+# @param token -> simplenote API token
+# @param content -> new content
+# @param key -> key of the note to update
+#
+# @return True on success, False with error message  otherwise
+#
+def update_note_content(user, token, content, key=None):
+    """update only the content of a note"""
+    if key is not None:
+        note = {"key": key}
+    else:
+        note = {"key": ""}
+    note["content"] = content
+    return update_note_object(SN_USER, SN_TOKEN, note)
 
 #
 # @brief function to get the note list
@@ -198,9 +215,7 @@ note = get_note(SN_USER, SN_TOKEN, line)
 buffer = vim.current.buffer
 # remove cursorline
 vim.command("setlocal nocursorline")
-del buffer[:]
-for noteline in note["content"].split("\n"):
-    buffer.append(str(noteline))
+buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
 EOF
 endfunction
 
@@ -208,12 +223,12 @@ endfunction
 function! s:UpdateNoteFromCurrentBuffer()
 python << EOF
 note_id = vim.eval("g:simplenote_current_note_id")
-content = vim.current.buffer[:]
-result = update_note(SN_USER, SN_TOKEN, note_id, content)
+content = "\n".join(str(line) for line in vim.current.buffer[:])
+result, err_msg = update_note_content(SN_USER, SN_TOKEN, content, note_id)
 if result == True:
     print "Update successful."
 else:
-    print "Update failed."
+    print "Update failed.: %s" % err_msg
 EOF
 endfunction
 
@@ -249,8 +264,10 @@ if param == "-l":
 
 elif param == "-d":
     print "Delete note"
+
 elif param == "-u":
     print "Update note"
+    vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
 else:
     print "Unknown argument"
 
