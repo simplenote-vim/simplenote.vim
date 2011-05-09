@@ -2,15 +2,14 @@
 A vim plugin to interact with the [simplenote][1] API.
 Now you can take simple notes directly from your favourite editor.
 
-## This is work in progress and won't probably work until at least v0.1.0
-
 ## Installation
 Just copy `simplenote.vim` into your plugin folder. But you really want to use
 [pathogen][5] for your plugin management.
 
-Your credentials have to be stored in `~/.vim/simplenoterc`. The first line has
-to contain your login user and the second line has to contain the password.
-Nothing else is allowed in this file.
+Your credentials have to be stored in your `vimrc`:
+
+    let g:SimpleNoteUserName = "your simplenote username"
+    let g:SimpleNotePassword = "your simplenote password"
 
 ## Usage
 The plugin provides the following commands to interact with Simplenote:
@@ -25,14 +24,22 @@ Deletes the note in your current buffer.
 
     SimpleNote -u
 
-Updates the note in the current buffer with its content. If the buffer has no
-corresponding note, a new one is created.
+Updates the note in the current buffer with its content.
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
 really play nice together, basic parts of this plugin are implemented in
-python. Therefore you vim to be compiled with python support in order to use
-this plugin.
+python. Therefore your vim has to be compiled with python support in order to
+use this plugin.
+
+## Development
+- [Planned features](http://www.pivotaltracker.com/projects/288621)
+- [Bugs and issue tracker](https://github.com/mrtazz/simplenote.vim/issues)
+
+## Contribute
+- Fork the project
+- Make your additions/fixes/improvements (Bonus points for topic branches)
+- Send a pull request
 
 ## Thanks
 [mattn][2], [Tim Pope][3] and [Scrooloose][4] who write awesome vim plugins
