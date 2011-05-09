@@ -4,7 +4,11 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
+" Version: 0.1.0
 " Usage:
+"   :SimpleNote -l
+"   :SimpleNote -u
+"   :SimpleNote -d
 "
 "
 "
