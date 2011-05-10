@@ -31,6 +31,7 @@ If you want to delete the note, execute
 
     :Simplenote -d
 
+This moves the current note to the trash.
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
