@@ -282,7 +282,7 @@ if param == "-l":
             else:
                 title = "%s  [%s]" % (n,n)
 
-            note_titles.append(str(title))
+            note_titles.append(str(title)[0:80])
 
         buffer[:] = note_titles
 
