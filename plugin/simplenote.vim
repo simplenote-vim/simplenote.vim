@@ -275,14 +275,16 @@ if param == "-l":
         for n in notes:
             # get note from server
             note = get_note(SN_USER, SN_TOKEN, n)
-            # fetch first line and display as title
-            note_lines = note["content"].split("\n")
-            if len(note_lines) > 0:
-                title = "%s  [%s]" % (note_lines[0],n)
-            else:
-                title = "%s  [%s]" % (n,n)
+            # sort out notes from the trash
+            if note["deleted"] != 1:
+                # fetch first line and display as title
+                note_lines = note["content"].split("\n")
+                if len(note_lines) > 0:
+                    title = "%s  [%s]" % (note_lines[0],n)
+                else:
+                    title = "%s  [%s]" % (n,n)
 
-            note_titles.append(str(title)[0:80])
+                note_titles.append(str(title)[0:80])
 
         buffer[:] = note_titles
 
