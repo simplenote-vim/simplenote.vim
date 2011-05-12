@@ -90,6 +90,8 @@ AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data/'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
+SN_USER = vim.eval("s:user")
+SN_TOKEN = None
 
 def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
     """ Opens a scratch buffer from python """
@@ -112,6 +114,17 @@ def simple_note_auth(user, password):
     except IOError, e: # no connection exception
         token = None
     return token
+
+#
+# @brief function to get an auth token
+#
+# @return the token
+#
+def get_token():
+    global SN_TOKEN
+    if SN_TOKEN == None:
+        SN_TOKEN = simple_note_auth(SN_USER, vim.eval("s:password"))
+    return SN_TOKEN
 
 #
 # @brief function to get a specific note
@@ -168,7 +181,7 @@ def update_note_content(user, token, content, key=None):
     else:
         note = {"key": ""}
     note["content"] = content
-    return update_note_object(SN_USER, SN_TOKEN, note)
+    return update_note_object(SN_USER, get_token(), note)
 
 #
 # @brief function to get the note list
@@ -205,15 +218,13 @@ def get_note_list(user, token):
 #
 def trash_note(user, token, note_id):
     # get note
-    note = get_note(SN_USER, SN_TOKEN, note_id)
+    auth_token = get_token()
+    note = get_note(SN_USER, auth_token, note_id)
     # set deleted property
     note["deleted"] = 1
     # update note
-    return update_note_object(SN_USER, SN_TOKEN, note)
+    return update_note_object(SN_USER, auth_token, note)
 
-# retrieve a token to interact with the API
-SN_USER = vim.eval("s:user")
-SN_TOKEN = simple_note_auth(SN_USER, vim.eval("s:password"))
 
 ENDPYTHON
 
@@ -229,7 +240,7 @@ python << EOF
 line = vim.current.line.split("[")[-1].split("]")[0]
 # store it as a global script variable
 vim.command(""" let g:simplenote_current_note_id="%s" """ % line)
-note = get_note(SN_USER, SN_TOKEN, line)
+note = get_note(SN_USER, get_token(), line)
 buffer = vim.current.buffer
 # remove cursorline
 vim.command("setlocal nocursorline")
@@ -242,7 +253,7 @@ function! s:UpdateNoteFromCurrentBuffer()
 python << EOF
 note_id = vim.eval("g:simplenote_current_note_id")
 content = "\n".join(str(line) for line in vim.current.buffer[:])
-result, err_msg = update_note_content(SN_USER, SN_TOKEN, content, note_id)
+result, err_msg = update_note_content(SN_USER, get_token(), content, note_id)
 if result == True:
     print "Update successful."
 else:
@@ -254,7 +265,7 @@ endfunction
 function! s:TrashCurrentNote()
 python << EOF
 note_id = vim.eval("g:simplenote_current_note_id")
-result, err_msg = trash_note(SN_USER, SN_TOKEN, note_id)
+result, err_msg = trash_note(SN_USER, get_token(), note_id)
 if result == True:
     print "Note moved to trash."
 else:
@@ -269,12 +280,13 @@ if param == "-l":
     # Initialize the scratch buffer
     scratch_buffer()
     buffer = vim.current.buffer
-    notes, status = get_note_list(SN_USER, SN_TOKEN)
+    auth_token = get_token()
+    notes, status = get_note_list(SN_USER, auth_token)
     if status == 0:
         note_titles = []
         for n in notes:
             # get note from server
-            note = get_note(SN_USER, SN_TOKEN, n)
+            note = get_note(SN_USER, auth_token, n)
             # sort out notes from the trash
             if note["deleted"] != 1:
                 # fetch first line and display as title
