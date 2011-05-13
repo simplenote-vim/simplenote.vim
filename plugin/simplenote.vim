@@ -29,7 +29,7 @@ let s:user = ""
 let s:password = ""
 
 let s:user = g:SimplenoteUsername
-let s:password = g:SimpleNotePassword
+let s:password = g:SimplenotePassword
 
 if (s:user == "") || (s:password == "")
   echoerr "No valid username or password."
