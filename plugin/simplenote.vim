@@ -28,7 +28,7 @@ endif
 let s:user = ""
 let s:password = ""
 
-let s:user = g:SimpleNoteUserName
+let s:user = g:SimplenoteUsername
 let s:password = g:SimpleNotePassword
 
 if (s:user == "") || (s:password == "")
@@ -319,4 +319,4 @@ endfunction
 
 
 " set the simplenote command
-command! -nargs=1 SimpleNote :call <SID>SimpleNote(<f-args>)
+command! -nargs=1 Simplenote :call <SID>SimpleNote(<f-args>)
