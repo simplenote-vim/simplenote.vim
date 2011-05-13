@@ -236,6 +236,8 @@ ENDPYTHON
 " function to get a note and display in current buffer
 function! s:GetNoteToCurrentBuffer()
 python << EOF
+# unmap <CR>
+vim.command("unmap <buffer> <CR>")
 # get the notes id which is shown in brackets in the current line
 line = vim.current.line.split("[")[-1].split("]")[0]
 # store it as a global script variable
