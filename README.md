@@ -10,8 +10,12 @@ Just copy `simplenote.vim` into your plugin folder. But you really want to use
 
 Your credentials have to be stored in your `vimrc`:
 
-    let g:SimplenoteUserName = "your simplenote username"
+    let g:SimplenoteUsername = "your simplenote username"
     let g:SimplenotePassword = "your simplenote password"
+
+If you don't want to have the credentials in your `vimrc` (if you manage it
+with git for example), you can just set the variables in a different file (like
+`~/.simplenoterc`) and source it with `source ~/.simplenoterc` in your `vimrc`.
 
 ## Usage
 The plugin provides several commands to interact with your Simplenote account.
