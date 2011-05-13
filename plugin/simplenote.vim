@@ -25,14 +25,23 @@ if !has("python")
 endif
 
 " user auth settings
-let s:user = ""
-let s:password = ""
+if exists("g:SimplenoteUsername")
+  let s:user = g:SimplenoteUsername
+else
+  let s:user = ""
+endif
 
-let s:user = g:SimplenoteUsername
-let s:password = g:SimplenotePassword
+if exists("g:SimplenotePassword")
+  let s:password = g:SimplenotePassword
+else
+  let s:password = ""
+endif
 
 if (s:user == "") || (s:password == "")
-  echoerr "No valid username or password."
+  let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
+  let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
+  let errmsg = errmsg . "create one at https://simple-note.appspot.com/create/."
+  echoerr errmsg
   finish
 endif
 
