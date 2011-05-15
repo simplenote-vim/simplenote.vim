@@ -94,11 +94,13 @@ import vim
 import urllib2
 import base64
 import json
+import time
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data/'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
+NOTE_INDEX = []
 SN_USER = vim.eval("s:user")
 SN_TOKEN = None
 
@@ -248,10 +250,11 @@ python << EOF
 # unmap <CR>
 vim.command("unmap <buffer> <CR>")
 # get the notes id which is shown in brackets in the current line
-line = vim.current.line.split("[")[-1].split("]")[0]
+line, col = vim.current.window.cursor
+note_id = NOTE_INDEX[int(line) - 1]
 # store it as a global script variable
-vim.command(""" let g:simplenote_current_note_id="%s" """ % line)
-note = get_note(SN_USER, get_token(), line)
+vim.command(""" let g:simplenote_current_note_id="%s" """ % note_id)
+note = get_note(SN_USER, get_token(), note_id)
 buffer = vim.current.buffer
 # remove cursorline
 vim.command("setlocal nocursorline")
@@ -293,6 +296,9 @@ if param == "-l":
     buffer = vim.current.buffer
     auth_token = get_token()
     notes, status = get_note_list(SN_USER, auth_token)
+    # set global notes index object to notes
+    global NOTE_INDEX
+    NOTE_INDEX = []
     if status == 0:
         note_titles = []
         for n in notes:
@@ -302,11 +308,14 @@ if param == "-l":
             if note["deleted"] != 1:
                 # fetch first line and display as title
                 note_lines = note["content"].split("\n")
+                mt = time.localtime(float(note["modifydate"]))
+                mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
                 if len(note_lines) > 0:
-                    title = "%s  [%s]" % (note_lines[0],n)
+                    title = "%s [%s]" % (note_lines[0], mod_time)
                 else:
-                    title = "%s  [%s]" % (n,n)
+                    title = "%s [%s]" % (n, mod_time)
 
+                NOTE_INDEX.append(n)
                 note_titles.append(str(title)[0:80])
 
         buffer[:] = note_titles
