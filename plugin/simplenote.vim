@@ -103,6 +103,7 @@ DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 NOTE_INDEX = []
 SN_USER = vim.eval("s:user")
 SN_TOKEN = None
+NOTE_FETCH_LENGTH = 20
 
 def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
     """ Opens a scratch buffer from python """
@@ -203,18 +204,39 @@ def update_note_content(user, token, content, key=None):
 # @return list of note titles and success status
 #
 def get_note_list(user, token):
-    params = 'auth=%s&email=%s' % (token, user)
-    request = urllib2.Request(INDX_URL+params)
+    # initialize data
     status = 0
+    ret = []
+    response = {}
+    notes = { "data" : [] }
+
+    # get the full note index
+    params = 'auth=%s&email=%s&length=%s' % (token, user, NOTE_FETCH_LENGTH)
+    # perform initial HTTP request
     try:
+      request = urllib2.Request(INDX_URL+params)
       response = json.loads(urllib2.urlopen(request).read())
+      notes["data"].extend(response["data"])
     except IOError, e:
       status = -1
-      response = { "data" : [] }
-    ret = []
+
+    # get additional notes if bookmark was set in response
+    while response.has_key("mark"):
+        params = 'auth=%s&email=%s&mark=%s&length=%s' % (token, user,
+                                                         response["mark"],
+                                                         NOTE_FETCH_LENGTH)
+
+        # perform the actual HTTP request
+        try:
+          request = urllib2.Request(INDX_URL+params)
+          response = json.loads(urllib2.urlopen(request).read())
+          notes["data"].extend(response["data"])
+        except IOError, e:
+          status = -1
+
     # parse data fields in response
-    for d in response["data"]:
-        ret.append(d["key"])
+    for n in notes["data"]:
+        ret.append(n["key"])
 
     return ret, status
 
