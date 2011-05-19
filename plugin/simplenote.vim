@@ -315,6 +315,8 @@ param = vim.eval("a:param")
 if param == "-l":
     # Initialize the scratch buffer
     scratch_buffer()
+    # clear global note id storage
+    vim.command(""" let g:simplenote_current_note_id="" """)
     buffer = vim.current.buffer
     auth_token = get_token()
     notes, status = get_note_list(SN_USER, auth_token)
