@@ -352,6 +352,7 @@ if param == "-l":
 
 elif param == "-d":
     vim.command("call <SID>TrashCurrentNote()")
+    vim.command("call <SID>SimpleNote(\"-l\")")
 
 elif param == "-u":
     vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
