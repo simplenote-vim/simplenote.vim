@@ -81,10 +81,11 @@ endfunction
 "
 
 python << ENDPYTHON
+from base64 import encodestring
+from json import dumps, loads
+from urllib2 import quote, Request, urlopen
+
 import vim
-import urllib2
-import base64
-import json
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data/'
@@ -104,12 +105,12 @@ def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
 # @return simplenote API token
 #
 def simple_note_auth(user, password):
-    auth_params = "email=%s&password=%s" % (user, password)
-    values = base64.encodestring(auth_params)
-    request = urllib2.Request(AUTH_URL, values)
+    auth_params = "email=%s&password=%s" % (quote(user), quote(password))
+    values = encodestring(auth_params)
+    request = Request(AUTH_URL, values)
     try:
-        token = urllib2.urlopen(request).read()
-    except IOError, e: # no connection exception
+        token = urlopen(request).read()
+    except IOError: # no connection exception
         token = None
     return token
 
@@ -124,13 +125,13 @@ def simple_note_auth(user, password):
 
 def get_note(user, token, noteid):
     # request note
-    params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
-    request = urllib2.Request(DATA_URL+params)
+    params = '%s?auth=%s&email=%s' % (str(noteid), token, quote(user))
+    request = Request(DATA_URL+params)
     try:
-        response = urllib2.urlopen(request)
-    except IOError, e:
+        response = urlopen(request)
+    except IOError:
         return None
-    note = json.loads(response.read())
+    note = loads(response.read())
     return note
 
 #
@@ -143,10 +144,10 @@ def get_note(user, token, noteid):
 # @return True on success, False with error message  otherwise
 #
 def update_note_object(user, token, note):
-    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
-    request = urllib2.Request(url, json.dumps(note))
+    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, quote(user))
+    request = Request(url, dumps(note))
     try:
-        response = urllib2.urlopen(request)
+        response = urlopen(request)
     except IOError, e:
         return False, e
     return True, "Ok."
@@ -179,12 +180,12 @@ def update_note_content(user, token, content, key=None):
 # @return list of note titles and success status
 #
 def get_note_list(user, token):
-    params = 'auth=%s&email=%s' % (token, user)
-    request = urllib2.Request(INDX_URL+params)
+    params = 'auth=%s&email=%s' % (token, quote(user))
+    request = Request(INDX_URL+params)
     status = 0
     try:
-      response = json.loads(urllib2.urlopen(request).read())
-    except IOError, e:
+      response = loads(urlopen(request).read())
+    except IOError:
       status = -1
       response = { "data" : [] }
     ret = []
