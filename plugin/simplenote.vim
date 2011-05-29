@@ -104,7 +104,7 @@ def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
 # @return simplenote API token
 #
 def simple_note_auth(user, password):
-    auth_params = "email=%s&password=%s" % (user, password)
+    auth_params = "email=%s&password=%s" % (urllib2.quote(user), urllib2.quote(password))
     values = base64.encodestring(auth_params)
     request = urllib2.Request(AUTH_URL, values)
     try:
@@ -124,7 +124,7 @@ def simple_note_auth(user, password):
 
 def get_note(user, token, noteid):
     # request note
-    params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
+    params = '%s?auth=%s&email=%s' % (str(noteid), token, urllib2.quote(user))
     request = urllib2.Request(DATA_URL+params)
     try:
         response = urllib2.urlopen(request)
@@ -143,7 +143,7 @@ def get_note(user, token, noteid):
 # @return True on success, False with error message  otherwise
 #
 def update_note_object(user, token, note):
-    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, urllib2.quote(user))
     request = urllib2.Request(url, json.dumps(note))
     try:
         response = urllib2.urlopen(request)
@@ -179,7 +179,7 @@ def update_note_content(user, token, content, key=None):
 # @return list of note titles and success status
 #
 def get_note_list(user, token):
-    params = 'auth=%s&email=%s' % (token, user)
+    params = 'auth=%s&email=%s' % (token, urllib2.quote(user))
     request = urllib2.Request(INDX_URL+params)
     status = 0
     try:
