@@ -49,7 +49,8 @@ use this plugin.
 
 ## Contribute
 - Fork the project
-- Make your additions/fixes/improvements (Bonus points for topic branches)
+- Branch off develop
+- Make your additions/fixes/improvements
 - Send a pull request
 
 ## Thanks
