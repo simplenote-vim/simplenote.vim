@@ -6,9 +6,9 @@
 " License: MIT
 " Version: 0.1.0
 " Usage:
-"   :SimpleNote -l
-"   :SimpleNote -u
-"   :SimpleNote -d
+"   :Simplenote -l
+"   :Simplenote -u
+"   :Simplenote -d
 "
 "
 "
