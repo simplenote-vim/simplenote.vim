@@ -111,15 +111,16 @@ def scratch_buffer(sb_name = DEFAULT_SCRATCH_NAME):
     """ Opens a scratch buffer from python """
     vim.command("call s:ScratchBufferOpen('%s')" % sb_name)
 
-#
-# @brief function to get simplenote auth token
-#
-# @param user -> simplenote email address
-# @param password -> simplenote password
-#
-# @return simplenote API token
-#
 def simple_note_auth(user, password):
+    """ function to get simplenote auth token
+
+    Arguments
+    user     -- simplenote email address
+    password -- simplenote password
+
+    Returns Simplenote API token
+
+    """
     auth_params = "email=%s&password=%s" % (user, password)
     values = base64.encodestring(auth_params)
     request = urllib2.Request(AUTH_URL, values)
@@ -129,27 +130,25 @@ def simple_note_auth(user, password):
         token = None
     return urllib2.quote(token)
 
-#
-# @brief function to get an auth token
-#
-# @return the token
-#
 def get_token():
+    """ function to retrieve an auth token """
     global SN_TOKEN
     if SN_TOKEN == None:
         SN_TOKEN = simple_note_auth(SN_USER, urllib2.quote(vim.eval("s:password")))
     return SN_TOKEN
 
-#
-# @brief function to get a specific note
-#
-# @param user -> simplenote username
-# @param token -> simplenote API token
-# @param noteid -> ID of the note to get
-#
-# @return the desired note
 
 def get_note(user, token, noteid):
+    """ function to get a specific note
+
+    Arguments
+    user   -- simplenote username
+    token  -- simplenote API token
+    noteid -- ID of the note to get
+
+    Returns the desired note
+
+    """
     # request note
     params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
     request = urllib2.Request(DATA_URL+params)
@@ -160,16 +159,17 @@ def get_note(user, token, noteid):
     note = json.loads(response.read())
     return note
 
-#
-# @brief function to update a specific note object
-#
-# @param user -> simplenote username
-# @param token -> simplenote API token
-# @param note -> note object to update
-#
-# @return True on success, False with error message  otherwise
-#
 def update_note_object(user, token, note):
+    """ function to update a specific note object
+
+    Arguments
+    user  -- simplenote username
+    token -- simplenote API token
+    note  -- note object to update
+
+    Returns True on success, False with error message  otherwise
+
+    """
     url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
     request = urllib2.Request(url, json.dumps(note))
     try:
@@ -178,18 +178,18 @@ def update_note_object(user, token, note):
         return False, e
     return True, "Ok."
 
-#
-# @brief function to update a note's content
-#
-# @param user -> simplenote username
-# @param token -> simplenote API token
-# @param content -> new content
-# @param key -> key of the note to update
-#
-# @return True on success, False with error message  otherwise
-#
 def update_note_content(user, token, content, key=None):
-    """update only the content of a note"""
+    """ function to update a note's content
+
+    Arguments
+    user    -- simplenote username
+    token   -- simplenote API token
+    content -- new content
+    key     -- key of the note to update
+
+    Return True on success, False with error message  otherwise
+
+    """
     if key is not None:
         note = {"key": key}
     else:
@@ -197,15 +197,16 @@ def update_note_content(user, token, content, key=None):
     note["content"] = content
     return update_note_object(SN_USER, get_token(), note)
 
-#
-# @brief function to get the note list
-#
-# @param user -> simplenote username
-# @param token -> simplenote API token
-#
-# @return list of note titles and success status
-#
 def get_note_list(user, token):
+    """ function to get the note list
+
+    Arguments
+    user -> simplenote username
+    token -> simplenote API token
+
+    Return list of note titles and success status
+
+    """
     # initialize data
     status = 0
     ret = []
@@ -242,16 +243,17 @@ def get_note_list(user, token):
 
     return ret, status
 
-#
-# @brief function to move a note to the trash
-#
-# @param user -> simplenote username
-# @param token -> simplenote API token
-# @param note_id -> id of the note to trash
-#
-# @return list of note titles and success status
-#
 def trash_note(user, token, note_id):
+    """ function to move a note to the trash
+
+    Arguments
+    user    -- simplenote username
+    token   -- simplenote API token
+    note_id -- id of the note to trash
+
+    Return list of note titles and success status
+
+    """
     # get note
     auth_token = get_token()
     note = get_note(SN_USER, auth_token, note_id)
