@@ -95,6 +95,8 @@ import urllib2
 import base64
 import json
 import time
+from threading import Thread
+from Queue import Queue
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data/'
@@ -259,6 +261,63 @@ def trash_note(user, token, note_id):
     return update_note_object(SN_USER, auth_token, note)
 
 
+def format_title(note):
+    """ function to format the title for a note object
+
+        Arguments:
+        note -- note object to format the title for
+
+        Returns the formatted title
+
+    """
+    # fetch first line and display as title
+    note_lines = note["content"].split("\n")
+    # format date
+    mt = time.localtime(float(note["modifydate"]))
+    mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
+    if len(note_lines) > 0:
+        title = "%s [%s]" % (note_lines[0], mod_time)
+    else:
+        title = "%s [%s]" % (note["key"], mod_time)
+
+    return (str(title)[0:80])
+
+class NoteFetcher(Thread):
+    """ class to fetch a note running in a thread
+
+        The note key is fetched from a queue object and
+        the note is then retrieved and put in
+
+    """
+    def __init__(self, queue, note_list):
+        Thread.__init__(self)
+        self.queue = queue
+        self.note_list = note_list
+
+    def run(self):
+        key = self.queue.get()
+        note = get_note(SN_USER, get_token(), key)
+        self.note_list.append(note)
+        self.queue.task_done()
+
+def get_notes_from_keys(key_list):
+    """ fetch all note objects for a list of keys via threads and return them
+        in a list
+
+    """
+    queue = Queue()
+    note_list = []
+    for key in key_list:
+        queue.put(key)
+        t = NoteFetcher(queue, note_list)
+        t.start()
+
+    queue.join()
+    return note_list
+
+
+
+
 ENDPYTHON
 
 "
@@ -319,29 +378,17 @@ if param == "-l":
     vim.command(""" let g:simplenote_current_note_id="" """)
     buffer = vim.current.buffer
     auth_token = get_token()
-    notes, status = get_note_list(SN_USER, auth_token)
+    note_list, status = get_note_list(SN_USER, auth_token)
     # set global notes index object to notes
     global NOTE_INDEX
     NOTE_INDEX = []
     if status == 0:
         note_titles = []
-        for n in notes:
-            # get note from server
-            note = get_note(SN_USER, auth_token, n)
-            # sort out notes from the trash
-            if note["deleted"] != 1:
-                # fetch first line and display as title
-                note_lines = note["content"].split("\n")
-                mt = time.localtime(float(note["modifydate"]))
-                mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
-                if len(note_lines) > 0:
-                    title = "%s [%s]" % (note_lines[0], mod_time)
-                else:
-                    title = "%s [%s]" % (n, mod_time)
-
-                NOTE_INDEX.append(n)
-                note_titles.append(str(title)[0:80])
-
+        notes = get_notes_from_keys(note_list)
+        notes.sort(key=lambda k: k['modifydate'])
+        notes.reverse()
+        note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
+        NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
         buffer[:] = note_titles
 
     else:
