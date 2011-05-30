@@ -125,10 +125,11 @@ def simple_note_auth(user, password):
     values = base64.encodestring(auth_params)
     request = urllib2.Request(AUTH_URL, values)
     try:
-        token = urllib2.urlopen(request).read()
+        res = urllib2.urlopen(request).read()
+        token = urllib2.quote(res)
     except IOError, e: # no connection exception
         token = None
-    return urllib2.quote(token)
+    return token
 
 def get_token():
     """ function to retrieve an auth token """
