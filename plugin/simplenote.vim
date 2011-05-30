@@ -103,7 +103,7 @@ DATA_URL = 'https://simple-note.appspot.com/api2/data/'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 NOTE_INDEX = []
-SN_USER = vim.eval("s:user")
+SN_USER = urllib2.quote(vim.eval("s:user"))
 SN_TOKEN = None
 NOTE_FETCH_LENGTH = 20
 
@@ -127,7 +127,7 @@ def simple_note_auth(user, password):
         token = urllib2.urlopen(request).read()
     except IOError, e: # no connection exception
         token = None
-    return token
+    return urllib2.quote(token)
 
 #
 # @brief function to get an auth token
@@ -137,7 +137,7 @@ def simple_note_auth(user, password):
 def get_token():
     global SN_TOKEN
     if SN_TOKEN == None:
-        SN_TOKEN = simple_note_auth(SN_USER, vim.eval("s:password"))
+        SN_TOKEN = simple_note_auth(SN_USER, urllib2.quote(vim.eval("s:password")))
     return SN_TOKEN
 
 #
