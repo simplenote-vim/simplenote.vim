@@ -158,6 +158,9 @@ def get_note(user, token, noteid):
     except IOError, e:
         return None
     note = json.loads(response.read())
+    # use UTF-8 encoding
+    note["content"] = note["content"].encode('utf-8')
+    note["tags"] = [t.encode('utf-8') for t in note["tags"]]
     return note
 
 def update_note_object(user, token, note):
@@ -171,6 +174,10 @@ def update_note_object(user, token, note):
     Returns True on success, False with error message  otherwise
 
     """
+    # use UTF-8 encoding
+    note["content"] = unicode(note["content"], 'utf-8')
+    if note.has_key("tags"):
+        note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
     url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
     request = urllib2.Request(url, json.dumps(note))
     try:
