@@ -36,6 +36,13 @@ If you want to delete the note, execute
     :Simplenote -d
 
 This moves the current note to the trash.
+There also exists a command to create new notes.
+
+    :Simplenote -n
+
+creates a new note with the contents of the current buffer. Once the note is
+created, `:Simplenote -u` updates the newly created note, also with the
+contents of the current buffer.
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
