@@ -99,7 +99,7 @@ from threading import Thread
 from Queue import Queue
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
-DATA_URL = 'https://simple-note.appspot.com/api2/data/'
+DATA_URL = 'https://simple-note.appspot.com/api2/data'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 NOTE_INDEX = []
@@ -151,7 +151,7 @@ def get_note(user, token, noteid):
 
     """
     # request note
-    params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
+    params = '/%s?auth=%s&email=%s' % (str(noteid), token, user)
     request = urllib2.Request(DATA_URL+params)
     try:
         response = urllib2.urlopen(request)
@@ -164,27 +164,35 @@ def get_note(user, token, noteid):
     return note
 
 def update_note_object(user, token, note):
-    """ function to update a specific note object
+    """ function to update a specific note object, if the note object does not
+        have a "key" field, a new note is created
 
     Arguments
     user  -- simplenote username
     token -- simplenote API token
     note  -- note object to update
 
-    Returns True on success, False with error message  otherwise
+    Returns True and the JSON parsed response on success,
+            False with error message otherwise
 
     """
     # use UTF-8 encoding
     note["content"] = unicode(note["content"], 'utf-8')
     if note.has_key("tags"):
         note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
-    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+
+    # determine whether to create a new note or updated an existing one
+    if note.has_key("key"):
+        url = '%s/%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+    else:
+        url = '%s?auth=%s&email=%s' % (DATA_URL, token, user)
     request = urllib2.Request(url, json.dumps(note))
+    response = ""
     try:
-        response = urllib2.urlopen(request)
+        response = urllib2.urlopen(request).read()
     except IOError, e:
         return False, e
-    return True, "Ok."
+    return True, json.loads(response)
 
 def update_note_content(user, token, content, key=None):
     """ function to update a note's content
@@ -198,10 +206,9 @@ def update_note_content(user, token, content, key=None):
     Return True on success, False with error message  otherwise
 
     """
+    note = {}
     if key is not None:
         note = {"key": key}
-    else:
-        note = {"key": ""}
     note["content"] = content
     return update_note_object(SN_USER, get_token(), note)
 
@@ -269,7 +276,6 @@ def trash_note(user, token, note_id):
     note["deleted"] = 1
     # update note
     return update_note_object(SN_USER, auth_token, note)
-
 
 def format_title(note):
     """ function to format the title for a note object
@@ -413,6 +419,14 @@ elif param == "-d":
 
 elif param == "-u":
     vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
+elif param == "-n":
+    content = "\n".join(str(line) for line in vim.current.buffer[:])
+    result, note = update_note_content(SN_USER, get_token(), content)
+    if result == True:
+        vim.command(""" let g:simplenote_current_note_id="%s" """ % note["key"])
+        print "New note created."
+    else:
+        print "Update failed.: %s" % key
 else:
     print "Unknown argument"
 
