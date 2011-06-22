@@ -6,10 +6,10 @@
 " License: MIT
 " Version: 0.2.0
 " Usage:
-"   :Simplenote -l
+"   :Simplenote -l [first line]
 "   :Simplenote -u
 "   :Simplenote -d
-"
+"   :Simplenote -n
 "
 "
 
@@ -95,11 +95,12 @@ import urllib2
 import base64
 import json
 import time
+import re
 from threading import Thread
 from Queue import Queue
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
-DATA_URL = 'https://simple-note.appspot.com/api2/data/'
+DATA_URL = 'https://simple-note.appspot.com/api2/data'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 NOTE_INDEX = []
@@ -151,33 +152,48 @@ def get_note(user, token, noteid):
 
     """
     # request note
-    params = '%s?auth=%s&email=%s' % (str(noteid), token, user)
+    params = '/%s?auth=%s&email=%s' % (str(noteid), token, user)
     request = urllib2.Request(DATA_URL+params)
     try:
         response = urllib2.urlopen(request)
     except IOError, e:
         return None
     note = json.loads(response.read())
+    # use UTF-8 encoding
+    note["content"] = note["content"].encode('utf-8')
+    note["tags"] = [t.encode('utf-8') for t in note["tags"]]
     return note
 
 def update_note_object(user, token, note):
-    """ function to update a specific note object
+    """ function to update a specific note object, if the note object does not
+        have a "key" field, a new note is created
 
     Arguments
     user  -- simplenote username
     token -- simplenote API token
     note  -- note object to update
 
-    Returns True on success, False with error message  otherwise
+    Returns True and the JSON parsed response on success,
+            False with error message otherwise
 
     """
-    url = '%s%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+    # use UTF-8 encoding
+    note["content"] = unicode(note["content"], 'utf-8')
+    if note.has_key("tags"):
+        note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
+
+    # determine whether to create a new note or updated an existing one
+    if note.has_key("key"):
+        url = '%s/%s?auth=%s&email=%s' % (DATA_URL, note["key"], token, user)
+    else:
+        url = '%s?auth=%s&email=%s' % (DATA_URL, token, user)
     request = urllib2.Request(url, json.dumps(note))
+    response = ""
     try:
-        response = urllib2.urlopen(request)
+        response = urllib2.urlopen(request).read()
     except IOError, e:
         return False, e
-    return True, "Ok."
+    return True, json.loads(response)
 
 def update_note_content(user, token, content, key=None):
     """ function to update a note's content
@@ -191,10 +207,9 @@ def update_note_content(user, token, content, key=None):
     Return True on success, False with error message  otherwise
 
     """
+    note = {}
     if key is not None:
         note = {"key": key}
-    else:
-        note = {"key": ""}
     note["content"] = content
     return update_note_object(SN_USER, get_token(), note)
 
@@ -262,7 +277,6 @@ def trash_note(user, token, note_id):
     note["deleted"] = 1
     # update note
     return update_note_object(SN_USER, auth_token, note)
-
 
 def format_title(note):
     """ function to format the title for a note object
@@ -374,7 +388,7 @@ endfunction
 function! s:SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
-if param == "-l":
+if param.startswith("-l"):
     # Initialize the scratch buffer
     scratch_buffer()
     # clear global note id storage
@@ -390,15 +404,33 @@ if param == "-l":
         notes = get_notes_from_keys(note_list)
         notes.sort(key=lambda k: k['modifydate'])
         notes.reverse()
-        note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
-        NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
-        buffer[:] = note_titles
+#RBW start        
+        title_match = re.match("-l\s*[\"']?([^\"']*)[\"']?\s*$", param)  #match title string, optionally delimited with quotes. XXX will break on 'embedded' quotes (e.g."tom's list")
+        if title_match is not None:
+            for n in notes:
+                if n["content"].split("\n")[0].lower().strip().startswith( title_match.group(1).lower().strip() ): # content starts with case-insensitive match..
+                    selected_note = n 
+                    break
+                else: selected_note = None
+            if selected_note is not None:
+                vim.command(""" let g:simplenote_current_note_id="%s" """ % selected_note['key'])
+                buffer[:] = map(lambda x: str(x), selected_note["content"].split("\n"))
+            else:
+                print "Error: Note not found, containing given firstline/title"
+
+            # remove cursorline, regardless:
+            vim.command("setlocal nocursorline")
+        else:    
+#RBW /end        
+            note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
+            NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
+            buffer[:] = note_titles
+
+            # map <CR> to call get_note()
+            vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
     else:
         print "Error: Unable to connect to server."
-
-    # map <CR> to call get_note()
-    vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 elif param == "-d":
     vim.command("call <SID>TrashCurrentNote()")
@@ -406,6 +438,14 @@ elif param == "-d":
 
 elif param == "-u":
     vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
+elif param == "-n":
+    content = "\n".join(str(line) for line in vim.current.buffer[:])
+    result, note = update_note_content(SN_USER, get_token(), content)
+    if result == True:
+        vim.command(""" let g:simplenote_current_note_id="%s" """ % note["key"])
+        print "New note created."
+    else:
+        print "Update failed.: %s" % key
 else:
     print "Unknown argument"
 
@@ -415,3 +455,4 @@ endfunction
 
 " set the simplenote command
 command! -nargs=1 Simplenote :call <SID>SimpleNote(<f-args>)
+
