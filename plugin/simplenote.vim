@@ -6,10 +6,10 @@
 " License: MIT
 " Version: 0.2.0
 " Usage:
-"   :Simplenote -l
+"   :Simplenote -l [first line]
 "   :Simplenote -u
 "   :Simplenote -d
-"
+"   :Simplenote -n
 "
 "
 
@@ -95,6 +95,7 @@ import urllib2
 import base64
 import json
 import time
+import re
 from threading import Thread
 from Queue import Queue
 
@@ -387,7 +388,7 @@ endfunction
 function! s:SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
-if param == "-l":
+if param.startswith("-l"):
     # Initialize the scratch buffer
     scratch_buffer()
     # clear global note id storage
@@ -403,15 +404,33 @@ if param == "-l":
         notes = get_notes_from_keys(note_list)
         notes.sort(key=lambda k: k['modifydate'])
         notes.reverse()
-        note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
-        NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
-        buffer[:] = note_titles
+#RBW start        
+        title_match = re.match("-l\s*[\"']?([^\"']*)[\"']?\s*$", param)  #match title string, optionally delimited with quotes. XXX will break on 'embedded' quotes (e.g."tom's list")
+        if title_match is not None:
+            for n in notes:
+                if n["content"].split("\n")[0].lower().strip().startswith( title_match.group(1).lower().strip() ): # content starts with case-insensitive match..
+                    selected_note = n 
+                    break
+                else: selected_note = None
+            if selected_note is not None:
+                vim.command(""" let g:simplenote_current_note_id="%s" """ % selected_note['key'])
+                buffer[:] = map(lambda x: str(x), selected_note["content"].split("\n"))
+            else:
+                print "Error: Note not found, containing given firstline/title"
+
+            # remove cursorline, regardless:
+            vim.command("setlocal nocursorline")
+        else:    
+#RBW /end        
+            note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
+            NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
+            buffer[:] = note_titles
+
+            # map <CR> to call get_note()
+            vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
     else:
         print "Error: Unable to connect to server."
-
-    # map <CR> to call get_note()
-    vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 elif param == "-d":
     vim.command("call <SID>TrashCurrentNote()")
@@ -436,3 +455,4 @@ endfunction
 
 " set the simplenote command
 command! -nargs=1 Simplenote :call <SID>SimpleNote(<f-args>)
+
