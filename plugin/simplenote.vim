@@ -9,6 +9,7 @@
 "   :Simplenote -l
 "   :Simplenote -u
 "   :Simplenote -d
+"   :Simplenote -n
 "
 "
 "
@@ -49,11 +50,8 @@ endif
 " Helper functions
 "
 
-" the id of the note currently edited is stored in a global variable
-let g:simplenote_current_note_id = ""
-
 " Everything is displayed in a scratch buffer named SimpleNote
-let g:simplenote_scratch_buffer = 'SimpleNote'
+let g:simplenote_scratch_buffer = 'Simplenote'
 
 " Function that opens or navigates to the scratch buffer.
 function! s:ScratchBufferOpen(name)
@@ -346,58 +344,172 @@ class Request(urllib2.Request):
 
 
 
+
+import vim
+import time
+from threading import Thread
+from Queue import Queue
+
+DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
+SN_USER = vim.eval("s:user")
+SN_PASSWORD = vim.eval("s:password")
+
+class SimplenoteVimInterface(object):
+    """ Interface class to provide functions for interacting with VIM """
+
+    def __init__(self, username, password):
+        self.simplenote = Simplenote(username, password)
+        self.note_index = []
+        self.current_note = ""
+
+    def get_current_note(self):
+        """ returns the key of the currently edited note """
+        return self.current_note
+
+    def set_current_note(self, key):
+        """ sets the key of the currently edited note """
+        self.current_note = key
+
+    def format_title(self, note):
+        """ function to format the title for a note object
+
         Arguments:
         note -- note object to format the title for
 
         Returns the formatted title
 
-    """
-    # fetch first line and display as title
-    note_lines = note["content"].split("\n")
-    # format date
-    mt = time.localtime(float(note["modifydate"]))
-    mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
-    if len(note_lines) > 0:
-        title = "%s [%s]" % (note_lines[0], mod_time)
-    else:
-        title = "%s [%s]" % (note["key"], mod_time)
+        """
+        # fetch first line and display as title
+        note_lines = note["content"].split("\n")
+        # format date
+        mt = time.localtime(float(note["modifydate"]))
+        mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
+        if len(note_lines) > 0:
+            title = "%s [%s]" % (note_lines[0], mod_time)
+        else:
+            title = "%s [%s]" % (note["key"], mod_time)
 
-    return (str(title)[0:80])
+        return (str(title)[0:80])
+
+
+    def get_notes_from_keys(self, key_list):
+        """ fetch all note objects for a list of keys via threads and return
+        them in a list
+
+        Arguments:
+        key_list - list of keys to fetch the key from
+
+        Returns list of fetched notes
+        """
+        queue = Queue()
+        note_list = []
+        for key in key_list:
+            queue.put(key)
+            t = NoteFetcher(queue, note_list, self.simplenote)
+            t.start()
+
+        queue.join()
+        return note_list
+
+    def scratch_buffer(self, sb_name = DEFAULT_SCRATCH_NAME):
+        """ Opens a scratch buffer from python
+
+        Arguments:
+        sb_name - name of the scratch buffer
+        """
+        vim.command("call s:ScratchBufferOpen('%s')" % sb_name)
+
+    def display_note_in_scratch_buffer(self):
+        """ displays the note corresponding to the given key in the scratch
+        buffer
+        """
+        vim.command("unmap <buffer> <CR>")
+        # get the notes id which is shown in brackets in the current line
+        line, col = vim.current.window.cursor
+        note_id = NOTE_INDEX[int(line) - 1]
+        # store it as a global script variable
+        self.set_current_note(note_id)
+        note, status = self.simplenote.get_note(note_id)
+        buffer = vim.current.buffer
+        # remove cursorline
+        vim.command("setlocal nocursorline")
+        buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+
+    def update_note_from_current_buffer(self):
+        """ updates the currently displayed note to the web service """
+        note_id = self.get_current_note()
+        content = "\n".join(str(line) for line in vim.current.buffer[:])
+        note, status = self.simplenote.update_note({"content": content,
+                                                  "key": note_id})
+        if status == 0:
+            print "Update successful."
+        else:
+            print "Update failed.: %s" % note
+
+    def trash_current_note(self):
+        """ trash the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.trash_note(note_id)
+        if status == 0:
+            print "Note moved to trash."
+        else:
+            print "Moving note to trash failed.: %s" % note
+
+    def create_new_note_from_current_buffer(self):
+        """ get content of the current buffer and create new note """
+        content = "\n".join(str(line) for line in vim.current.buffer[:])
+        note, status = self.simplenote.update_note({"content": content})
+        if status == 0:
+            self.set_current_note(note["key"])
+            print "New note created."
+        else:
+            print "Update failed.: %s" % key
+
+    def list_note_index_in_scratch_buffer(self):
+        """ get all available notes and display them in a scratchbuffer """
+        # Initialize the scratch buffer
+        scratch_buffer()
+        # clear global note id storage
+        self.set_current_note("")
+        buffer = vim.current.buffer
+        note_list, status = self.simplenote.get_note_list()
+        # set global notes index object to notes
+        if status == 0:
+            note_titles = []
+            notes = self.get_notes_from_keys([n['key'] for n in note_list])
+            notes.sort(key=lambda k: k['modifydate'])
+            notes.reverse()
+            note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
+            self.note_index = [n["key"] for n in notes if n["deleted"] != 1]
+            buffer[:] = note_titles
+
+        else:
+            print "Error: Unable to connect to server."
+
+        # map <CR> to call get_note()
+        vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+
 
 class NoteFetcher(Thread):
     """ class to fetch a note running in a thread
 
-        The note key is fetched from a queue object and
-        the note is then retrieved and put in
+    The note key is fetched from a queue object and
+    the note is then retrieved and put in
 
     """
-    def __init__(self, queue, note_list):
+    def __init__(self, queue, note_list, simplenote):
         Thread.__init__(self)
         self.queue = queue
         self.note_list = note_list
+        self.simplenote = simplenote
 
     def run(self):
         key = self.queue.get()
-        note = get_note(SN_USER, get_token(), key)
+        note, status = self.simplenote.get_note(key)
         self.note_list.append(note)
         self.queue.task_done()
 
-def get_notes_from_keys(key_list):
-    """ fetch all note objects for a list of keys via threads and return them
-        in a list
-
-    """
-    queue = Queue()
-    note_list = []
-    for key in key_list:
-        queue.put(key)
-        t = NoteFetcher(queue, note_list)
-        t.start()
-
-    queue.join()
-    return note_list
-
-
+interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
 
 
 ENDPYTHON
@@ -410,43 +522,7 @@ ENDPYTHON
 " function to get a note and display in current buffer
 function! s:GetNoteToCurrentBuffer()
 python << EOF
-# unmap <CR>
-vim.command("unmap <buffer> <CR>")
-# get the notes id which is shown in brackets in the current line
-line, col = vim.current.window.cursor
-note_id = NOTE_INDEX[int(line) - 1]
-# store it as a global script variable
-vim.command(""" let g:simplenote_current_note_id="%s" """ % note_id)
-note = get_note(SN_USER, get_token(), note_id)
-buffer = vim.current.buffer
-# remove cursorline
-vim.command("setlocal nocursorline")
-buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-EOF
-endfunction
-
-" function to update the note from the current buffer
-function! s:UpdateNoteFromCurrentBuffer()
-python << EOF
-note_id = vim.eval("g:simplenote_current_note_id")
-content = "\n".join(str(line) for line in vim.current.buffer[:])
-result, err_msg = update_note_content(SN_USER, get_token(), content, note_id)
-if result == True:
-    print "Update successful."
-else:
-    print "Update failed.: %s" % err_msg
-EOF
-endfunction
-
-" function to trash the note in the current buffer
-function! s:TrashCurrentNote()
-python << EOF
-note_id = vim.eval("g:simplenote_current_note_id")
-result, err_msg = trash_note(SN_USER, get_token(), note_id)
-if result == True:
-    print "Note moved to trash."
-else:
-    print "Moving note to trash failed.: %s" % err_msg
+interface.display_note_in_scratch_buffer()
 EOF
 endfunction
 
@@ -454,45 +530,18 @@ function! s:SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
 if param == "-l":
-    # Initialize the scratch buffer
-    scratch_buffer()
-    # clear global note id storage
-    vim.command(""" let g:simplenote_current_note_id="" """)
-    buffer = vim.current.buffer
-    auth_token = get_token()
-    note_list, status = get_note_list(SN_USER, auth_token)
-    # set global notes index object to notes
-    global NOTE_INDEX
-    NOTE_INDEX = []
-    if status == 0:
-        note_titles = []
-        notes = get_notes_from_keys(note_list)
-        notes.sort(key=lambda k: k['modifydate'])
-        notes.reverse()
-        note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
-        NOTE_INDEX = [n["key"] for n in notes if n["deleted"] != 1]
-        buffer[:] = note_titles
-
-    else:
-        print "Error: Unable to connect to server."
-
-    # map <CR> to call get_note()
-    vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+    interface.list_note_index_in_scratch_buffer()
 
 elif param == "-d":
-    vim.command("call <SID>TrashCurrentNote()")
-    vim.command("call <SID>SimpleNote(\"-l\")")
+    interface.trash_current_note()
+    interface.list_note_index_in_scratch_buffer()
 
 elif param == "-u":
-    vim.command("call <SID>UpdateNoteFromCurrentBuffer()")
+    interface.update_note_from_current_buffer()
+
 elif param == "-n":
-    content = "\n".join(str(line) for line in vim.current.buffer[:])
-    result, note = update_note_content(SN_USER, get_token(), content)
-    if result == True:
-        vim.command(""" let g:simplenote_current_note_id="%s" """ % note["key"])
-        print "New note created."
-    else:
-        print "Update failed.: %s" % key
+    interface.create_new_note_from_current_buffer()
+
 else:
     print "Unknown argument"
 
