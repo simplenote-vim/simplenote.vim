@@ -69,11 +69,11 @@ function! s:ScratchBufferOpen(name)
             exe "split +buffer" . scr_bufnum
         endif
     endif
-    call ScratchBuffer()
+    call s:ScratchBuffer()
 endfunction
 
 " After opening the scratch buffer, this sets some properties for it.
-function! ScratchBuffer()
+function! s:ScratchBuffer()
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -360,15 +360,21 @@ class SimplenoteVimInterface(object):
     def __init__(self, username, password):
         self.simplenote = Simplenote(username, password)
         self.note_index = []
-        self.current_note = ""
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
-        return self.current_note
+        filename = vim.current.buffer.name
+        key = filename.split("/")
+        return key[-1]
 
     def set_current_note(self, key):
         """ sets the key of the currently edited note """
-        self.current_note = key
+        vim.command(""" silent exe "file %s" """ % key)
+
+    def transform_to_scratchbuffer(self):
+        """ transforms the current buffer into a scratchbuffer """
+        vim.command("call s:ScratchBuffer()")
+        vim.command("setlocal nocursorline")
 
     def format_title(self, note):
         """ function to format the title for a note object
@@ -423,13 +429,13 @@ class SimplenoteVimInterface(object):
         """ displays the note corresponding to the given key in the scratch
         buffer
         """
-        vim.command("unmap <buffer> <CR>")
         # get the notes id which is shown in brackets in the current line
         line, col = vim.current.window.cursor
-        note_id = NOTE_INDEX[int(line) - 1]
+        note_id = self.note_index[int(line) - 1]
         # store it as a global script variable
-        self.set_current_note(note_id)
         note, status = self.simplenote.get_note(note_id)
+        vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
+        self.set_current_note(note_id)
         buffer = vim.current.buffer
         # remove cursorline
         vim.command("setlocal nocursorline")
@@ -460,17 +466,17 @@ class SimplenoteVimInterface(object):
         content = "\n".join(str(line) for line in vim.current.buffer[:])
         note, status = self.simplenote.update_note({"content": content})
         if status == 0:
+            self.transform_to_scratchbuffer()
             self.set_current_note(note["key"])
             print "New note created."
         else:
-            print "Update failed.: %s" % key
+            print "Update failed.: %s" % note["key"]
 
     def list_note_index_in_scratch_buffer(self):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
-        scratch_buffer()
+        self.scratch_buffer()
         # clear global note id storage
-        self.set_current_note("")
         buffer = vim.current.buffer
         note_list, status = self.simplenote.get_note_list()
         # set global notes index object to notes
