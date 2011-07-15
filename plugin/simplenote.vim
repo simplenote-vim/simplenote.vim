@@ -485,7 +485,7 @@ class SimplenoteVimInterface(object):
             notes = self.get_notes_from_keys([n['key'] for n in note_list])
             notes.sort(key=lambda k: k['modifydate'])
             notes.reverse()
-            note_titles = [format_title(n) for n in notes if n["deleted"] != 1]
+            note_titles = [self.format_title(n) for n in notes if n["deleted"] != 1]
             self.note_index = [n["key"] for n in notes if n["deleted"] != 1]
             buffer[:] = note_titles
 
