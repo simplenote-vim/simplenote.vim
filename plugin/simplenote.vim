@@ -439,6 +439,8 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # remove cursorline
         vim.command("setlocal nocursorline")
+        vim.command("set buftype=acwrite")
+        vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
 
     def update_note_from_current_buffer(self):
@@ -529,6 +531,13 @@ ENDPYTHON
 function! s:GetNoteToCurrentBuffer()
 python << EOF
 interface.display_note_in_scratch_buffer()
+EOF
+endfunction
+
+" function to update note from buffer content
+function! s:UpdateNoteFromCurrentBuffer()
+python << EOF
+interface.update_note_from_current_buffer()
 EOF
 endfunction
 
