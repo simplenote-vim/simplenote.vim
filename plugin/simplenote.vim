@@ -460,8 +460,19 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.trash_note(note_id)
         if status == 0:
             print "Note moved to trash."
+            vim.command("quit!")
         else:
             print "Moving note to trash failed.: %s" % note
+
+    def delete_current_note(self):
+        """ trash the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.delete_note(note_id)
+        if status == 0:
+            print "Note deleted."
+            vim.command("quit!")
+        else:
+            print "Deleting note failed.: %s" % note
 
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
@@ -549,13 +560,15 @@ if param == "-l":
 
 elif param == "-d":
     interface.trash_current_note()
-    interface.list_note_index_in_scratch_buffer()
 
 elif param == "-u":
     interface.update_note_from_current_buffer()
 
 elif param == "-n":
     interface.create_new_note_from_current_buffer()
+
+elif param == "-D":
+    interface.delete_current_note()
 
 else:
     print "Unknown argument"
