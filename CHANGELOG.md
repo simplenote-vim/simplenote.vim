@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 (07/17/2011)
+
+- UTF-8 support
+- create new notes from buffer via :Simplenote -n
+- update note when buffer is written
+- support direct deletion of notes via :Simplenote -D
+- support tagging of notes via :Simplenote -t
+- distinct buffer for every note
+- use simplenote.py for API interaction
+- encapsulate interface methods in Python class
+
 ## 0.2.0 (05/30/2011)
 
 - change interface function to Simplenote
