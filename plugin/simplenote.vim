@@ -454,6 +454,23 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note
 
+    def set_tags_for_current_note(self):
+        """ set tags for the current note"""
+        note_id = self.get_current_note()
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            tags = vim.eval('input("Enter tags: ", "%s")'
+                            % ",".join(note["tags"]))
+            note["tags"] = tags.split(",")
+            n, st = self.simplenote.update_note(note)
+            if st == 0:
+                print "Tags updated."
+            else:
+                print "Tags could not be updated."
+        else:
+            print "Error fetching note data."
+
+
     def trash_current_note(self):
         """ trash the currently displayed note """
         note_id = self.get_current_note()
@@ -569,6 +586,9 @@ elif param == "-n":
 
 elif param == "-D":
     interface.delete_current_note()
+
+elif param == "-t":
+    interface.set_tags_for_current_note()
 
 else:
     print "Unknown argument"
