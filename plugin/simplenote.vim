@@ -98,6 +98,7 @@ python << ENDPYTHON
     :license: MIT, see LICENSE for more details.
 """
 
+import urllib
 import urllib2
 import base64
 import json
@@ -204,7 +205,7 @@ class Simplenote(object):
                                               self.get_token(), self.username)
         else:
             url = '%s?auth=%s&email=%s' % (DATA_URL, self.get_token(), self.username)
-        request = Request(url, json.dumps(note))
+        request = Request(url, urllib.quote(json.dumps(note)))
         response = ""
         try:
             response = urllib2.urlopen(request).read()
