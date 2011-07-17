@@ -35,7 +35,12 @@ If you want to delete the note, execute
 
     :Simplenote -d
 
-This moves the current note to the trash.
+This moves the current note to the trash. If you want to completely delete a
+note, use
+
+    :Simplenote -D
+
+as it will directly delete the note and not only move it to the trash.
 There also exists a command to create new notes.
 
     :Simplenote -n
@@ -43,6 +48,15 @@ There also exists a command to create new notes.
 creates a new note with the contents of the current buffer. Once the note is
 created, `:Simplenote -u` updates the newly created note, also with the
 contents of the current buffer.
+Tagging notes is also supported. If you enter
+
+    :Simplenote -t
+
+on a buffer containing a valid note, you get an input dialog, prefilled with
+existing comma-separated tags for the note, which you can then edit. Tags have
+to be comma separated and hitting `Enter` will then update the note with the
+new tag list.
+
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
