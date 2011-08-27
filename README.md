@@ -57,12 +57,19 @@ existing comma-separated tags for the note, which you can then edit. Tags have
 to be comma separated and hitting `Enter` will then update the note with the
 new tag list.
 
-
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
 really play nice together, basic parts of this plugin are implemented in
 python. Therefore your vim has to be compiled with python support in order to
 use this plugin.
+
+## Usage behind proxy
+Since the plugin uses Python's urllib2 for making HTTP requests, you just have to
+add these lines (with the correct values) to your `.vimrc`:
+
+    let $HTTP_PROXY = 'http://<proxyuser>:<proxypassword>@<proxyurl>:<proxyport>'
+    let $HTTPS_PROXY = 'http://<proxyuser>:<proxypassword>@<proxyurl>:<proxyport>'
+
 
 ## Development
 - [Planned features](http://www.pivotaltracker.com/projects/288621)
