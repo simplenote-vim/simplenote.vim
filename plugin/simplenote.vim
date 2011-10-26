@@ -365,9 +365,8 @@ class SimplenoteVimInterface(object):
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
-        filename = vim.current.buffer.name
-        key = filename.split("/")
-        return key[-1]
+        key = vim.eval("expand('%:t')")
+        return key
 
     def set_current_note(self, key):
         """ sets the key of the currently edited note """
