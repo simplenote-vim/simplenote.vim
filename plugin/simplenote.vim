@@ -525,7 +525,7 @@ class SimplenoteVimInterface(object):
             print "Error: Unable to connect to server."
 
         # map <CR> to call get_note()
-        vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+        vim.command("map <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 
 class NoteFetcher(Thread):
