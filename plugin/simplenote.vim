@@ -528,7 +528,7 @@ class SimplenoteVimInterface(object):
 
         # map <CR> to call get_note()
         vim.command("setl nomodifiable")
-        vim.command("nnoremap <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+        vim.command("map <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 
 class NoteFetcher(Thread):
