@@ -377,6 +377,8 @@ class SimplenoteVimInterface(object):
         """ transforms the current buffer into a scratchbuffer """
         vim.command("call s:ScratchBuffer()")
         vim.command("setlocal nocursorline")
+        vim.command("set buftype=acwrite")
+        vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
 
     def format_title(self, note):
         """ function to format the title for a note object
