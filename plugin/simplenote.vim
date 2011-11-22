@@ -102,7 +102,10 @@ python << ENDPYTHON
 import urllib
 import urllib2
 import base64
-import json
+try: 
+    import simplejson as json
+except ImportError: 
+    import json
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data'
