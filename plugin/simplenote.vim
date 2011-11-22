@@ -442,6 +442,7 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # remove cursorline
         vim.command("setlocal nocursorline")
+        vim.command("setlocal modifiable")
         vim.command("set buftype=acwrite")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
