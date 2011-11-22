@@ -21,8 +21,9 @@ with git for example), you can just set the variables in a different file (like
 The plugin provides several commands to interact with your Simplenote account.
 In order to retrieve a list of your notes execute
 
-    :Simplenote -l
+    :Simplenote -l X
 
+Where X is the number of notes to retrieve; omit X to retrieve all. 
 This opens a new scratch buffer with a line-wise listing of your notes. You can
 navigate through these with the arrow keys and enter a note on hitting
 `Return`. Now that you see the content of the note, you can interact with this

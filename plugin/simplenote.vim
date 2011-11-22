@@ -6,7 +6,7 @@
 " License: MIT
 " Version: 0.3.0
 " Usage:
-"   :Simplenote -l => list all notes
+"   :Simplenote -l X => list X number of notes; omit X to list all
 "   :Simplenote -u => update a note from buffer
 "   :Simplenote -d => move note to trash
 "   :Simplenote -n => create new note from buffer
@@ -239,8 +239,15 @@ class Simplenote(object):
         else:
             return "No string or valid note.", -1
 
-    def get_note_list(self):
+    def get_note_list(self, qty=float("inf")):
         """ function to get the note list
+
+        The function can be passed an optional argument to limit the
+        size of the list returned. If omitted a list of all notes is
+        returned.
+
+        Arguments:
+            - quantity (integer number): of notes to list
 
         Returns:
             An array of note objects with all properties set except
@@ -253,8 +260,12 @@ class Simplenote(object):
         response = {}
         notes = { "data" : [] }
 
-        # get the full note index
-        params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
+        # get the note index
+        if qty < NOTE_FETCH_LENGTH:
+            params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
+                                                 qty)
+        else:
+            params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
                                                  NOTE_FETCH_LENGTH)
         # perform initial HTTP request
         try:
@@ -265,8 +276,11 @@ class Simplenote(object):
             status = -1
 
         # get additional notes if bookmark was set in response
-        while response.has_key("mark"):
-            vals = (self.get_token(), self.username, response["mark"], NOTE_FETCH_LENGTH)
+        while response.has_key("mark") and len(notes["data"]) < qty:
+            if (qty - len(notes["data"])) < NOTE_FETCH_LENGTH:
+                vals = (self.get_token(), self.username, response["mark"], qty - len(notes["data"]))
+            else:
+                vals = (self.get_token(), self.username, response["mark"], NOTE_FETCH_LENGTH)
             params = 'auth=%s&email=%s&mark=%s&length=%s' % vals
 
             # perform the actual HTTP request
@@ -504,13 +518,13 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note["key"]
 
-    def list_note_index_in_scratch_buffer(self):
+    def list_note_index_in_scratch_buffer(self, qty=float("inf")):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
         # clear global note id storage
         buffer = vim.current.buffer
-        note_list, status = self.simplenote.get_note_list()
+        note_list, status = self.simplenote.get_note_list(qty)
         # set global notes index object to notes
         if status == 0:
             note_titles = []
@@ -573,23 +587,26 @@ endfunction
 
 function! s:SimpleNote(param)
 python << EOF
-param = vim.eval("a:param")
-if param == "-l":
-    interface.list_note_index_in_scratch_buffer()
+param = vim.eval("a:param").split(" ")
+if param[0] == "-l":
+    try:
+        interface.list_note_index_in_scratch_buffer(int(float(param[1])))
+    except:
+        interface.list_note_index_in_scratch_buffer()
 
-elif param == "-d":
+elif param[0] == "-d":
     interface.trash_current_note()
 
-elif param == "-u":
+elif param[0] == "-u":
     interface.update_note_from_current_buffer()
 
-elif param == "-n":
+elif param[0] == "-n":
     interface.create_new_note_from_current_buffer()
 
-elif param == "-D":
+elif param[0] == "-D":
     interface.delete_current_note()
 
-elif param == "-t":
+elif param[0] == "-t":
     interface.set_tags_for_current_note()
 
 else:
