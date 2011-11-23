@@ -78,7 +78,6 @@ function! s:ScratchBuffer()
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
-    setlocal buflisted
     setlocal cursorline
     setlocal filetype=txt
 endfunction
@@ -379,7 +378,9 @@ class SimplenoteVimInterface(object):
         """ transforms the current buffer into a scratchbuffer """
         vim.command("call s:ScratchBuffer()")
         vim.command("setlocal nocursorline")
-        vim.command("set buftype=acwrite")
+        vim.command("setlocal buftype=acwrite")
+        vim.command("setlocal bufhidden=delete")
+        vim.command("setlocal nomodified")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
 
     def format_title(self, note):
@@ -446,9 +447,11 @@ class SimplenoteVimInterface(object):
         # remove cursorline
         vim.command("setlocal nocursorline")
         vim.command("setlocal modifiable")
-        vim.command("set buftype=acwrite")
+        vim.command("setlocal buftype=acwrite")
+        vim.command("setlocal bufhidden=delete")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+        vim.command("setlocal nomodified")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service """
@@ -458,6 +461,7 @@ class SimplenoteVimInterface(object):
                                                   "key": note_id})
         if status == 0:
             print "Update successful."
+            vim.command("setlocal nomodified")
         else:
             print "Update failed.: %s" % note
 
