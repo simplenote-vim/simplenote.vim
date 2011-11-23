@@ -513,6 +513,7 @@ class SimplenoteVimInterface(object):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
+        vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
         note_list, status = self.simplenote.get_note_list()
