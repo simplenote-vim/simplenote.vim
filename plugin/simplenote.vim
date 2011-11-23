@@ -4,7 +4,7 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 0.3.0
+" Version: 0.3.1
 " Usage:
 "   :Simplenote -l => list all notes
 "   :Simplenote -u => update a note from buffer
