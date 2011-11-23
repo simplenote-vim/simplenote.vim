@@ -4,7 +4,7 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 0.3.0
+" Version: 0.3.1
 " Usage:
 "   :Simplenote -l => list all notes
 "   :Simplenote -u => update a note from buffer
@@ -78,7 +78,6 @@ function! s:ScratchBuffer()
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
-    setlocal buflisted
     setlocal cursorline
     setlocal filetype=txt
 endfunction
@@ -102,7 +101,10 @@ python << ENDPYTHON
 import urllib
 import urllib2
 import base64
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data'
@@ -365,9 +367,8 @@ class SimplenoteVimInterface(object):
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
-        filename = vim.current.buffer.name
-        key = filename.split("/")
-        return key[-1]
+        key = vim.eval("expand('%:t')")
+        return key
 
     def set_current_note(self, key):
         """ sets the key of the currently edited note """
@@ -377,6 +378,10 @@ class SimplenoteVimInterface(object):
         """ transforms the current buffer into a scratchbuffer """
         vim.command("call s:ScratchBuffer()")
         vim.command("setlocal nocursorline")
+        vim.command("setlocal buftype=acwrite")
+        vim.command("setlocal bufhidden=delete")
+        vim.command("setlocal nomodified")
+        vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
 
     def format_title(self, note):
         """ function to format the title for a note object
@@ -441,9 +446,12 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # remove cursorline
         vim.command("setlocal nocursorline")
-        vim.command("set buftype=acwrite")
+        vim.command("setlocal modifiable")
+        vim.command("setlocal buftype=acwrite")
+        vim.command("setlocal bufhidden=delete")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+        vim.command("setlocal nomodified")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service """
@@ -453,6 +461,7 @@ class SimplenoteVimInterface(object):
                                                   "key": note_id})
         if status == 0:
             print "Update successful."
+            vim.command("setlocal nomodified")
         else:
             print "Update failed.: %s" % note
 
@@ -508,6 +517,7 @@ class SimplenoteVimInterface(object):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
+        vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
         note_list, status = self.simplenote.get_note_list()
@@ -525,7 +535,8 @@ class SimplenoteVimInterface(object):
             print "Error: Unable to connect to server."
 
         # map <CR> to call get_note()
-        vim.command("map <buffer> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+        vim.command("setl nomodifiable")
+        vim.command("map <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 
 class NoteFetcher(Thread):
