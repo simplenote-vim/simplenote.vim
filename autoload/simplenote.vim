@@ -582,7 +582,7 @@ interface.update_note_from_current_buffer()
 EOF
 endfunction
 
-function! s:SimpleNote(param)
+function! simplenote#SimpleNote(param)
 python << EOF
 param = vim.eval("a:param")
 if param == "-l":
@@ -609,6 +609,3 @@ else:
 EOF
 endfunction
 
-
-" set the simplenote command
-command! -nargs=1 Simplenote :call <SID>SimpleNote(<f-args>)
