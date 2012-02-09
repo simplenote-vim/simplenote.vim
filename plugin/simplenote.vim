@@ -16,4 +16,12 @@
 " This is only the interface part of the script. For the actual implementation
 " see plugin/simplenote.vim
 "
+
+if &cp || (exists('g:loaded_simplenote_vim') && g:loaded_simplenote_vim)
+  finish
+endif
+let g:loaded_simplenote_vim = 1
+
+" set the simplenote command
 command! -nargs=1 Simplenote :call simplenote#SimpleNote(<f-args>)
+
