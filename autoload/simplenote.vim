@@ -38,6 +38,14 @@ else
   let s:password = ""
 endif
 
+" vertical buffer
+if exists("g:SimplenoteVertical")
+  let s:vbuff = g:SimplenoteVertical
+else
+  let s:vbuff = 0
+endif
+
+
 if (s:user == "") || (s:password == "")
   let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
   let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
@@ -55,10 +63,18 @@ let g:simplenote_scratch_buffer = 'Simplenote'
 
 " Function that opens or navigates to the scratch buffer.
 function! s:ScratchBufferOpen(name)
+	let exe_new = "new "
+	let exe_split = "split "
+
+	if s:vbuff > 0
+		let exe_new = "vert " . exe_new
+		let exe_split = "vert " . exe_split
+	endif
+	
 
     let scr_bufnum = bufnr(a:name)
     if scr_bufnum == -1
-        exe "new " . a:name
+        exe exe_new . a:name
     else
         let scr_winnum = bufwinnr(scr_bufnum)
         if scr_winnum != -1
@@ -66,7 +82,7 @@ function! s:ScratchBufferOpen(name)
                 exe scr_winnum . "wincmd w"
             endif
         else
-            exe "split +buffer" . scr_bufnum
+            exe  exe_split . "+buffer" . scr_bufnum
         endif
     endif
     call s:ScratchBuffer()
