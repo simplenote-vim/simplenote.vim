@@ -95,6 +95,7 @@ function! s:ScratchBuffer()
     setlocal noswapfile
     setlocal cursorline
     setlocal filetype=txt
+	setlocal nowrap
 endfunction
 
 
@@ -366,6 +367,7 @@ class Request(urllib2.Request):
 
 import vim
 import time
+import math as m
 from threading import Thread
 from Queue import Queue
 
@@ -409,15 +411,33 @@ class SimplenoteVimInterface(object):
         """
         # fetch first line and display as title
         note_lines = note["content"].split("\n")
+
+        # get window width for proper formatting
+        width = vim.current.window.width
+
+        # Make room for the numbers regardless of their presence
+		# min num width is 5
+        width -= max(m.floor(m.log(len(vim.current.buffer))) + 2, 5)
+        width = int(width)
+
+
         # format date
         mt = time.localtime(float(note["modifydate"]))
-        mod_time = time.strftime("%a, %d %b %Y %H:%M:%S", mt)
-        if len(note_lines) > 0:
-            title = "%s [%s]" % (note_lines[0], mod_time)
-        else:
-            title = "%s [%s]" % (note["key"], mod_time)
+        mod_time = time.strftime("[%a, %d %b %Y %H:%M:%S]", mt)
 
-        return (str(title)[0:80])
+        if len(note_lines) > 0:
+            title = str(note_lines[0])
+        else:
+            title = str(note["key"])
+
+        # Compress everything into the appropriate number of columns
+        title_width = width - len(mod_time) - 1
+        if len(title) > title_width:
+            title = title[:title_width]
+        elif len(title) < title_width:
+            title = title.ljust(title_width)
+
+        return "%s %s" % (title, mod_time)
 
 
     def get_notes_from_keys(self, key_list):
