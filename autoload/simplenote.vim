@@ -95,7 +95,6 @@ function! s:ScratchBuffer()
     setlocal noswapfile
     setlocal cursorline
     setlocal filetype=txt
-	setlocal nowrap
 endfunction
 
 
@@ -416,7 +415,7 @@ class SimplenoteVimInterface(object):
         width = vim.current.window.width
 
         # Make room for the numbers regardless of their presence
-		# min num width is 5
+        # min num width is 5
         width -= max(m.floor(m.log(len(vim.current.buffer))) + 2, 5)
         width = int(width)
 
@@ -571,6 +570,7 @@ class SimplenoteVimInterface(object):
 
         # map <CR> to call get_note()
         vim.command("setl nomodifiable")
+        vim.command("setlocal nowrap")
         vim.command("map <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 
