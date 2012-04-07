@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>simplenote.vim by mrtazz</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>simplenote.vim</h1>
+<p>vim plugin to interact with the simplenote service</p>
+        <p class="view"><a href="https://github.com/mrtazz/simplenote.vim">View the Project on GitHub <small>mrtazz/simplenote.vim</small></a></p>
+        <ul>
+          <li><a href="https://github.com/mrtazz/simplenote.vim/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mrtazz/simplenote.vim/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mrtazz/simplenote.vim">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>simplenote.vim</h1>
+
+<p>A vim plugin to interact with the <a href="http://simplenoteapp.com/">simplenote</a> API. You can create an
+account <a href="https://simple-note.appspot.com/create">here</a> if you don't already
+have one.
+Now you can take simple notes directly from your favourite editor.</p>
+
+<p><img src="http://mrtazz.com/simplenote.vim/list.png" alt="simplenote listing"></p>
+
+<h2>Installation</h2>
+
+<p>The simplest way is to copy <code>plugin</code> and <code>autoload</code> into your <code>.vim</code> directory.
+But you really want to use <a href="http://github.com/tpope/vim-pathogen">pathogen</a> for your plugin management.</p>
+
+<p>Your credentials have to be stored in your <code>vimrc</code>:</p>
+
+<pre><code>let g:SimplenoteUsername = "your simplenote username"
+let g:SimplenotePassword = "your simplenote password"
+</code></pre>
+
+<p>If you don't want to have the credentials in your <code>vimrc</code> (if you manage it
+with git for example), you can just set the variables in a different file (like
+<code>~/.simplenoterc</code>) and source it with <code>source ~/.simplenoterc</code> in your <code>vimrc</code>.</p>
+
+<h2>Usage</h2>
+
+<p>The plugin provides several commands to interact with your Simplenote account.
+In order to retrieve a list of your notes execute</p>
+
+<pre><code>:Simplenote -l
+</code></pre>
+
+<p>This opens a new scratch buffer with a line-wise listing of your notes. You can
+navigate through these with the arrow keys and enter a note on hitting
+<code>Return</code>. Now that you see the content of the note, you can interact with this
+specific note:</p>
+
+<pre><code>:Simplenote -u
+</code></pre>
+
+<p>updates the content of the current note with the content of the current buffer.
+If you want to delete the note, execute</p>
+
+<pre><code>:Simplenote -d
+</code></pre>
+
+<p>This moves the current note to the trash. If you want to completely delete a
+note, use</p>
+
+<pre><code>:Simplenote -D
+</code></pre>
+
+<p>as it will directly delete the note and not only move it to the trash.
+There also exists a command to create new notes.</p>
+
+<pre><code>:Simplenote -n
+</code></pre>
+
+<p>creates a new note with the contents of the current buffer. Once the note is
+created, <code>:Simplenote -u</code> updates the newly created note, also with the
+contents of the current buffer.
+Tagging notes is also supported. If you enter</p>
+
+<pre><code>:Simplenote -t
+</code></pre>
+
+<p>on a buffer containing a valid note, you get an input dialog, prefilled with
+existing comma-separated tags for the note, which you can then edit. Tags have
+to be comma separated and hitting <code>Enter</code> will then update the note with the
+new tag list.</p>
+
+<h2>Dependencies</h2>
+
+<p>Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
+really play nice together, basic parts of this plugin are implemented in
+python. Therefore your vim has to be compiled with python support in order to
+use this plugin.</p>
+
+<h2>Usage behind proxy</h2>
+
+<p>Since the plugin uses Python's urllib2 for making HTTP requests, you just have to
+add these lines (with the correct values) to your <code>.vimrc</code>:</p>
+
+<pre><code>let $HTTP_PROXY = 'http://&lt;proxyuser&gt;:&lt;proxypassword&gt;@&lt;proxyurl&gt;:&lt;proxyport&gt;'
+let $HTTPS_PROXY = 'http://&lt;proxyuser&gt;:&lt;proxypassword&gt;@&lt;proxyurl&gt;:&lt;proxyport&gt;'
+</code></pre>
+
+<h2>Development</h2>
+
+<ul>
+<li><a href="https://github.com/mrtazz/simplenote.vim/issues">Bugs and issue tracker</a></li>
+</ul><h2>Thanks</h2>
+
+<p><a href="https://github.com/mattn" class="user-mention">@mattn</a>, <a href="https://github.com/tpope" class="user-mention">@tpope</a> and <a href="https://github.com/scrooloose" class="user-mention">@scrooloose</a> who write awesome vim plugins
+which I took as a basis to learn how to write vim plugins.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/mrtazz">mrtazz</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
