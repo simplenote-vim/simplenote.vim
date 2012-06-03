@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 (06/03/2012)
+
+- make pretty formatting for note list
+- allow vertical splitting of scratch buffer
+- listing command (-l) takes parameter of max notes to fetch
+- update to simplenote.py v0.2.0
+- incorrectly fetched notes are not displayed anymore
+
+## 0.4.0 (02/08/2012)
+
+- refactor into autload plugin
+
+## 0.3.1 (11/23/2011)
+
+- add documentation for usage behind proxy
+- buffer write command updates note
+
 ## 0.3.0 (07/17/2011)
 
 - UTF-8 support
