@@ -536,14 +536,14 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note["key"]
 
-    def list_note_index_in_scratch_buffer(self):
+    def list_note_index_in_scratch_buffer(self, qty=float("inf")):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
         vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
-        note_list, status = self.simplenote.get_note_list()
+        note_list, status = self.simplenote.get_note_list(qty)
         # set global notes index object to notes
         if status == 0:
             note_titles = []
@@ -607,11 +607,18 @@ interface.update_note_from_current_buffer()
 EOF
 endfunction
 
-function! simplenote#SimpleNote(param)
+function! simplenote#SimpleNote(param, ...)
 python << EOF
 param = vim.eval("a:param")
+optionsexist = True if (float(vim.eval("a:0"))>=1) else False
 if param == "-l":
-    interface.list_note_index_in_scratch_buffer()
+    if optionsexist:
+        try:
+            interface.list_note_index_in_scratch_buffer(int(float(vim.eval("a:1"))))
+        except:
+            interface.list_note_index_in_scratch_buffer()
+    else:
+        interface.list_note_index_in_scratch_buffer()
 
 elif param == "-d":
     interface.trash_current_note()
