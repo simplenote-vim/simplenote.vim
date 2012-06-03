@@ -578,7 +578,9 @@ class NoteFetcher(Thread):
     def run(self):
         key = self.queue.get()
         note, status = self.simplenote.get_note(key)
-        self.note_list.append(note)
+        if status != -1:
+          self.note_list.append(note)
+
         self.queue.task_done()
 
 interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
