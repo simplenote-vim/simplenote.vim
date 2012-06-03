@@ -70,7 +70,7 @@ function! s:ScratchBufferOpen(name)
 		let exe_new = "vert " . exe_new
 		let exe_split = "vert " . exe_split
 	endif
-	
+
 
     let scr_bufnum = bufnr(a:name)
     if scr_bufnum == -1
@@ -595,7 +595,7 @@ class SimplenoteVimInterface(object):
         # map <CR> to call get_note()
         vim.command("setl nomodifiable")
         vim.command("setlocal nowrap")
-        vim.command("map <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+        vim.command("nnoremap <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
 
 
 class NoteFetcher(Thread):
