@@ -21,16 +21,19 @@ with git for example), you can just set the variables in a different file (like
 The plugin provides several commands to interact with your Simplenote account.
 In order to retrieve a list of your notes execute
 
-    :Simplenote -l
+    :Simplenote -l X
 
-This opens a new scratch buffer with a line-wise listing of your notes. You can
-navigate through these with the arrow keys and enter a note on hitting
-`Return`. Now that you see the content of the note, you can interact with this
-specific note:
+Where X is the number of notes to retrieve; omit X to retrieve all.
+This opens a new scratch buffer with a line-wise listing of your notes. When
+`let g:SimplenoteVertical=1` is set, the scratch buffer is opened as a vertical
+rather than a horizontal split window. You can then navigate through the notes
+with the arrow keys and enter a note on hitting `Return`. Now that you see the
+content of the note, you can interact with this specific note:
 
     :Simplenote -u
 
 updates the content of the current note with the content of the current buffer.
+The buffer write command `:w` is also mapped to update the current note.
 If you want to delete the note, execute
 
     :Simplenote -d
@@ -72,7 +75,6 @@ add these lines (with the correct values) to your `.vimrc`:
 
 
 ## Development
-- [Planned features](http://www.pivotaltracker.com/projects/288621)
 - [Bugs and issue tracker](https://github.com/mrtazz/simplenote.vim/issues)
 
 ## Contribute

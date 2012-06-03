@@ -4,9 +4,9 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 0.4.0
+" Version: 0.5.0
 " Usage:
-"   :Simplenote -l => list all notes
+"   :Simplenote -l X => list X number of notes; omit X to list all
 "   :Simplenote -u => update a note from buffer
 "   :Simplenote -d => move note to trash
 "   :Simplenote -n => create new note from buffer
@@ -18,5 +18,5 @@
 "
 
 " set the simplenote command
-command! -nargs=1 Simplenote :call simplenote#SimpleNote(<f-args>)
+command! -nargs=+ Simplenote :call simplenote#SimpleNote(<f-args>)
 
