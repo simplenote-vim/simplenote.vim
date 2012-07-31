@@ -24,9 +24,10 @@ In order to retrieve a list of your notes execute
     :Simplenote -l X
 
 Where X is the number of notes to retrieve; omit X to retrieve all.
-This opens a new scratch buffer with a line-wise listing of your notes. When
-`let g:SimplenoteVertical=1` is set, the scratch buffer is opened as a vertical
-rather than a horizontal split window. You can then navigate through the notes
+This opens a new scratch buffer with a line-wise listing of your notes. With
+`let g:SimplenoteListHeight=X` set, the scratch buffer will come up X lines
+tall. Alternatively when `let g:SimplenoteVertical=1` is set, it is opened as a
+vertical rather than horizontal split window. You can then navigate through the
 with the arrow keys and enter a note on hitting `Return`. Now that you see the
 content of the note, you can interact with this specific note:
 
