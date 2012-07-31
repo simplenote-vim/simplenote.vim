@@ -45,6 +45,13 @@ else
   let s:vbuff = 0
 endif
 
+" line height
+if exists("g:SimplenoteListHeight")
+  let s:lineheight = g:SimplenoteListHeight
+else
+  let s:lineheight = 0
+endif
+
 
 if (s:user == "") || (s:password == "")
   let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
@@ -95,6 +102,10 @@ function! s:ScratchBuffer()
     setlocal noswapfile
     setlocal cursorline
     setlocal filetype=txt
+
+    if (s:vbuff == 0) && (s:lineheight > 0)
+        exe "resize " . s:lineheight
+    endif
 endfunction
 
 
