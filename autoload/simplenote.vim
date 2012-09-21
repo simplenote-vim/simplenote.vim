@@ -224,8 +224,12 @@ class Simplenote(object):
         if note.has_key("tags"):
             note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
 
+
         # determine whether to create a new note or updated an existing one
         if note.has_key("key"):
+            # set modification timestamp in milli-seconds since epoch
+            note["modifydate"] = int(round(time.time() * 1000))
+
             url = '%s/%s?auth=%s&email=%s' % (DATA_URL, note["key"],
                                               self.get_token(), self.username)
         else:
