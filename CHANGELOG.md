@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (09/30/2012)
+
+- add the possibility to restrict note listing to tags
+- respect pinned notes in note index
+- set initial number of notes to load to 100
+- add config option to specify a preferred filetype
+- add modifydate to update_note() function
+
 ## 0.5.0 (06/03/2012)
 
 - make pretty formatting for note list
