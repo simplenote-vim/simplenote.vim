@@ -602,7 +602,7 @@ class SimplenoteVimInterface(object):
         if status == 0:
             note_titles = []
             notes = self.get_notes_from_keys([n['key'] for n in note_list])
-            notes.sort(key=lambda k: k['modifydate'])
+            notes.sort(key=lambda k: (('pinned' in k['systemtags']), k['modifydate']))
             notes.reverse()
             note_titles = [self.format_title(n) for n in notes if n["deleted"] != 1]
             self.note_index = [n["key"] for n in notes if n["deleted"] != 1]
