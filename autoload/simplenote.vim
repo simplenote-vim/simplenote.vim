@@ -101,7 +101,11 @@ function! s:ScratchBuffer()
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal cursorline
-    setlocal filetype=txt
+    if exists("g:SimplenoteFiletype")
+      exe "setlocal filetype=" . g:SimplenoteFiletype
+    else
+      setlocal filetype=txt
+    endif
 
     if (s:vbuff == 0) && (s:lineheight > 0)
         exe "resize " . s:lineheight

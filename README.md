@@ -17,6 +17,10 @@ If you don't want to have the credentials in your `vimrc` (if you manage it
 with git for example), you can just set the variables in a different file (like
 `~/.simplenoterc`) and source it with `source ~/.simplenoterc` in your `vimrc`.
 
+By default all notes are treated as plain text. If you usually write all of
+your notes in some other format (like markdown or restructured text) you can
+set `g:SimplenoteFiletype` to the preferred vim filetype.
+
 ## Usage
 The plugin provides several commands to interact with your Simplenote account.
 In order to retrieve a list of your notes execute
