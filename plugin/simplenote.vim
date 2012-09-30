@@ -4,9 +4,10 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 0.5.0
+" Version: 0.6.0
 " Usage:
 "   :Simplenote -l X => list X number of notes; omit X to list all
+"   :Simplenote -l tags,moretags => list notes which feature one of the tags
 "   :Simplenote -u => update a note from buffer
 "   :Simplenote -d => move note to trash
 "   :Simplenote -n => create new note from buffer
