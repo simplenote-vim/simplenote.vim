@@ -590,7 +590,7 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note["key"]
 
-    def list_note_index_in_scratch_buffer(self, qty=float("inf")):
+    def list_note_index_in_scratch_buffer(self, qty=float("inf"), tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
@@ -598,14 +598,20 @@ class SimplenoteVimInterface(object):
         # clear global note id storage
         buffer = vim.current.buffer
         note_list, status = self.simplenote.get_note_list(qty)
+        if (len(tags) > 0):
+            note_list = [n for n in note_list if (n["deleted"] != 1 and
+                            len(set(n["tags"]).intersection(tags)) > 0)]
+        else:
+            note_list = [n for n in note_list if n["deleted"] != 1]
+
         # set global notes index object to notes
         if status == 0:
             note_titles = []
             notes = self.get_notes_from_keys([n['key'] for n in note_list])
             notes.sort(key=lambda k: (('pinned' in k['systemtags']), k['modifydate']))
             notes.reverse()
-            note_titles = [self.format_title(n) for n in notes if n["deleted"] != 1]
-            self.note_index = [n["key"] for n in notes if n["deleted"] != 1]
+            note_titles = [self.format_title(n) for n in notes]
+            self.note_index = [n["key"] for n in notes]
             buffer[:] = note_titles
 
         else:
@@ -669,9 +675,9 @@ optionsexist = True if (float(vim.eval("a:0"))>=1) else False
 if param == "-l":
     if optionsexist:
         try:
-            interface.list_note_index_in_scratch_buffer(int(float(vim.eval("a:1"))))
+            interface.list_note_index_in_scratch_buffer(qty=int(vim.eval("a:1")))
         except:
-            interface.list_note_index_in_scratch_buffer()
+            interface.list_note_index_in_scratch_buffer(tags=vim.eval("a:1").split(","))
     else:
         interface.list_note_index_in_scratch_buffer()
 
