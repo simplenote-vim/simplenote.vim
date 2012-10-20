@@ -455,6 +455,8 @@ class SimplenoteVimInterface(object):
         width -= max(m.floor(m.log(len(vim.current.buffer))) + 2, 5)
         width = int(width)
 
+        # get note tags
+        tags = "[%s]" % ",".join(sorted(note["tags"]))
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
@@ -465,14 +467,16 @@ class SimplenoteVimInterface(object):
         else:
             title = str(note["key"])
 
+
         # Compress everything into the appropriate number of columns
-        title_width = width - len(mod_time) - 1
+        title_meta_length = len(tags) + len(mod_time) + 1
+        title_width = width - title_meta_length
         if len(title) > title_width:
             title = title[:title_width]
         elif len(title) < title_width:
             title = title.ljust(title_width)
 
-        return "%s %s" % (title, mod_time)
+        return "%s %s %s" % (title, tags, mod_time)
 
 
     def get_notes_from_keys(self, key_list):
