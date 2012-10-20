@@ -68,6 +68,18 @@ existing comma-separated tags for the note, which you can then edit. Tags have
 to be comma separated and hitting `Enter` will then update the note with the
 new tag list.
 
+There is also an option to open notes directly from a given key:
+
+    :Simplenote -o <notekey>
+
+While this is not very useful in everyday usage, it can be used very
+effectively to create shortcuts to notes you use often. Example:
+
+    " add :Todo command
+    command Todo Simplenote -o <yourtodonotekey>
+
+Now you can jump to your todo note directly with `:Todo` in vim.
+
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
 really play nice together, basic parts of this plugin are implemented in
