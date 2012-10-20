@@ -506,14 +506,17 @@ class SimplenoteVimInterface(object):
         """
         vim.command("call s:ScratchBufferOpen('%s')" % sb_name)
 
-    def display_note_in_scratch_buffer(self):
+    def display_note_in_scratch_buffer(self, note_id=None):
         """ displays the note corresponding to the given key in the scratch
         buffer
         """
-        # get the notes id which is shown in brackets in the current line
-        line, col = vim.current.window.cursor
-        note_id = self.note_index[int(line) - 1]
-        # store it as a global script variable
+        # get the notes id which is shown in brackets in the current line if we
+        # didn't got passed a key
+        if note_id is None:
+            line, col = vim.current.window.cursor
+            note_id = self.note_index[int(line) - 1]
+
+        # get note and open it in scratch buffer
         note, status = self.simplenote.get_note(note_id)
         vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
         self.set_current_note(note_id)
@@ -692,6 +695,12 @@ elif param == "-D":
 
 elif param == "-t":
     interface.set_tags_for_current_note()
+
+elif param == "-o":
+    if optionsexist:
+        interface.display_note_in_scratch_buffer(vim.eval("a:1"))
+    else:
+        print "No notekey given."
 
 else:
     print "Unknown argument"
