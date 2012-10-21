@@ -1,0 +1,105 @@
+*simplenote.txt*  A vim plugin to interact with the Simplenote API.
+*simplenote*
+
+==============================================================================
+CONTENTS                                                 *simplenote-contents*
+
+    1.Intro...................................|simplenote-intro|
+    2.Commands................................|simplenote-commands|
+    3.Configuration...........................|simplenote-configuration|
+    4.Bugs....................................|simplenote-bugs|
+
+==============================================================================
+1. Intro                                                    *simplenote-intro*
+
+A vim plugin to interact with the Simplenote API. You can create an
+account at https://simple-note.appspot.com/create if you don't already
+have one. The plugin needs vim to be compiled with python support.
+
+Now you can take simple notes directly from your favourite editor.
+
+==============================================================================
+2. Commands                                              *simplenote-commands*
+
+:Simplenote -l {num|tags}                                    *:SimplenoteList*
+    List {num} notes or all notes with {tags} where {tags} is a comma separated
+    list of tags. When the parameter is omitted, all notes are fetched. This
+    command opens a split window to list notes. In the appearing split window,
+    notes can be selected with the cursor line and are opened in a new split
+    window with {CR}.
+
+:Simplenote -u                                             *:SimplenoteUpdate*
+    Update the currently opened note in the online service. The note is also
+    automatically updated when the buffer is written.
+
+:Simplenote -d                                              *:SimplenoteTrash*
+    Move the currently open note into the trash. The open buffer is
+    automatically closed after success.
+
+:Simplenote -D                                             *:SimplenoteDelete*
+    Delete the currently open note. The open buffer is automatically closed
+    after success.
+
+:Simplenote -n                                                *:SimplenoteNew*
+    Create a new note with the contents of the current buffer.
+
+:Simplenote -t                                               *:SimplenoteTags*
+    Show an input field to add tags to the note in the current buffer. The
+    input field is prepopulated with existing note tags.
+
+:Simplenote -o {notekey}                                     *:SimplenoteOpen*
+    Opens the note corresponding to the given {notekey}. This is useful for
+    configuring shortcuts to specific notes, e.g. >
+    " add :Todo command
+    command Todo Simplenote -o <yourtodonotekey>
+<
+
+==============================================================================
+3. Configuration                                    *simplenote-configuration*
+
+                                                       *'simplenote_username'*
+Default: not set
+Set the username for the Simplenote account to use. >
+    g:SimplenoteUsername="foo@example.com"
+<
+
+                                                       *'simplenote_password'*
+Default: not set
+Set the Password for the Simplenote account to use. >
+    g:SimplenotePassword="verysecret"
+<
+
+                                                    *'simplenote_list_height'*
+Default: 50% of the current buffer
+If set, the split windows will be opened with the given height in lines. >
+    g:SimplenoteListHeight=30
+<
+
+                                                       *'simplenote_vertical'*
+Default: 0
+If set, the split windows will be opened vertical instead of horizontal. >
+    g:SimplenoteVertical=1
+<
+
+                                                     *'simplenote_sort_order'*
+Default: "pinned,modifydate"
+Sets the sort order by which notes should be listed. Dates are sorted from
+newest to oldest and pinned and tags from existing to non-existing. Supported
+values are {pinned}, {tags}, {modifydate}, {createdate}. >
+    g:SimplenoteSortOrder="pinned,tags"
+<
+
+                                                          *'simplenote_proxy'*
+Default: Off
+If you are behind a proxy set these to the correct values. >
+    let $HTTP_PROXY = 'http://<user>:<password>@<proxyurl>:<proxyport>'
+    let $HTTPS_PROXY = 'http://<user>:<password>@<proxyurl>:<proxyport>'
+<
+
+==============================================================================
+4. Bugs                                                      *simplenote-bugs*
+
+For known bugs or to submit a new one, please visit
+https://github.com/mrtazz/simplenote.vim/issues
+
+vim: syntax=help nospell
