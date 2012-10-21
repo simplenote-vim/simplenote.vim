@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0 (10/21/2012)
+- add vim help file
+- add custom sort orders
+- add -o option to open note for given key directly
+- show notes tags in the list view
+
 ## 0.6.0 (09/30/2012)
 
 - add the possibility to restrict note listing to tags
