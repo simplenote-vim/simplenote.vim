@@ -89,6 +89,13 @@ values are {pinned}, {tags}, {modifydate}, {createdate}. >
     g:SimplenoteSortOrder="pinned,tags"
 <
 
+                                                       *'simplenote_filetype'*
+Default: "txt"
+Set the default vim filetype for notes. >
+    g:SimplenoteFiletype="markdown"
+<
+
+
                                                           *'simplenote_proxy'*
 Default: Off
 If you are behind a proxy set these to the correct values. >
