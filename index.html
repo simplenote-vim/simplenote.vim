@@ -27,7 +27,7 @@
         </ul>
       </header>
       <section>
-        <h1>simplenote.vim</h1>
+<h1>simplenote.vim</h1>
 
 <p>A vim plugin to interact with the <a href="http://simplenoteapp.com/">simplenote</a> API. You can create an
 account <a href="https://simple-note.appspot.com/create">here</a> if you don't already
@@ -38,8 +38,8 @@ Now you can take simple notes directly from your favourite editor.</p>
 
 <h2>Installation</h2>
 
-<p>The simplest way is to copy <code>plugin</code> and <code>autoload</code> into your <code>.vim</code> directory.
-But you really want to use <a href="http://github.com/tpope/vim-pathogen">pathogen</a> for your plugin management.</p>
+<p>Just copy <code>simplenote.vim</code> into your plugin folder. But you really want to use
+<a href="http://github.com/tpope/vim-pathogen">pathogen</a> for your plugin management.</p>
 
 <p>Your credentials have to be stored in your <code>vimrc</code>:</p>
 
@@ -108,6 +108,29 @@ Tagging notes is also supported. If you enter</p>
 existing comma-separated tags for the note, which you can then edit. Tags have
 to be comma separated and hitting <code>Enter</code> will then update the note with the
 new tag list.</p>
+
+<p>There is also an option to open notes directly from a given key:</p>
+
+<pre><code>:Simplenote -o &lt;notekey&gt;
+</code></pre>
+
+<p>While this is not very useful in everyday usage, it can be used very
+effectively to create shortcuts to notes you use often. Example:</p>
+
+<pre><code>" add :Todo command
+command Todo Simplenote -o &lt;yourtodonotekey&gt;
+</code></pre>
+
+<p>Now you can jump to your todo note directly with <code>:Todo</code> in vim.</p>
+
+<h2>Note sorting</h2>
+
+<p>simplenote.vim supports simple note ordering. Per default the sort order is
+pinned notes first followed by modified date from newest to oldest. The order
+can be changed by setting the <code>g:SimplenoteSortOrder</code> variable. It should be
+set to a comma separated list of values which represents the sort order.
+Allowed values are <code>pinned</code> (pinned before unpinned), <code>tags</code> (notes with tags
+before untagged ones), <code>modifydate</code> and <code>createdate</code> (both newer before older).</p>
 
 <h2>Dependencies</h2>
 
