@@ -80,6 +80,14 @@ effectively to create shortcuts to notes you use often. Example:
 
 Now you can jump to your todo note directly with `:Todo` in vim.
 
+## Note sorting
+simplenote.vim supports simple note ordering. Per default the sort order is
+pinned notes first followed by modified date from newest to oldest. The order
+can be changed by setting the `g:SimplenoteSortOrder` variable. It should be
+set to a comma separated list of values which represents the sort order.
+Allowed values are `pinned` (pinned before unpinned), `tags` (notes with tags
+before untagged ones), `modifydate` and `createdate` (both newer before older).
+
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
 really play nice together, basic parts of this plugin are implemented in
