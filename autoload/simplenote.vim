@@ -132,6 +132,9 @@ import urllib
 import urllib2
 from urllib2 import HTTPError
 import base64
+from time import mktime
+from datetime import datetime
+
 try:
     import json
 except ImportError:
@@ -282,19 +285,23 @@ class Simplenote(object):
         else:
             return "No string or valid note.", -1
 
-    def get_note_list(self, qty=float("inf")):
+    def get_note_list(self, since=None):
         """ function to get the note list
 
         The function can be passed an optional argument to limit the
-        size of the list returned. If omitted a list of all notes is
-        returned.
+        date range of the list returned. If omitted a list of all notes
+        is returned.
 
         Arguments:
-            - quantity (integer number): of notes to list
+            - since(YYYY-MM-DD string): only return notes modified
+              since this date
 
         Returns:
-            An array of note objects with all properties set except
+            A tuple `(notes, status)`
+
+            - notes (list): A list of note objects with all properties set except
             `content`.
+            - status (int): 0 on sucesss and -1 otherwise
 
         """
         # initialize data
@@ -304,12 +311,15 @@ class Simplenote(object):
         notes = { "data" : [] }
 
         # get the note index
-        if qty < NOTE_FETCH_LENGTH:
-            params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
-                                                 qty)
-        else:
-            params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
+        params = 'auth=%s&email=%s&length=%s' % (self.get_token(), self.username,
                                                  NOTE_FETCH_LENGTH)
+        if since is not None:
+            try:
+                sinceUT = mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
+                params += '&since=%s' % sinceUT
+            except ValueError:
+                pass
+
         # perform initial HTTP request
         try:
             request = Request(INDX_URL+params)
@@ -319,12 +329,15 @@ class Simplenote(object):
             status = -1
 
         # get additional notes if bookmark was set in response
-        while response.has_key("mark") and len(notes["data"]) < qty:
-            if (qty - len(notes["data"])) < NOTE_FETCH_LENGTH:
-                vals = (self.get_token(), self.username, response["mark"], qty - len(notes["data"]))
-            else:
-                vals = (self.get_token(), self.username, response["mark"], NOTE_FETCH_LENGTH)
+        while response.has_key("mark"):
+            vals = (self.get_token(), self.username, response["mark"], NOTE_FETCH_LENGTH)
             params = 'auth=%s&email=%s&mark=%s&length=%s' % vals
+            if since is not None:
+                try:
+                    sinceUT = mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
+                    params += '&since=%s' % sinceUT
+                except ValueError:
+                    pass
 
             # perform the actual HTTP request
             try:
@@ -590,14 +603,14 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note["key"]
 
-    def list_note_index_in_scratch_buffer(self, qty=float("inf"), tags=[]):
+    def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         self.scratch_buffer()
         vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
-        note_list, status = self.simplenote.get_note_list(qty)
+        note_list, status = self.simplenote.get_note_list(since)
         if (len(tags) > 0):
             note_list = [n for n in note_list if (n["deleted"] != 1 and
                             len(set(n["tags"]).intersection(tags)) > 0)]
@@ -675,8 +688,10 @@ optionsexist = True if (float(vim.eval("a:0"))>=1) else False
 if param == "-l":
     if optionsexist:
         try:
-            interface.list_note_index_in_scratch_buffer(qty=int(vim.eval("a:1")))
-        except:
+            # check for valid date string
+            datetime.strptime(vim.eval("a:1"), "%Y-%m-%d")
+            interface.list_note_index_in_scratch_buffer(since=vim.eval("a:1"))
+        except ValueError:
             interface.list_note_index_in_scratch_buffer(tags=vim.eval("a:1").split(","))
     else:
         interface.list_note_index_in_scratch_buffer()
