@@ -462,7 +462,7 @@ class SimplenoteVimInterface(object):
         width = int(width)
 
         # get note tags
-        tags = "[%s]" % ",".join([t.encode('utf-8') for t in note["tags"]])
+        tags = "[%s]" % ",".join(note["tags"])
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
