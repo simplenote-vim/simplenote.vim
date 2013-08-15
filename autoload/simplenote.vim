@@ -81,6 +81,9 @@ function! s:ScratchBufferOpen(name)
     let scr_bufnum = bufnr(a:name)
     if scr_bufnum == -1
         exe exe_new . a:name
+        if a:name == g:simplenote_scratch_buffer && NoModifiedBuffers()
+            exe 'only'
+        endif
     else
         let scr_winnum = bufwinnr(scr_bufnum)
         if scr_winnum != -1
@@ -89,6 +92,9 @@ function! s:ScratchBufferOpen(name)
             endif
         else
             exe  exe_split . "+buffer" . scr_bufnum
+            if a:name == g:simplenote_scratch_buffer && NoModifiedBuffers()
+                exe 'only'
+            endif
         endif
     endif
     call s:ScratchBuffer()
@@ -111,6 +117,18 @@ function! s:ScratchBuffer()
     endif
 endfunction
 
+function! NoModifiedBuffers()
+    let tablist = []
+    let noModifiedBuffers = 1
+    call extend(tablist, tabpagebuflist(tabpagenr()))
+    "if any open modified buffers in tab, not ok to set 'only' for index list
+    for n in tablist
+        if getbufvar(n,"&mod")
+            let noModifiedBuffers = 0
+        endif
+    endfor
+    return noModifiedBuffers
+endfunction
 
 "
 " python functions
