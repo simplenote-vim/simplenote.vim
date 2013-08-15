@@ -107,7 +107,6 @@ add these lines (with the correct values) to your `.vimrc`:
 
 ## Contribute
 - Fork the project
-- Branch off develop
 - Make your additions/fixes/improvements
 - Send a pull request
 
