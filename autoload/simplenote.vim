@@ -455,7 +455,6 @@ class SimplenoteVimInterface(object):
         vim.command("call s:ScratchBuffer()")
         vim.command("setlocal nocursorline")
         vim.command("setlocal buftype=acwrite")
-        vim.command("setlocal bufhidden=delete")
         vim.command("setlocal nomodified")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
 
@@ -549,7 +548,6 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal nocursorline")
         vim.command("setlocal modifiable")
         vim.command("setlocal buftype=acwrite")
-        vim.command("setlocal bufhidden=delete")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
         vim.command("setlocal nomodified")
