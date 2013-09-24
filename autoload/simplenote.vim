@@ -550,6 +550,9 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal buftype=acwrite")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+        if note.has_key("systemtags"):
+            if ("markdown" in note["systemtags"]):
+                vim.command("setlocal filetype=markdown")
         vim.command("setlocal nomodified")
 
     def update_note_from_current_buffer(self):
