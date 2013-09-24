@@ -69,13 +69,13 @@ let g:simplenote_scratch_buffer = 'Simplenote'
 
 " Function that opens or navigates to the scratch buffer.
 function! s:ScratchBufferOpen(name)
-	let exe_new = "new "
-	let exe_split = "split "
+    let exe_new = "new "
+    let exe_split = "split "
 
-	if s:vbuff > 0
-		let exe_new = "vert " . exe_new
-		let exe_split = "vert " . exe_split
-	endif
+    if s:vbuff > 0
+        let exe_new = "vert " . exe_new
+        let exe_split = "vert " . exe_split
+    endif
 
 
     let scr_bufnum = bufnr(a:name)
