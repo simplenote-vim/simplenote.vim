@@ -559,8 +559,26 @@ class SimplenoteVimInterface(object):
         """ updates the currently displayed note to the web service """
         note_id = self.get_current_note()
         content = "\n".join(str(line) for line in vim.current.buffer[:])
-        note, status = self.simplenote.update_note({"content": content,
-                                                  "key": note_id})
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            if (vim.eval("&filetype") == "markdown"):
+                if note.has_key("systemtags"):
+                    if ("markdown" not in note["systemtags"]):
+                        note["systemtags"].append("markdown")
+                else:
+                    note["systemtags"] = ["markdown"]
+            else:
+                if note.has_key("systemtags"):
+                    if ("markdown" in note["systemtags"]):
+                        note["systemtags"].remove("markdown")
+            note, status = self.simplenote.update_note({"content": content,
+                                                      "key": note_id,
+                                                      "systemtags": note["systemtags"]})
+        else:
+            print "Could not set markdown status."
+            note, status = self.simplenote.update_note({"content": content,
+                                                      "key": note_id})
+
         if status == 0:
             print "Update successful."
             vim.command("setlocal nomodified")
@@ -607,9 +625,16 @@ class SimplenoteVimInterface(object):
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
         content = "\n".join(str(line) for line in vim.current.buffer[:])
-        note, status = self.simplenote.update_note({"content": content})
+        markdown = (vim.eval("&filetype") == "markdown")
+        if markdown:
+            note, status = self.simplenote.update_note({"content": content,
+                                                        "systemtags": ["markdown"]})
+        else:
+            note, status = self.simplenote.update_note({"content": content})
         if status == 0:
             self.transform_to_scratchbuffer()
+            if markdown:
+                vim.command("setlocal filetype=markdown")
             self.set_current_note(note["key"])
             print "New note created."
         else:
