@@ -23,20 +23,22 @@ set `g:SimplenoteFiletype` to the preferred vim filetype.
 
 ## Usage
 The plugin provides several commands to interact with your Simplenote account.
-In order to retrieve a list of your notes execute
+In order to retrieve a list of your notes execute one of the
+following:
 
-    :Simplenote -l X
+    :Simplenote -l
+    :Simplenote -l YYYY-MM-DD
     :Simplenote -l todo,shopping
 
-Where X is the number of notes to retrieve; omit X to retrieve all.  This opens
-a new scratch buffer with a line-wise listing of your notes. With `let
+The first option returns all notes, the second returns only those notes modified
+since YYYY-MM-DD, the third option shows passing a comma separated list of tags;
+this will only list notes which have at least one of those tags.  This opens a
+new scratch buffer with a line-wise listing of your notes. With `let
 g:SimplenoteListHeight=X` set, the scratch buffer will come up X lines tall.
 Alternatively when `let g:SimplenoteVertical=1` is set, it is opened as a
-vertical rather than horizontal split window. You can also pass a comma
-separated list of tags. This will only list notes which have at least one of
-those tags. You can then navigate through the with the arrow keys and enter a
-note on hitting `Return`. Now that you see the content of the note, you can
-interact with this specific note:
+vertical rather than horizontal split window.  You can then navigate through the
+with the arrow keys and enter a note on hitting `Return`. Now that you see the
+content of the note, you can interact with this specific note:
 
     :Simplenote -u
 
