@@ -149,7 +149,7 @@ import urllib
 import urllib2
 from urllib2 import HTTPError
 import base64
-from time import mktime
+import time
 from datetime import datetime
 
 try:
@@ -165,6 +165,10 @@ AUTH_URL = 'https://simple-note.appspot.com/api/login'
 DATA_URL = 'https://simple-note.appspot.com/api2/data'
 INDX_URL = 'https://simple-note.appspot.com/api2/index?'
 NOTE_FETCH_LENGTH = 100
+
+class SimplenoteLoginFailed(Exception):
+    pass
+
 
 class Simplenote(object):
     """ Class for interacting with the simplenote web service """
@@ -192,6 +196,8 @@ class Simplenote(object):
         try:
             res = urllib2.urlopen(request).read()
             token = urllib2.quote(res)
+        except HTTPError:
+            raise SimplenoteLoginFailed('Login to Simplenote API failed!')
         except IOError: # no connection exception
             token = None
         return token
@@ -258,7 +264,6 @@ class Simplenote(object):
         note["content"] = unicode(note["content"], 'utf-8')
         if note.has_key("tags"):
             note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
-
 
         # determine whether to create a new note or updated an existing one
         if note.has_key("key"):
@@ -332,7 +337,7 @@ class Simplenote(object):
                                                  NOTE_FETCH_LENGTH)
         if since is not None:
             try:
-                sinceUT = mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
+                sinceUT = time.mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
                 params += '&since=%s' % sinceUT
             except ValueError:
                 pass
@@ -351,7 +356,7 @@ class Simplenote(object):
             params = 'auth=%s&email=%s&mark=%s&length=%s' % vals
             if since is not None:
                 try:
-                    sinceUT = mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
+                    sinceUT = time.mktime(datetime.strptime(since, "%Y-%m-%d").timetuple())
                     params += '&since=%s' % sinceUT
                 except ValueError:
                     pass
@@ -436,9 +441,7 @@ class Request(urllib2.Request):
         return urllib2.Request.get_method(self)
 
 
-
 import vim
-import time
 import math as m
 from threading import Thread
 from Queue import Queue
