@@ -262,13 +262,14 @@ class Simplenote(object):
         """
         # use UTF-8 encoding
         note["content"] = unicode(note["content"], 'utf-8')
-        if note.has_key("tags"):
+        if "tags" in note:
             note["tags"] = [unicode(t, 'utf-8') for t in note["tags"]]
 
         # determine whether to create a new note or updated an existing one
-        if note.has_key("key"):
-            # set modification timestamp in milli-seconds since epoch
-            note["modifydate"] = int(round(time.time() * 1000))
+        if "key" in note:
+            # set modification timestamp if not set by client
+            if 'modifydate' not in note:
+                note["modifydate"] = time.time()
 
             url = '%s/%s?auth=%s&email=%s' % (DATA_URL, note["key"],
                                               self.get_token(), self.username)
@@ -302,7 +303,7 @@ class Simplenote(object):
         """
         if type(note) == str:
             return self.update_note({"content": note})
-        elif (type(note) == dict) and note.has_key("content"):
+        elif (type(note) == dict) and "content" in note:
             return self.update_note(note)
         else:
             return "No string or valid note.", -1
@@ -351,7 +352,7 @@ class Simplenote(object):
             status = -1
 
         # get additional notes if bookmark was set in response
-        while response.has_key("mark"):
+        while "mark" in response:
             vals = (self.get_token(), self.username, response["mark"], NOTE_FETCH_LENGTH)
             params = 'auth=%s&email=%s&mark=%s&length=%s' % vals
             if since is not None:
@@ -439,6 +440,7 @@ class Request(urllib2.Request):
             return self.method
 
         return urllib2.Request.get_method(self)
+
 
 
 import vim
