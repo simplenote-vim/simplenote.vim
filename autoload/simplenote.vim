@@ -577,6 +577,7 @@ class SimplenoteVimInterface(object):
         """ updates the currently displayed note to the web service """
         note_id = self.get_current_note()
         content = "\n".join(str(line) for line in vim.current.buffer[:])
+        # Need to get note details first to assess remote markdown status
         note, status = self.simplenote.get_note(note_id)
         if status == 0:
             if (vim.eval("&filetype") == "markdown"):
@@ -592,14 +593,11 @@ class SimplenoteVimInterface(object):
             note, status = self.simplenote.update_note({"content": content,
                                                       "key": note_id,
                                                       "systemtags": note["systemtags"]})
-        else:
-            print "Could not set markdown status."
-            note, status = self.simplenote.update_note({"content": content,
-                                                      "key": note_id})
-
-        if status == 0:
-            print "Update successful."
-            vim.command("setlocal nomodified")
+            if status == 0:
+                print "Update successful."
+                vim.command("setlocal nomodified")
+            else:
+                print "Update failed.: %s" % note
         else:
             print "Update failed.: %s" % note
 
