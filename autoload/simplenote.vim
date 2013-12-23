@@ -574,7 +574,7 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal nomodified")
 
     def update_note_from_current_buffer(self):
-        """ updates the currently displayed note to the web service """
+        """ updates the currently displayed note to the web service or creates new"""
         note_id = self.get_current_note()
         content = "\n".join(str(line) for line in vim.current.buffer[:])
         # Need to get note details first to assess remote markdown status
@@ -598,6 +598,9 @@ class SimplenoteVimInterface(object):
                 vim.command("setlocal nomodified")
             else:
                 print "Update failed.: %s" % note
+        elif note.code == 404:
+            # API returns 404 if note doesn't exist, so create new
+            self.create_new_note_from_current_buffer()
         else:
             print "Update failed.: %s" % note
 
