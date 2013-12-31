@@ -1,0 +1,93 @@
+# Creates a new note and uses simplenote.py to verify a note of that key has been created
+Given:
+  A test note
+
+Execute (Create a new note):
+  let g:SimplenoteUsername = "simplenote-test@lordofhosts.de"
+  let g:SimplenotePassword = "foobar"
+  :Simplenote -n
+
+Execute python:
+  from simplenote import Simplenote
+  import vim
+  sn = Simplenote("simplenote-test@lordofhosts.de", "foobar")
+  snkey = vim.current.buffer.name.split("/")[-1]
+  note = sn.get_note(snkey)
+  vim.current.buffer.append(note[0]["content"])
+
+Expect:
+  A test note
+  A test note
+# Using simplenote.py to verify note creation and append to buffer, hence why expect two lines the same
+
+# Updates a note
+Given:
+  A second test note
+
+Execute (Update a note):
+  :Simplenote -n
+  call setline(1, "An updated note")
+  :Simplenote -u
+
+Execute python:
+  snkey = vim.current.buffer.name.split("/")[-1]
+  note_original = sn.get_note(snkey,1)
+  vim.current.buffer.append(note_original[0]["content"])
+  note_updated = sn.get_note(snkey)
+  vim.current.buffer.append(note_updated[0]["content"])
+
+Expect:
+  A second test note
+  A second test note
+  An updated note
+# Using Simplenote creates a new buffer in addition to the workbench buffer, hence why the first line is still "A second test note"
+
+# Trashes a note
+Given:
+  A third test note
+
+Execute (Trash a note):
+  :Simplenote -n
+
+Execute python:
+  snkey = vim.current.buffer.name.split("/")[-1]
+
+Execute:
+  :Simplenote -d
+
+Execute python:
+  note = sn.get_note(snkey)
+  vim.current.buffer.append(str(note[0]["deleted"]))
+
+Expect:
+  A third test note
+  1
+
+# Deletes a note
+# todo
+
+# Open a note by key
+# todo
+
+# Tag a note
+# todo
+
+# Get a list of notes
+Execute (Get a list of notes):
+  :Simplenote -l
+  AssertEqual 2, line('$')
+  "Below is a bit of a hack as Simplenote list tries to take over whole window, but Vader expects to be able to use it
+  "See https://github.com/mrtazz/simplenote.vim/commit/dfc554ca46cbe38b9c60a7a385722d6194af31fe
+  "So need to set it to modifiable and clear it
+  :set modifiable
+  :1,$d
+
+Execute python (Cleanup):
+  res, status = sn.get_note_list()
+  while (len(res) > 0) and (status == 0):
+    [sn.delete_note(n["key"]) for n in res]
+    res, status = sn.get_note_list()
+
+# Notes:
+# - Can't have blank lines before first given block
+# - Unit testing using Vader: https://github.com/junegunn/vader.vim to run just open this file in Vim and ":Vader"
