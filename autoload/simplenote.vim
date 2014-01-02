@@ -325,7 +325,9 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.trash_note(note_id)
         if status == 0:
             print "Note moved to trash."
-            vim.command("quit!")
+            """ when running tests don't want to close buffer """
+            if not vim.eval("exists('g:vader_file')"):
+                vim.command("quit!")
         else:
             print "Moving note to trash failed.: %s" % note
 
@@ -335,7 +337,9 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.delete_note(note_id)
         if status == 0:
             print "Note deleted."
-            vim.command("quit!")
+            """ when running tests don't want to close buffer """
+            if not vim.eval("exists('g:vader_file')"):
+                vim.command("quit!")
         else:
             print "Deleting note failed.: %s" % note
 
@@ -360,7 +364,8 @@ class SimplenoteVimInterface(object):
     def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
-        self.scratch_buffer()
+        if not vim.eval("exists('g:vader_file')"):
+            self.scratch_buffer()
         vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
