@@ -89,7 +89,22 @@ Expect:
 
 
 # Open a note by key
-# Not included in test suite yet since opens in a new window/buffer. Need to modify simplenote.vim to suit.
+Given:
+  A fifth test note
+
+Execute:
+  :Simplenote -n
+  let s:snkey = expand('%:t')
+
+Given:
+  A sixth test note
+
+Execute (Open a note by key):
+  :Simplenote -n
+  execute "Simplenote -o " . s:snkey
+
+Expect:
+  A fifth test note
 
 
 # Tag a note
@@ -101,7 +116,7 @@ Execute (Get a list of notes):
   :Simplenote -l
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 2, line('$')
+  AssertEqual 4, line('$')
   "and clear it
   :1,$d
 

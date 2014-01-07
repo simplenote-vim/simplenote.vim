@@ -257,7 +257,8 @@ class SimplenoteVimInterface(object):
 
         # get note and open it in scratch buffer
         note, status = self.simplenote.get_note(note_id)
-        vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
+        if not vim.eval("exists('g:vader_file')"):
+            vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
         self.set_current_note(note_id)
         buffer = vim.current.buffer
         # remove cursorline
