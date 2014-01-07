@@ -41,20 +41,19 @@ Expect:
   A second test note
   A second test note
   An updated note
-# Using Simplenote creates a new buffer in addition to the workbench buffer, hence why the first line is still "A second test note"
 
 
 # Trashes a note
 Given:
   A third test note
 
-Execute (Trash a note):
+Execute:
   :Simplenote -n
 
 Execute python:
   snkey = vim.current.buffer.name.split("/")[-1]
 
-Execute:
+Execute (Trash a note):
   :Simplenote -d
 
 Execute python:
@@ -70,13 +69,13 @@ Expect:
 Given:
   A fourth test note
 
-Execute (Delete a note):
+Execute:
   :Simplenote -n
 
 Execute python:
   snkey = vim.current.buffer.name.split("/")[-1]
 
-Execute:
+Execute (Delete a note):
   :Simplenote -D
 
 Execute python:
