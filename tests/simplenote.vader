@@ -119,14 +119,28 @@ Execute (Get a list of notes):
   "and clear it
   :1,$d
 
+# Cleanup Remote
 Execute python (Cleanup remote):
   res, status = sn.get_note_list()
   while (len(res) > 0) and (status == 0):
     [sn.delete_note(n["key"]) for n in res]
     res, status = sn.get_note_list()
 
+
 # Cleanup locally
-# todo
+Execute (Cleanup locally):
+  "Remove unneeded buffers
+  let tablist = []
+  for i in range(tabpagenr('$'))
+    call extend(tablist, tabpagebuflist(i + 1))
+  endfor
+  let nWipeouts = 0
+  for i in range(1, bufnr('$'))
+    if bufexists(i) && (match(bufname(i), "simplenote.vader") == -1) && (match(bufname(i), "Quickfix List") == -1) && (match(bufname(i), "Vader") == -1)
+      silent exec 'bwipeout!' i
+    endif
+  endfor
+
 
 # Notes:
 # - Can't have blank lines before first given block
