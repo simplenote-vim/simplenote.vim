@@ -1,3 +1,5 @@
+# Unit testing using Vader: https://github.com/junegunn/vader.vim to run just open this file in Vim and ":Vader"
+#
 # Creates a new note and uses simplenote.py to verify a note of that key has been created
 Given:
   A test note
@@ -107,7 +109,25 @@ Expect:
 
 
 # Tag a note
-# Not included in test suite since will require user input
+Given:
+  A seventh test note
+
+Execute:
+  :Simplenote -n
+  "Create a map for Simplenote -t
+  :nmap \tn :Simplenote -t<CR>tag<CR>
+
+Do (Tag a new note):
+  \tn
+
+Execute python:
+  snkey = vim.current.buffer.name.split("/")[-1]
+  note = sn.get_note(snkey)
+  vim.current.buffer.append(str(note[0]["tags"][0]))
+
+Expect:
+  A seventh test note
+  tag
 
 
 # Get a list of notes
@@ -115,9 +135,10 @@ Execute (Get a list of notes):
   :Simplenote -l
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 4, line('$')
+  AssertEqual 5, line('$')
   "and clear it
   :1,$d
+
 
 # Cleanup Remote
 Execute python (Cleanup remote):
@@ -140,8 +161,3 @@ Execute (Cleanup locally):
       silent exec 'bwipeout!' i
     endif
   endfor
-
-
-# Notes:
-# - Can't have blank lines before first given block
-# - Unit testing using Vader: https://github.com/junegunn/vader.vim to run just open this file in Vim and ":Vader"
