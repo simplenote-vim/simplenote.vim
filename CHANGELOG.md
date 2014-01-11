@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.0 (01/11/2014)
+- Add a script to help automate release management
+- Add tests using Vader.vim
+- Reference Simplenote.py externally rather than include inline
+- Updating a non existing note creates a new one
+- Toggle markdown flag in Simplenote to match current buffer filetype
+- Auto set buffer filetype to markdown if checked as markdown in Simplenote
+- No longer uses buffhidden=delete on scratch buffers
+- Make the Simplenote list/index the only window on screen
+- Fix for double enocding issue.
+- Change optional qty to optional since date for `get_note_list()`
+
 ## 0.7.0 (10/21/2012)
 - add vim help file
 - add custom sort orders
@@ -12,7 +24,7 @@
 - respect pinned notes in note index
 - set initial number of notes to load to 100
 - add config option to specify a preferred filetype
-- add modifydate to update_note() function
+- add modifydate to `update_note()` function
 
 ## 0.5.0 (06/03/2012)
 
