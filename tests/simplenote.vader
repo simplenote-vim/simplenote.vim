@@ -112,13 +112,9 @@ Expect:
 Given:
   A seventh test note
 
-Execute:
-  :Simplenote -n
-  "Create a map for Simplenote -t
-  :nmap \tn :Simplenote -t<CR>tag<CR>
-
 Do (Tag a new note):
-  \tn
+  :Simplenote -n\<CR>
+  :Simplenote -t\<CR>tag\<CR>
 
 Execute python:
   snkey = vim.current.buffer.name.split("/")[-1]
