@@ -8,6 +8,11 @@ Now you can take simple notes directly from your favourite editor.
 Just copy `simplenote.vim` into your plugin folder. But you really want to use
 [pathogen][5] for your plugin management.
 
+**Note:** Since Simplenote.vim references Simplenote.py as a git submodule, 
+depending on how you install (or the plugin manager you use), you may
+need to run something like `git submodule update --init --recursive` after 
+installing.
+
 Your credentials have to be stored in your `vimrc`:
 
     let g:SimplenoteUsername = "your simplenote username"
