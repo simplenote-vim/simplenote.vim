@@ -97,6 +97,16 @@ existing comma-separated tags for the note, which you can then edit. Tags have
 to be comma separated and hitting `Enter` will then update the note with the new
 tag list.
 
+Notes can be pinned with
+
+    :Simplenote -p
+
+on a buffer containing a valid note. Likewise a note can be unpinned with
+
+    :Simplenote -P
+
+on a buffer containing a valid note.
+
 There is also an option to open notes directly from a given key:
 
     :Simplenote -o <notekey>
