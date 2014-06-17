@@ -57,6 +57,7 @@ if exists("g:SimplenotePinnedMark")
   let s:pinnedmark = g:SimplenotePinnedMark
 else
   let s:pinnedmark = 0
+endif
 
 " strftime format
 if exists("g:SimplenoteStrftime")
