@@ -52,6 +52,13 @@ else
   let s:sortorder = "pinned, modifydate"
 endif
 
+" strftime format
+if exists("g:SimplenoteStrftime")
+  let s:strftime_fmt = g:SimplenoteStrftime
+else
+  let s:strftime_fmt = "%a, %d %b %Y %H:%M:%S"
+endif
+
 if (s:user == "") || (s:password == "")
   let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
   let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
@@ -199,7 +206,7 @@ class SimplenoteVimInterface(object):
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
-        mod_time = time.strftime("[%a, %d %b %Y %H:%M:%S]", mt)
+        mod_time = time.strftime("[" + vim.eval("s:strftime_fmt") + "]", mt)
 
         if len(note_lines) > 0:
             title = str(note_lines[0])
