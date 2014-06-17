@@ -57,6 +57,12 @@ if exists("g:SimplenotePinnedMark")
   let s:pinnedmark = g:SimplenotePinnedMark
 else
   let s:pinnedmark = 0
+
+" strftime format
+if exists("g:SimplenoteStrftime")
+  let s:strftime_fmt = g:SimplenoteStrftime
+else
+  let s:strftime_fmt = "%a, %d %b %Y %H:%M:%S"
 endif
 
 if (s:user == "") || (s:password == "")
@@ -206,7 +212,7 @@ class SimplenoteVimInterface(object):
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
-        mod_time = time.strftime("[%a, %d %b %Y %H:%M:%S]", mt)
+        mod_time = time.strftime("[" + vim.eval("s:strftime_fmt") + "]", mt)
 
         if len(note_lines) > 0:
             title = str(note_lines[0])
