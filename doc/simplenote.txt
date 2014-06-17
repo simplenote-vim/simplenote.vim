@@ -47,6 +47,12 @@ Now you can take simple notes directly from your favourite editor.
     Show an input field to add tags to the note in the current buffer. The
     input field is prepopulated with existing note tags.
 
+:Simplenote -p                                                *:SimplenotePin*
+    Pin the note in the current buffer.
+
+:Simplenote -P                                              *:SimplenoteUnpin*
+    Unpin the note in the current buffer.
+
 :Simplenote -o {notekey}                                     *:SimplenoteOpen*
     Opens the note corresponding to the given {notekey}. This is useful for
     configuring shortcuts to specific notes, e.g. >
@@ -95,6 +101,17 @@ Set the default vim filetype for notes. >
     g:SimplenoteFiletype="markdown"
 <
 
+                                                     *'simplenote_pinnedmark'*
+Default: 0
+If set, pinned notes are marked in the note list. >
+    g:SimplenotePinnedMark=1
+<
+
+                                                       *'simplenote_strftime'*
+Default: "%a, %d %b %Y %H:%M:%S"
+The default strftime format to use in the note line. >
+    g:SimplenoteStrftime="%Y/%m/%d-%T"
+<
 
                                                           *'simplenote_proxy'*
 Default: Off

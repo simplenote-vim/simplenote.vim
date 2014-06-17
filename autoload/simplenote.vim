@@ -52,6 +52,20 @@ else
   let s:sortorder = "pinned, modifydate"
 endif
 
+" pinned mark
+if exists("g:SimplenotePinnedMark")
+  let s:pinnedmark = g:SimplenotePinnedMark
+else
+  let s:pinnedmark = 0
+endif
+
+" strftime format
+if exists("g:SimplenoteStrftime")
+  let s:strftime_fmt = g:SimplenoteStrftime
+else
+  let s:strftime_fmt = "%a, %d %b %Y %H:%M:%S"
+endif
+
 if (s:user == "") || (s:password == "")
   let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
   let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
@@ -199,13 +213,17 @@ class SimplenoteVimInterface(object):
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
-        mod_time = time.strftime("[%a, %d %b %Y %H:%M:%S]", mt)
+        mod_time = time.strftime("[" + vim.eval("s:strftime_fmt") + "]", mt)
 
         if len(note_lines) > 0:
             title = str(note_lines[0])
         else:
             title = str(note["key"])
 
+        if vim.eval("s:pinnedmark") == "1":
+            if note.has_key("systemtags"):
+                if ("pinned" in note["systemtags"]):
+                    title = "[*] " + title
 
         # Compress everything into the appropriate number of columns
         title_meta_length = len(tags) + len(mod_time) + 1
@@ -271,6 +289,7 @@ class SimplenoteVimInterface(object):
             if ("markdown" in note["systemtags"]):
                 vim.command("setlocal filetype=markdown")
         vim.command("setlocal nomodified")
+        vim.command("doautocmd BufReadPost")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new"""
@@ -343,6 +362,44 @@ class SimplenoteVimInterface(object):
                 vim.command("quit!")
         else:
             print "Deleting note failed.: %s" % note
+
+    def pin_current_note(self):
+        """ pin the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            if note.has_key("systemtags"):
+                if ("pinned" in note["systemtags"]):
+                    print "Note is already pinned."
+                    return
+            else:
+                note["systemtags"] = []
+            note["systemtags"].append("pinned")
+            n, st = self.simplenote.update_note(note)
+            if st == 0:
+                print "Note pinned."
+            else:
+                print "Note could not be pinned."
+        else:
+            print "Error fetching note data."
+
+    def unpin_current_note(self):
+        """ unpin the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            if ((not note.has_key("systemtags")) or
+                ("pinned" not in note["systemtags"])):
+                print "Note is already unpinned."
+                return
+            note["systemtags"].remove("pinned")
+            n, st = self.simplenote.update_note(note)
+            if st == 0:
+                print "Note unpinned."
+            else:
+                print "Note could not be unpinned."
+        else:
+            print "Error fetching note data."
 
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
@@ -536,6 +593,12 @@ elif param == "-D":
 
 elif param == "-t":
     interface.set_tags_for_current_note()
+
+elif param == "-p":
+    interface.pin_current_note()
+
+elif param == "-P":
+    interface.unpin_current_note()
 
 elif param == "-o":
     if optionsexist:

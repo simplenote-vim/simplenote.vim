@@ -13,6 +13,8 @@
 "   :Simplenote -n => create new note from buffer
 "   :Simplenote -D => delete note in current buffer
 "   :Simplenote -t => tag note in current buffer
+"   :Simplenote -p => pin note in current buffer
+"   :Simplenote -P => unpin note in current buffer
 "   :Simplenote -o key => open note with given key directly
 "
 " This is only the interface part of the script. For the actual implementation
