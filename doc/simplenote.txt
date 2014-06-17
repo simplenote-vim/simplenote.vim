@@ -95,6 +95,11 @@ Set the default vim filetype for notes. >
     g:SimplenoteFiletype="markdown"
 <
 
+                                                       *'simplenote_strftime'*
+Default: "%a, %d %b %Y %H:%M:%S"
+The default strftime format to use in the note line. >
+    g:SimplenoteStrftime="%Y/%m/%d-%T"
+<
 
                                                           *'simplenote_proxy'*
 Default: Off
