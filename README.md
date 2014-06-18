@@ -97,6 +97,16 @@ existing comma-separated tags for the note, which you can then edit. Tags have
 to be comma separated and hitting `Enter` will then update the note with the new
 tag list.
 
+Notes can be pinned with
+
+    :Simplenote -p
+
+on a buffer containing a valid note. Likewise a note can be unpinned with
+
+    :Simplenote -P
+
+on a buffer containing a valid note.
+
 There is also an option to open notes directly from a given key:
 
     :Simplenote -o <notekey>
@@ -116,6 +126,46 @@ can be changed by setting the `g:SimplenoteSortOrder` variable. It should be set
 to a comma separated list of values which represents the sort order.  Allowed
 values are `pinned` (pinned before unpinned), `tags` (notes with tags before
 untagged ones), `modifydate` and `createdate` (both newer before older).
+
+## Formatting
+The format of the note titles in the list are configurable using the
+`g:SimplenoteNoteFormat` option.
+
+Various formatting tags are supporting for dynamically building the title
+string. Each of these formatting tags supports a width specifier (decimal) and
+a left justification (-) like that supported by printf.
+
+    %F -- flags, always two characters ('*'=pinned, 'm'=markdown)
+    %T -- tags
+    %D -- date
+    %N -- note title
+    %> -- right justify the rest of the title
+
+Examples:
+
+    %N    -- entire note title
+    %50N  -- note title, max width of 50 characters and right justified
+    %-50N -- note title, max width of 50 characters and left justified
+
+The default title format is `"%N%>[%T] [%D]"`.
+
+The format of the date string is also configurable using the
+`g:SimplenoteStrftime` option. The default strftime is
+`"%a, %d %b %Y %H:%M:%S"`.
+
+## Colors
+
+If the `+conceal` feature is enabled in vim then syntax highlighting is
+supported for the Simplenote note list. The highlight groups supported are:
+
+    SN_NoteFlags       note flags ('%F' format)
+    SN_NoteDate        last updated date of the note ('%D' format)
+    SN_NoteTags        tags assigned to the note ('%T' format)
+    SN_NoteAgeDay      note title - less than a day old ('%N' format)
+    SN_NoteAgeWeek     note title - less than a week old ('%N' format)
+    SN_NoteAgeMonth    note title - less than a month old ('%N' format)
+    SN_NoteAgeYear     note title - less than a year old ('%N' format)
+    SN_NoteAgeAncient  note title - ancient ('%N' format)
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
