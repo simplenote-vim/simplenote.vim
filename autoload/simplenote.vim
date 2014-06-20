@@ -424,6 +424,7 @@ class SimplenoteVimInterface(object):
             if ("markdown" in note["systemtags"]):
                 vim.command("setlocal filetype=markdown")
         vim.command("setlocal nomodified")
+        vim.command("doautocmd BufReadPost")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new"""
@@ -549,6 +550,7 @@ class SimplenoteVimInterface(object):
             if markdown:
                 vim.command("setlocal filetype=markdown")
             self.set_current_note(note["key"])
+            vim.command("doautocmd BufReadPost")
             print "New note created."
         else:
             print "Update failed.: %s" % note["key"]
