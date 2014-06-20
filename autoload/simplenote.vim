@@ -31,6 +31,20 @@ else
   let s:password = ""
 endif
 
+" note format
+if exists("g:SimplenoteNoteFormat")
+  let s:noteformat = g:SimplenoteNoteFormat
+else
+  let s:noteformat = "%N%>[%T] [%D]"
+endif
+
+" strftime format
+if exists("g:SimplenoteStrftime")
+  let s:strftime_fmt = g:SimplenoteStrftime
+else
+  let s:strftime_fmt = "%a, %d %b %Y %H:%M:%S"
+endif
+
 " vertical buffer
 if exists("g:SimplenoteVertical")
   let s:vbuff = g:SimplenoteVertical
@@ -141,6 +155,7 @@ import vim
 sys.path.append(vim.eval("expand('<sfile>:p:h')") + "/simplenote.py/simplenote/")
 from simplenote import Simplenote
 import datetime
+import re
 import time
 import math as m
 from threading import Thread
@@ -174,14 +189,97 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal nomodified")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
 
+    def format_title_build(self, title, fmt_char, value_str, conceal_str):
+        """ function to replace a format tag in the title
+
+        Arguments:
+        title       -- title line for the note object
+        fmt_char    -- the format tag to replace
+        value_str   -- the string to insert in place of the format tag
+        conceal_str -- concealment string to insert for syntax highlighting
+
+        Returns a new title line with the format tag replaced
+        """
+        # build the regex for the given format tag and search for it
+        regex = "^(.*)%([-]*)([0-9]*)" + fmt_char + "(.*)$"
+        fmt = re.search(regex, title)
+        if fmt == None:
+            # the tag doesn't exist so no change is make
+            return title
+        if fmt.group(3):
+            # if the format has a specified width then apply that now
+            field = "{:"
+            if fmt.group(2) == "-": field = field + "<"
+            else:                   field = field + ">"
+            field = field + fmt.group(3) + "}"
+            value_str = field.format(value_str[:int(fmt.group(3))])
+        # build a new title with concealment tags for syntax highlighting
+        if vim.eval("has('conceal')") == "1":
+            return fmt.group(1) +                              \
+                   "|" + conceal_str + "|" + value_str + "|" + \
+                   fmt.group(4)
+        else:
+            return fmt.group(1) + value_str + fmt.group(4)
+
+    def format_title_len_no_conceal(self, title):
+        """ function to get the visible length of the title by excluding any
+        concealed syntax tags
+
+        Arguments:
+        title -- title line for the note object
+
+        Returns the visible length of the title
+        """
+        if vim.eval("has('conceal')") == "1":
+            # exclude the "|F|...|" syntax tag
+            title = re.sub(r"(.*?)\|F\|(.*?)\|(.*?)", r"\1\2\3", title)
+            # exclude the "|T|...|" syntax tag
+            title = re.sub(r"(.*?)\|T\|(.*?)\|(.*?)", r"\1\2\3", title)
+            # exclude the "|D|...|" syntax tag
+            title = re.sub(r"(.*?)\|D\|(.*?)\|(.*?)", r"\1\2\3", title)
+            # exclude the "|[dwmya]|...|" syntax tag
+            title = re.sub(r"(.*?)\|[dwmya]\|(.*?)\|(.*?)", r"\1\2\3", title)
+        return len(title)
+
     def format_title(self, note):
         """ function to format the title for a note object
+
+        Various formatting tags are supporting for dynamically building
+        the title string. Each of these formatting tags supports a width
+        specifier (decimal) and a left justification (-) like that supported
+        by printf.
+
+        %F -- flags ('*' for pinned, 'm' for markdown)
+        %T -- tags
+        %D -- date
+        %N -- note title
+        %> -- right justify the rest of the title
+
+        Examples:
+
+        %N    -- entire note title
+        %50N  -- note title, max width of 50 characters and right justified
+        %-50N -- note title, max width of 50 characters and left justified
+
+        If the 'conceal' feature is enabled in vim then syntax highlighting is
+        also supported. For each of the formatting tags above a special hidden
+        string is injected into the title line that is used by the syntax
+        highlighting match groups. The "..." below is the actual text
+        specified by the format tag.
+
+        %F -- becomes: |F|...|
+        %T -- becomes: |T|...|
+        %D -- becomes: |D|...|
+        %N -- less than a day old becomes:         |d|...|
+        %N -- less than a week old becomes:        |w|...|
+        %N -- less than a month old becomes:       |m|...|
+        %N -- less than a year old becomes:        |y|...|
+        %N -- older than a year (ancient) becomes: |a|...|
 
         Arguments:
         note -- note object to format the title for
 
         Returns the formatted title
-
         """
         # fetch first line and display as title
         note_lines = note["content"].split("\n")
@@ -189,34 +287,89 @@ class SimplenoteVimInterface(object):
         # get window width for proper formatting
         width = vim.current.window.width
 
-        # Make room for the numbers regardless of their presence
-        # min num width is 5
-        width -= max(m.floor(m.log(len(vim.current.buffer))) + 2, 5)
-        width = int(width)
+        # get note flags
+        if note.has_key("systemtags"):
+            flags = ""
+            if ("pinned" in note["systemtags"]):   flags = flags + "*"
+            else:                                  flags = flags + " "
+            if ("markdown" in note["systemtags"]): flags = flags + "m"
+            else:                                  flags = flags + " "
+        else:
+            flags = "  "
 
         # get note tags
-        tags = "[%s]" % ",".join(note["tags"])
+        tags = "%s" % ",".join(note["tags"])
 
         # format date
         mt = time.localtime(float(note["modifydate"]))
-        mod_time = time.strftime("[%a, %d %b %Y %H:%M:%S]", mt)
+        mod_time = time.strftime(vim.eval("s:strftime_fmt"), mt)
+
+        # get the age of the note used for syntax highlighting
+        dt = datetime.datetime.fromtimestamp(time.mktime(mt))
+        if dt > datetime.datetime.now() - datetime.timedelta(days=1):
+            note_age = "d" # less than a day old
+        elif dt > datetime.datetime.now() - datetime.timedelta(weeks=1):
+            note_age = "w" # less than a week old
+        elif dt > datetime.datetime.now() - datetime.timedelta(weeks=4):
+            note_age = "m" # less than a month old
+        elif dt > datetime.datetime.now() - datetime.timedelta(weeks=52):
+            note_age = "y" # less than a year old
+        else:
+            note_age = "a" # ancient
 
         if len(note_lines) > 0:
             title = str(note_lines[0])
         else:
             title = str(note["key"])
 
+        # get the format string to be used for the note title
+        title_line = vim.eval("s:noteformat")
 
-        # Compress everything into the appropriate number of columns
-        title_meta_length = len(tags) + len(mod_time) + 1
-        title_width = width - title_meta_length
-        if len(title) > title_width:
-            title = title[:title_width]
-        elif len(title) < title_width:
-            title = title.ljust(title_width)
+        tleft  = title_line
+        tright = None
 
-        return "%s %s %s" % (title, tags, mod_time)
+        # search for a right alignment format
+        # if there is one, break the title line up into a left and right
+        fmt = re.search("^(.*)%>(.*)$", title_line)
+        if fmt:
+            tleft  = fmt.group(1)
+            tright = fmt.group(2)
 
+        if tright:
+            # if there is a right title then do formats
+            tright = self.format_title_build(tright, "F", flags, "F")
+            tright = self.format_title_build(tright, "D", mod_time, "D")
+            tright = self.format_title_build(tright, "T", tags, "T")
+            tright = self.format_title_build(tright, "N", title, note_age)
+        else:
+            tright = ""
+
+        if tleft:
+            # if there is a left title then do formats
+            tleft = self.format_title_build(tleft, "F", flags, "F")
+            tleft = self.format_title_build(tleft, "D", mod_time, "D")
+            tleft = self.format_title_build(tleft, "T", tags, "T")
+            tleft = self.format_title_build(tleft, "N", title, note_age)
+        else:
+            tleft = ""
+
+        # get the 'visible' title lengths
+        # string length without the concealment syntax highlighting tags
+        tleft_len  = self.format_title_len_no_conceal(tleft)
+        tright_len = self.format_title_len_no_conceal(tright)
+
+        # get the space allowed for the left title, this is the width
+        #   of the console minus the length of the right title
+        # if the left title is shorter than that allowed, pad the string
+        #   so the right title is fully right justified
+        # if the left title is longer than that allowed, the right title
+        #   will be pushed off the screen (bummers)..
+        padding = ""
+        max_tleft_len = width - tright_len - 1
+        if (max_tleft_len >= tleft_len):
+            padding = " " * (max_tleft_len - tleft_len)
+
+        return tleft + padding + " " + tright
 
     def get_notes_from_keys(self, key_list):
         """ fetch all note objects for a list of keys via threads and return
@@ -344,6 +497,44 @@ class SimplenoteVimInterface(object):
         else:
             print "Deleting note failed.: %s" % note
 
+    def pin_current_note(self):
+        """ pin the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            if note.has_key("systemtags"):
+                if ("pinned" in note["systemtags"]):
+                    print "Note is already pinned."
+                    return
+            else:
+                note["systemtags"] = []
+            note["systemtags"].append("pinned")
+            n, st = self.simplenote.update_note(note)
+            if st == 0:
+                print "Note pinned."
+            else:
+                print "Note could not be pinned."
+        else:
+            print "Error fetching note data."
+
+    def unpin_current_note(self):
+        """ unpin the currently displayed note """
+        note_id = self.get_current_note()
+        note, status = self.simplenote.get_note(note_id)
+        if status == 0:
+            if ((not note.has_key("systemtags")) or
+                ("pinned" not in note["systemtags"])):
+                print "Note is already unpinned."
+                return
+            note["systemtags"].remove("pinned")
+            n, st = self.simplenote.update_note(note)
+            if st == 0:
+                print "Note unpinned."
+            else:
+                print "Note could not be unpinned."
+        else:
+            print "Error fetching note data."
+
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
         content = "\n".join(str(line) for line in vim.current.buffer[:])
@@ -393,6 +584,7 @@ class SimplenoteVimInterface(object):
         vim.command("setl nomodifiable")
         vim.command("setlocal nowrap")
         vim.command("nnoremap <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
+        vim.command("setlocal filetype=simplenote")
 
 
 
@@ -536,6 +728,12 @@ elif param == "-D":
 
 elif param == "-t":
     interface.set_tags_for_current_note()
+
+elif param == "-p":
+    interface.pin_current_note()
+
+elif param == "-P":
+    interface.unpin_current_note()
 
 elif param == "-o":
     if optionsexist:

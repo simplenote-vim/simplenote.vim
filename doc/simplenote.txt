@@ -7,7 +7,8 @@ CONTENTS                                                 *simplenote-contents*
     1.Intro...................................|simplenote-intro|
     2.Commands................................|simplenote-commands|
     3.Configuration...........................|simplenote-configuration|
-    4.Bugs....................................|simplenote-bugs|
+    4.Colors..................................|simplenote-colors|
+    5.Bugs....................................|simplenote-bugs|
 
 ==============================================================================
 1. Intro                                                    *simplenote-intro*
@@ -47,6 +48,12 @@ Now you can take simple notes directly from your favourite editor.
     Show an input field to add tags to the note in the current buffer. The
     input field is prepopulated with existing note tags.
 
+:Simplenote -p                                                *:SimplenotePin*
+    Pin the note in the current buffer.
+
+:Simplenote -P                                              *:SimplenoteUnpin*
+    Unpin the note in the current buffer.
+
 :Simplenote -o {notekey}                                     *:SimplenoteOpen*
     Opens the note corresponding to the given {notekey}. This is useful for
     configuring shortcuts to specific notes, e.g. >
@@ -81,6 +88,32 @@ If set, the split windows will be opened vertical instead of horizontal. >
     g:SimplenoteVertical=1
 <
 
+                                                    *'simplenote_note_format'*
+Default: "%N%>[%T] [%D]"
+Sets the format of the title strings for notes in the list. >
+    g:SimplenoteNoteFormat="[%D] %N%>%T"
+<
+Various formatting tags are supporting for dynamically building the title
+string. Each of these formatting tags supports a width specifier (decimal) and
+a left justification (-) like that supported by printf. >
+    %F -- flags, always two characters ('*'=pinned, 'm'=markdown)
+    %T -- tags
+    %D -- date
+    %N -- note title
+    %> -- right justify the rest of the title
+<
+Examples: >
+    %N    -- entire note title
+    %50N  -- note title, max width of 50 characters and right justified
+    %-50N -- note title, max width of 50 characters and left justified
+<
+
+                                                       *'simplenote_strftime'*
+Default: "%a, %d %b %Y %H:%M:%S"
+The default |strftime| format to use in the note line. >
+    g:SimplenoteStrftime="%Y/%m/%d-%T"
+<
+
                                                      *'simplenote_sort_order'*
 Default: "pinned,modifydate"
 Sets the sort order by which notes should be listed. Dates are sorted from
@@ -95,7 +128,6 @@ Set the default vim filetype for notes. >
     g:SimplenoteFiletype="markdown"
 <
 
-
                                                           *'simplenote_proxy'*
 Default: Off
 If you are behind a proxy set these to the correct values. >
@@ -104,7 +136,22 @@ If you are behind a proxy set these to the correct values. >
 <
 
 ==============================================================================
-4. Bugs                                                      *simplenote-bugs*
+4. Colors                                                  *simplenote-colors*
+
+If the |+conceal| feature is enabled in vim then |syntax| highlighting is
+supported for the Simplenote note list. The |highlight| groups supported are:
+
+  SN_NoteFlags       note flags ('%F' format)
+  SN_NoteDate        last updated date of the note ('%D' format)
+  SN_NoteTags        tags assigned to the note ('%T' format)
+  SN_NoteAgeDay      note title - less than a day old ('%N' format)
+  SN_NoteAgeWeek     note title - less than a week old ('%N' format)
+  SN_NoteAgeMonth    note title - less than a month old ('%N' format)
+  SN_NoteAgeYear     note title - less than a year old ('%N' format)
+  SN_NoteAgeAncient  note title - ancient ('%N' format)
+
+==============================================================================
+5. Bugs                                                      *simplenote-bugs*
 
 For known bugs or to submit a new one, please visit
 https://github.com/mrtazz/simplenote.vim/issues
