@@ -359,6 +359,7 @@ class SimplenoteVimInterface(object):
             if markdown:
                 vim.command("setlocal filetype=markdown")
             self.set_current_note(note["key"])
+            vim.command("doautocmd BufReadPost")
             print "New note created."
         else:
             print "Update failed.: %s" % note["key"]
