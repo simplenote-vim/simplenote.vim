@@ -5,8 +5,10 @@ A vim plugin to interact with the [simplenote][1] API. You can create an account
 Now you can take simple notes directly from your favourite editor.
 
 ## Installation
-Install manually by copying `simplenote.vim` into your plugin folder or if using
-[Pathogen][3]:
+Install manually by copying `simplenote.vim` into your plugin folder or use the
+included `mk_vimball.sh` to generate a vimball to install.
+
+if using [Pathogen][3]:
 
     git clone https://github.com/mrtazz/simplenote.vim.git
     ~/.vim/bundle/simplenote.vim
