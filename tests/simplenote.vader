@@ -14,8 +14,8 @@ Execute python:
   import vim
   sn = Simplenote("simplenote-test@lordofhosts.de", "foobar")
   snkey = vim.current.buffer.name.split("/")[-1]
-  note = sn.get_note(snkey)
-  vim.current.buffer.append(note[0]["content"])
+  note, status = sn.get_note(snkey)
+  vim.current.buffer.append(note["content"])
 
 Expect:
   A test note
@@ -34,10 +34,10 @@ Execute (Update a note):
 
 Execute python:
   snkey = vim.current.buffer.name.split("/")[-1]
-  note_original = sn.get_note(snkey,1)
-  vim.current.buffer.append(note_original[0]["content"])
-  note_updated = sn.get_note(snkey)
-  vim.current.buffer.append(note_updated[0]["content"])
+  note_original, status = sn.get_note(snkey,1)
+  vim.current.buffer.append(note_original["content"])
+  note_updated, status = sn.get_note(snkey)
+  vim.current.buffer.append(note_updated["content"])
 
 Expect:
   A second test note
@@ -59,8 +59,8 @@ Execute (Trash a note):
   :Simplenote -d
 
 Execute python:
-  note = sn.get_note(snkey)
-  vim.current.buffer.append(str(note[0]["deleted"]))
+  note, status = sn.get_note(snkey)
+  vim.current.buffer.append(str(note["deleted"]))
 
 Expect:
   A third test note
@@ -81,8 +81,8 @@ Execute (Delete a note):
   :Simplenote -D
 
 Execute python:
-  note = sn.get_note(snkey)
-  vim.current.buffer.append(str(note[0].code))
+  note, status = sn.get_note(snkey)
+  vim.current.buffer.append(str(note.code))
 
 Expect:
   A fourth test note
@@ -118,8 +118,8 @@ Do (Tag a new note):
 
 Execute python:
   snkey = vim.current.buffer.name.split("/")[-1]
-  note = sn.get_note(snkey)
-  vim.current.buffer.append(str(note[0]["tags"][0]))
+  note, status = sn.get_note(snkey)
+  vim.current.buffer.append(str(note["tags"][0]))
 
 Expect:
   A seventh test note
