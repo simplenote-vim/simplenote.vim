@@ -1,0 +1,13 @@
+" Mini .vimrc for testing via Vader. Run as follows:
+" vim -u tests/test-vimrc tests/simplenote.vader
+
+set nocompatible
+filetype off
+
+" Assumes that plugins are installed under ~/.vim/bundle
+
+" Dependencies
+set rtp^=~/.vim/bundle/vader.vim
+set rtp+=./
+
+filetype plugin indent on
