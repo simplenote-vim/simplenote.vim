@@ -1,4 +1,5 @@
-# Unit testing using Vader: https://github.com/junegunn/vader.vim to run just open this file in Vim and ":Vader"
+# Unit testing using Vader: https://github.com/junegunn/vader.vim
+# To run: `vim -u tests/test-vimrc +Vader tests/simplenote.vader`
 #
 # Creates a new note and uses simplenote.py to verify a note of that key has been created
 Given:
@@ -126,12 +127,53 @@ Expect:
   tag
 
 
+# Pin a note
+Given:
+  A note to pin
+
+Execute (Pin a note):
+  :Simplenote -n
+  :Simplenote -p
+
+Execute python:
+  import time
+  snkey = vim.current.buffer.name.split("/")[-1]
+  time.sleep(2)
+  note, status = sn.get_note(snkey)
+  vim.current.buffer.append("pinned") if ("pinned" in note["systemtags"]) else vim.current.buffer.append(str(note))
+
+Expect:
+  A note to pin
+  pinned
+
+
+# Unpin a note
+Given:
+  A note to unpin
+
+Execute (Unpin a note):
+  :Simplenote -n
+  :Simplenote -p
+  sleep 5
+  :Simplenote -P
+
+Execute python:
+  snkey = vim.current.buffer.name.split("/")[-1]
+  time.sleep(5)
+  note, status = sn.get_note(snkey)
+  if (not ("pinned" in note["systemtags"])): vim.current.buffer.append("unpinned")
+
+Expect:
+  A note to unpin
+  unpinned
+
+
 # Get a list of notes
 Execute (Get a list of notes):
   :Simplenote -l
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 5, line('$')
+  AssertEqual 7, line('$')
   "and clear it
   :1,$d
 
