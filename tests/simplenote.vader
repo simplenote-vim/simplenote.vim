@@ -126,42 +126,12 @@ Expect:
   tag
 
 
-# Pin a note
-Given:
-  A note to pin
-
-Execute (Pin a note):
-  :Simplenote -n
-  :Simplenote -p
-
-Execute python:
-  import time
-  snkey = vim.current.buffer.name.split("/")[-1]
-  time.sleep(5)
-  note, status = sn.get_note(snkey)
-  vim.current.buffer.append("pinned") if ("pinned" in note["systemtags"]) else vim.current.buffer.append(str(note))
-
-Execute (Unpin a note):
-  sleep 5
-  :Simplenote -P
-
-Execute python:
-  time.sleep(5)
-  note, status = sn.get_note(snkey)
-  if (not ("pinned" in note["systemtags"])): vim.current.buffer.append("unpinned")
-
-Expect:
-  A note to pin
-  pinned
-  unpinned
-
-
 # Get a list of notes
 Execute (Get a list of notes):
   :Simplenote -l
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 6, line('$')
+  AssertEqual 5, line('$')
   "and clear it
   :1,$d
 
