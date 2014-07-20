@@ -31,7 +31,7 @@ git commit -m "Bump version to v$@";
 git tag v$@
 
 #Generate vimball
-source ./mk_vimball.sh
+sh ./mk_vimball.sh
 
 #Echo what needs to be done next
 echo "Changelog and version updated, commited and tagged."
