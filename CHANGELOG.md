@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 (07/20/2014)
+- Add reduced vimrc for running Vader tests and other test related changes
+- Force autocommand processing of notes opened via Simplenote.vim. For example, to enable modeline processing. From @insanum
+- New list index format options and syntax highlighting. From @insanum
+- New commands to pin/unpin notes. From @insanum 
+- Add script to generate vimball. From @jeromebaum
+- Add more detailed installation instructions and mention contains git submodule
+
 ## 0.8.0 (01/11/2014)
 - Add a script to help automate release management
 - Add tests using Vader.vim
