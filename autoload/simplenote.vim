@@ -120,11 +120,6 @@ function! s:ScratchBuffer()
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal cursorline
-    if exists("g:SimplenoteFiletype")
-      exe "setlocal filetype=" . g:SimplenoteFiletype
-    else
-      setlocal filetype=txt
-    endif
 
     if (s:vbuff == 0) && (s:lineheight > 0)
         exe "resize " . s:lineheight
@@ -420,11 +415,15 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal buftype=acwrite")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+        vim.command("setlocal nomodified")
+        vim.command("doautocmd BufReadPost")
+        # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
+        if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
+            vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
+        # But let simplenote markdown flag override the above
         if note.has_key("systemtags"):
             if ("markdown" in note["systemtags"]):
                 vim.command("setlocal filetype=markdown")
-        vim.command("setlocal nomodified")
-        vim.command("doautocmd BufReadPost")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new"""
@@ -547,10 +546,14 @@ class SimplenoteVimInterface(object):
             note, status = self.simplenote.update_note({"content": content})
         if status == 0:
             self.transform_to_scratchbuffer()
-            if markdown:
-                vim.command("setlocal filetype=markdown")
             self.set_current_note(note["key"])
             vim.command("doautocmd BufReadPost")
+            # BufReadPost can cause auto-selection of filetype based on file content so reset filetype after this
+            if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
+                vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
+            #But let simplenote markdown flag override the above
+            if markdown:
+                vim.command("setlocal filetype=markdown")
             print "New note created."
         else:
             print "Update failed.: %s" % note["key"]
