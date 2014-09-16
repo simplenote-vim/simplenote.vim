@@ -234,7 +234,8 @@ class SimplenoteVimInterface(object):
             title = re.sub(r"(.*?)\|D\|(.*?)\|(.*?)", r"\1\2\3", title)
             # exclude the "|[dwmya]|...|" syntax tag
             title = re.sub(r"(.*?)\|[dwmya]\|(.*?)\|(.*?)", r"\1\2\3", title)
-        return len(title)
+            length = int(vim.eval("strdisplaywidth('"+title+"')"))
+        return length
 
     def format_title(self, note):
         """ function to format the title for a note object
