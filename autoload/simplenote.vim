@@ -234,6 +234,9 @@ class SimplenoteVimInterface(object):
             title = re.sub(r"(.*?)\|D\|(.*?)\|(.*?)", r"\1\2\3", title)
             # exclude the "|[dwmya]|...|" syntax tag
             title = re.sub(r"(.*?)\|[dwmya]\|(.*?)\|(.*?)", r"\1\2\3", title)
+			# To use strdisplaywidth as per below need to ensure title doesn't contain single quotes
+			# This is very hacky/kludgy and should be done a better way
+            title = re.sub(r"'", r"_", title)
             length = int(vim.eval("strdisplaywidth('"+title+"')"))
         return length
 
