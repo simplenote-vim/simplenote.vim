@@ -225,6 +225,8 @@ class SimplenoteVimInterface(object):
 
         Returns the visible length of the title
         """
+        length = 0
+
         if vim.eval("has('conceal')") == "1":
             # exclude the "|F|...|" syntax tag
             title = re.sub(r"(.*?)\|F\|(.*?)\|(.*?)", r"\1\2\3", title)
