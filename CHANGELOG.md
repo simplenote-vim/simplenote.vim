@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1 (11/24/2014)
+- Make list index work again when Vim is compiled without conceal
+- Quick fix for titles with single quotes causing error in list index
+- Fix alignment of titles/tags with multibyte characters in list index
+- Re-order commands to avoid BufReadPost overriding intended filetype
+
 ## 0.9.0 (07/20/2014)
 - Add reduced vimrc for running Vader tests and other test related changes
 - Force autocommand processing of notes opened via Simplenote.vim. For example, to enable modeline processing. From @insanum
