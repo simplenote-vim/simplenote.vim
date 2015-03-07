@@ -496,9 +496,10 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.delete_note(note_id)
         if status == 0:
             print "Note deleted."
-            """ when running tests don't want to close buffer """
+            """ when running tests don't want to manipulate or close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
-                vim.command("quit!")
+                self.remove_note_from_index(note_id)
+                vim.command("bdelete!")
         else:
             print "Deleting note failed.: %s" % note
 
@@ -562,6 +563,22 @@ class SimplenoteVimInterface(object):
             print "New note created."
         else:
             print "Update failed.: %s" % note["key"]
+
+    def remove_note_from_index(self, note_id):
+        try:
+            position = self.note_index.index(note_id)
+            #switch to note index buffer so can make modifiable temporarily in order to delete line
+            vim.command("buffer Simplenote")
+            vim.command("setlocal modifiable")
+            del vim.current.buffer[position]
+            vim.command("setlocal nomodifiable")
+            #Switch back to note buffer so it can be deleted from function calling this one
+            vim.command("buffer "+note_id)
+            #Also delete from note_index so opening notes works as expected
+            del self.note_index[position]
+        except ValueError:
+            #Handle improbable situation of trying to remove a note that wasn't there
+            print "Unable to remove deleted note from list index"
 
     def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
