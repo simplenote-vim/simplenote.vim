@@ -184,6 +184,16 @@ to add these lines (with the correct values) to your `.vimrc`:
     = 'http://<proxyuser>:<proxypassword>@<proxyurl>:<proxyport>'
 
 
+## Special issue concerning GFW
+For Chinese mainland users, since the authentication service of [simplenote][1] is hosted
+on [appspot](http://appspot.com), a VPN connection has to be configured to use
+simplenote.vim. The configurations of a VPN connection is surely beyond the scope of
+this doc. But if you have done that, you can add a shell alias or script
+exploiting `proxychains` to ease the invoking of simplenote.vim
+
+    # as for zsh
+    alias simplenote="proxychains -q vim -c 'Simplenote -l'"
+
 ## Development
 - [Bugs and issue tracker](https://github.com/mrtazz/simplenote.vim/issues)
 
