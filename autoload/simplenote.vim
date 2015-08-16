@@ -165,6 +165,10 @@ class SimplenoteVimInterface(object):
         self.simplenote = Simplenote(username, password)
         self.note_index = []
 
+    def init(self, username, password):
+        self.simplenote = Simplenote(username, password)
+        self.note_index = []
+
     def get_current_note(self):
         """ returns the key of the currently edited note """
         key = vim.eval("expand('%:t')")
@@ -700,6 +704,10 @@ class NoteFetcher(Thread):
 
         self.queue.task_done()
 
+SN_USER = vim.eval("s:user")
+SN_PASSWORD = vim.eval("s:password")
+interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
+
 ENDPYTHON
 
 "
@@ -743,8 +751,7 @@ def Simplenote_cmd():
 
     SN_USER = vim.eval("s:user")
     SN_PASSWORD = vim.eval("s:password")
-
-    interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
+    interface.init(SN_USER, SN_PASSWORD)
 
     param = vim.eval("a:param")
     optionsexist = True if (float(vim.eval("a:0"))>=1) else False
