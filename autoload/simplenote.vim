@@ -66,14 +66,6 @@ else
   let s:sortorder = "pinned, modifydate"
 endif
 
-" if (s:user == "") || (s:password == "")
-  " let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
-  " let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
-  " let errmsg = errmsg . "create one at https://simple-note.appspot.com/create/."
-  " echoerr errmsg
-  " finish
-" endif
-
 "
 " Helper functions
 "
