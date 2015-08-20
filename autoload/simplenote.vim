@@ -735,7 +735,7 @@ def reset_user_pass(warning=None):
 def Simplenote_cmd():
     if vim.eval('s:user') == '' or vim.eval('s:password') == '':
         try:
-            vim.command("let s:user=input('username:', '')")
+            vim.command("let s:user=input('email:', '')")
             vim.command("let s:password=inputsecret('password:', '')")
         except KeyboardInterrupt:
             reset_user_pass('KeyboardInterrupt')
