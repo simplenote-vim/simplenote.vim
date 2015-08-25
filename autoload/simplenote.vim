@@ -66,14 +66,6 @@ else
   let s:sortorder = "pinned, modifydate"
 endif
 
-if (s:user == "") || (s:password == "")
-  let errmsg = "Simplenote credentials missing. Set g:SimplenoteUsername and "
-  let errmsg = errmsg . "g:SimplenotePassword. If you don't have an account you can "
-  let errmsg = errmsg . "create one at https://simple-note.appspot.com/create/."
-  echoerr errmsg
-  finish
-endif
-
 "
 " Helper functions
 "
@@ -157,13 +149,15 @@ from threading import Thread
 from Queue import Queue
 
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
-SN_USER = vim.eval("s:user")
-SN_PASSWORD = vim.eval("s:password")
 
 class SimplenoteVimInterface(object):
     """ Interface class to provide functions for interacting with VIM """
 
     def __init__(self, username, password):
+        self.simplenote = Simplenote(username, password)
+        self.note_index = []
+
+    def init(self, username, password):
         self.simplenote = Simplenote(username, password)
         self.note_index = []
 
@@ -702,8 +696,9 @@ class NoteFetcher(Thread):
 
         self.queue.task_done()
 
+SN_USER = vim.eval("s:user")
+SN_PASSWORD = vim.eval("s:password")
 interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
-
 
 ENDPYTHON
 
@@ -728,49 +723,79 @@ endfunction
 
 function! simplenote#SimpleNote(param, ...)
 python << EOF
-param = vim.eval("a:param")
-optionsexist = True if (float(vim.eval("a:0"))>=1) else False
-if param == "-l":
-    if optionsexist:
+def reset_user_pass(warning=None):
+    vim.command("let s:user=''")
+    vim.command("let s:password=''")
+    if int(vim.eval("exists('g:SimplenoteUsername')")):
+        vim.command("let s:user=g:SimplenoteUsername")
+    if int(vim.eval("exists('g:SimplenotePassword')")):
+        vim.command("let s:password=g:SimplenotePassword")
+    if warning:
+        vim.command("redraw!")
+        vim.command("echohl WarningMsg")
+        vim.command("echo '%s'" % warning)
+        vim.command("echohl none")
+
+def Simplenote_cmd():
+    if vim.eval('s:user') == '' or vim.eval('s:password') == '':
         try:
-            # check for valid date string
-            datetime.datetime.strptime(vim.eval("a:1"), "%Y-%m-%d")
-            interface.list_note_index_in_scratch_buffer(since=vim.eval("a:1"))
-        except ValueError:
-            interface.list_note_index_in_scratch_buffer(tags=vim.eval("a:1").split(","))
+            vim.command("let s:user=input('email:', '')")
+            vim.command("let s:password=inputsecret('password:', '')")
+        except KeyboardInterrupt:
+            reset_user_pass('KeyboardInterrupt')
+            return
+
+    SN_USER = vim.eval("s:user")
+    SN_PASSWORD = vim.eval("s:password")
+    interface.init(SN_USER, SN_PASSWORD)
+
+    param = vim.eval("a:param")
+    optionsexist = True if (float(vim.eval("a:0"))>=1) else False
+    if param == "-l":
+        if optionsexist:
+            try:
+                # check for valid date string
+                datetime.datetime.strptime(vim.eval("a:1"), "%Y-%m-%d")
+                interface.list_note_index_in_scratch_buffer(since=vim.eval("a:1"))
+            except ValueError:
+                interface.list_note_index_in_scratch_buffer(tags=vim.eval("a:1").split(","))
+        else:
+            interface.list_note_index_in_scratch_buffer()
+
+    elif param == "-d":
+        interface.trash_current_note()
+
+    elif param == "-u":
+        interface.update_note_from_current_buffer()
+
+    elif param == "-n":
+        interface.create_new_note_from_current_buffer()
+
+    elif param == "-D":
+        interface.delete_current_note()
+
+    elif param == "-t":
+        interface.set_tags_for_current_note()
+
+    elif param == "-p":
+        interface.pin_current_note()
+
+    elif param == "-P":
+        interface.unpin_current_note()
+
+    elif param == "-o":
+        if optionsexist:
+            interface.display_note_in_scratch_buffer(vim.eval("a:1"))
+        else:
+            print "No notekey given."
+
     else:
-        interface.list_note_index_in_scratch_buffer()
-
-elif param == "-d":
-    interface.trash_current_note()
-
-elif param == "-u":
-    interface.update_note_from_current_buffer()
-
-elif param == "-n":
-    interface.create_new_note_from_current_buffer()
-
-elif param == "-D":
-    interface.delete_current_note()
-
-elif param == "-t":
-    interface.set_tags_for_current_note()
-
-elif param == "-p":
-    interface.pin_current_note()
-
-elif param == "-P":
-    interface.unpin_current_note()
-
-elif param == "-o":
-    if optionsexist:
-        interface.display_note_in_scratch_buffer(vim.eval("a:1"))
-    else:
-        print "No notekey given."
-
-else:
-    print "Unknown argument"
-
+        print "Unknown argument"
+import simplenote
+try:
+    Simplenote_cmd()
+except simplenote.SimplenoteLoginFailed:
+    reset_user_pass('Login Failed')
 EOF
 endfunction
 
