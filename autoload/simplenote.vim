@@ -726,6 +726,10 @@ python << EOF
 def reset_user_pass(warning=None):
     vim.command("let s:user=''")
     vim.command("let s:password=''")
+    if int(vim.eval("exists('g:SimplenoteUsername')")):
+        vim.command("let s:user=g:SimplenoteUsername")
+    if int(vim.eval("exists('g:SimplenotePassword')")):
+        vim.command("let s:password=g:SimplenotePassword")
     if warning:
         vim.command("redraw!")
         vim.command("echohl WarningMsg")
