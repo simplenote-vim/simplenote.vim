@@ -140,7 +140,7 @@ python << ENDPYTHON
 import os
 import vim
 sys.path.append(vim.eval("expand('<sfile>:p:h')") + "/simplenote.py/simplenote/")
-from simplenote import Simplenote
+import simplenote
 import datetime
 import re
 import time
@@ -154,11 +154,7 @@ class SimplenoteVimInterface(object):
     """ Interface class to provide functions for interacting with VIM """
 
     def __init__(self, username, password):
-        self.simplenote = Simplenote(username, password)
-        self.note_index = []
-
-    def init(self, username, password):
-        self.simplenote = Simplenote(username, password)
+        self.simplenote = simplenote.Simplenote(username, password)
         self.note_index = []
 
     def get_current_note(self):
@@ -724,12 +720,10 @@ endfunction
 function! simplenote#SimpleNote(param, ...)
 python << EOF
 def reset_user_pass(warning=None):
-    vim.command("let s:user=''")
-    vim.command("let s:password=''")
-    if int(vim.eval("exists('g:SimplenoteUsername')")):
-        vim.command("let s:user=g:SimplenoteUsername")
-    if int(vim.eval("exists('g:SimplenotePassword')")):
-        vim.command("let s:password=g:SimplenotePassword")
+    if int(vim.eval("exists('g:SimplenoteUsername')")) == 0:
+        vim.command("let s:user=''")
+    if int(vim.eval("exists('g:SimplenotePassword')")) == 0:
+        vim.command("let s:password=''")
     if warning:
         vim.command("redraw!")
         vim.command("echohl WarningMsg")
@@ -744,10 +738,17 @@ def Simplenote_cmd():
         except KeyboardInterrupt:
             reset_user_pass('KeyboardInterrupt')
             return
+    #If a logon error has occurred, user may have corrected their globals since reset
+    else:
+        if vim.eval("exists('g:SimplenoteUsername')") == 1:
+            vim.command("let s:user=g:SimplenoteUsername")
+        if vim.eval("exists('g:SimplenotePassword')") == 1:
+            vim.command("let s:password=g:SimplenotePassword")
 
     SN_USER = vim.eval("s:user")
     SN_PASSWORD = vim.eval("s:password")
-    interface.init(SN_USER, SN_PASSWORD)
+    interface.simplenote.username = SN_USER
+    interface.simplenote.password = SN_PASSWORD
 
     param = vim.eval("a:param")
     optionsexist = True if (float(vim.eval("a:0"))>=1) else False
@@ -791,10 +792,10 @@ def Simplenote_cmd():
 
     else:
         print "Unknown argument"
-import simplenote
 try:
     Simplenote_cmd()
 except simplenote.SimplenoteLoginFailed:
+    #Note: error has to be caught here and not in __init__
     reset_user_pass('Login Failed')
 EOF
 endfunction
