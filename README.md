@@ -37,7 +37,7 @@ But it's easier to use a plugin manager:
     Add Plug 'mrtazz/simplenote.vim' to .vimrc
     Run :PlugInstall
 
-Your credentials have to be stored in your `vimrc`:
+Your credentials can be stored in your `vimrc`:
 
     let g:SimplenoteUsername = "your simplenote username"
     let g:SimplenotePassword = "your simplenote password"
@@ -45,6 +45,9 @@ Your credentials have to be stored in your `vimrc`:
 If you don't want to have the credentials in your `vimrc` (if you manage it with
 git for example), you can just set the variables in a different file (like
 `~/.simplenoterc`) and source it with `source ~/.simplenoterc` in your `vimrc`.
+
+Alternatively, if you don't set these global variables then Simplenote.vim will
+prompt you for a username and password when you start using it.
 
 By default all notes are treated as plain text. If you usually write all of your
 notes in some other format (like markdown or restructured text) you can set
