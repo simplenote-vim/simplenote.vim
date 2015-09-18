@@ -72,8 +72,11 @@ endif
 
 " Everything is displayed in a scratch buffer named SimpleNote
 let g:simplenote_scratch_buffer = 'Simplenote'
+" Initialise the window number that notes will be displayed in. This needs to start as 0.
+let g:simplenote_note_winnr = 0
 
 " Function that opens or navigates to the scratch buffer.
+" TODO: This is a complicated mess and could be improved
 function! s:ScratchBufferOpen(name)
     let exe_new = "new "
     let exe_split = "split "
@@ -83,24 +86,58 @@ function! s:ScratchBufferOpen(name)
         let exe_split = "vert " . exe_split
     endif
 
-
+    "Find buffer number
     let scr_bufnum = bufnr(a:name)
+    "If buffer doesn't exist, create new window or buffer
     if scr_bufnum == -1
-        exe exe_new . a:name
-        if a:name == g:simplenote_scratch_buffer && NoModifiedBuffers()
-            exe 'only'
+        "If no notes open or single window mode isn't set
+        if g:simplenote_note_winnr == 0 || !exists("g:SimplenoteSingleWindow")
+            "Opens a new window
+            exe exe_new . a:name
+            "Make the only window if the list index
+            if (a:name == g:simplenote_scratch_buffer) && NoModifiedBuffers()
+                exe 'only'
+            else
+                "Find window number created and set global variable to that, but only initially
+                let g:simplenote_note_winnr = winnr()
+            endif
+        else
+            "If single window mode open note in the existing window as long as that window is actually there
+            if (g:simplenote_note_winnr <= winnr('$')) && exists("g:SimplenoteSingleWindow")
+                exe g:simplenote_note_winnr . "wincmd w"
+                exe "badd " . a:name
+                exe "buffer " . a:name
+            else
+                "The window must have been closed so open a new window again
+                exe exe_new . a:name
+                let g:simplenote_note_winnr = winnr()
+            endif
         endif
     else
+        "Find window for buffer number
         let scr_winnum = bufwinnr(scr_bufnum)
+        "If window is open for that buffer
         if scr_winnum != -1
+            "Switches to existing window for buffer
             if winnr() != scr_winnum
                 exe scr_winnum . "wincmd w"
             endif
         else
-            exe  exe_split . "+buffer" . scr_bufnum
-            if a:name == g:simplenote_scratch_buffer && NoModifiedBuffers()
-                exe 'only'
-            endif
+            "If single window mode open note in the existing window as long as that window is actually there
+            if (g:simplenote_note_winnr <= winnr('$')) && exists("g:SimplenoteSingleWindow")
+                exe g:simplenote_note_winnr . "wincmd w"
+                exe "buffer " . scr_bufnum
+			else
+                "The window must have been closed so open a new window again
+				"If buffer exists, but that isn't displayed, bring to front
+				exe  exe_split . "+buffer" . scr_bufnum
+				"If note index make the only window
+				if (a:name == g:simplenote_scratch_buffer) && NoModifiedBuffers()
+					exe 'only'
+				endif
+				"set this again since original must have been closed
+				let g:simplenote_note_winnr = winnr()
+			endif
         endif
     endif
     call s:ScratchBuffer()
