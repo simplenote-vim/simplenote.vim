@@ -76,7 +76,7 @@ let g:simplenote_scratch_buffer = 'Simplenote'
 let g:simplenote_note_winnr = 0
 
 " Function that opens or navigates to the scratch buffer.
-" TODO: This is a complicated mess and could be improved
+" TODO: This is a complicated mess and it would be nice to improve it, but I'm really not sure how.
 function! s:ScratchBufferOpen(name)
     let exe_new = "new "
     let exe_split = "split "

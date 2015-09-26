@@ -158,8 +158,7 @@ The format of the date string is also configurable using the
 `g:SimplenoteStrftime` option. The default strftime is
 `"%a, %d %b %Y %H:%M:%S"`.
 
-## Colors
-
+### Colors
 If the `+conceal` feature is enabled in vim then syntax highlighting is
 supported for the Simplenote note list. The highlight groups supported are:
 
@@ -171,6 +170,16 @@ supported for the Simplenote note list. The highlight groups supported are:
     SN_NoteAgeMonth    note title - less than a month old ('%N' format)
     SN_NoteAgeYear     note title - less than a year old ('%N' format)
     SN_NoteAgeAncient  note title - ancient ('%N' format)
+
+## Single Window Mode
+By default simplenote.vim will open notes in new windows. If you would prefer
+simplenote.vim to emulate the behaviour of the Simplenote website and native
+applications then set `g:SimplenoteSingleWindow` (to anything) in your `.vimrc`
+and simplenote.vim will try as much as possible to re-use one window for
+opening all notes. Note: due to the way Vim handles and numbers windows, this
+behaviour can't be perfect and if you manually open a window between the note
+index and the first note opened then this new window will be targetted for
+notes.
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
