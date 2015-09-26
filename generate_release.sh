@@ -3,10 +3,14 @@
 #Script to automate some of the work involved in generating a new release
 #Run it as `./generate_release 0.0.0`
 
-#Regex to check argument
-if [ `expr "$@" : '[0-9]\.[0-9]\.[0-9]'` -eq 0 ]; then
-	echo "Argument must be in the form d.d.d";
+#Regex to check argument, this isn't very good, but is good enough
+if [ -z "$1" ]; then
+	echo "No argument supplied";
 	exit 1;
+fi
+if [ $(echo "$@" | sed -E "s/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/true/" ) != "true" ]; then
+		echo "Argument must be in the form d.d.d";
+		exit 1;
 fi
 
 #Bump version
