@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 (09/27/2015)
+- Minor fix/improvement to regex in script for generating release
+- Add "single window" mode to emulate behaviour of website
+- prompt for user/pass when missing. From @yuex
+- Add Great Firewall of China usage note to README. From @yuex
+- When deleting a note also remove it from the note index list
+
 ## 0.9.1 (11/24/2014)
 - Make list index work again when Vim is compiled without conceal
 - Quick fix for titles with single quotes causing error in list index
