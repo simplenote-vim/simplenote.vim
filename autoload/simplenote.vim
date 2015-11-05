@@ -193,6 +193,9 @@ class SimplenoteVimInterface(object):
     def __init__(self, username, password):
         self.simplenote = simplenote.Simplenote(username, password)
         self.note_index = []
+        #No idea what to call the below. Cache? Data? It's another index.
+        #Perhaps should rework the above index so have one thing.
+        self.note_data = {}
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
@@ -437,6 +440,8 @@ class SimplenoteVimInterface(object):
 
         # get note and open it in scratch buffer
         note, status = self.simplenote.get_note(note_id)
+        #Update the version
+        self.note_data[note_id] = note["version"]
         if int(vim.eval("exists('g:vader_file')")) == 0:
             vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
         self.set_current_note(note_id)
@@ -476,12 +481,24 @@ class SimplenoteVimInterface(object):
                         note["systemtags"].remove("markdown")
             note, status = self.simplenote.update_note({"content": content,
                                                       "key": note_id,
+                                                      "version": self.note_data[note_id],
                                                       "systemtags": note["systemtags"]})
+            #To merge in do we need to send other info? Need to send version.
+            #Ah! but we don't store that anywhere. Drat! Could we perhaps get it when we check for markdown?
+            #Need to have stored it somewhere, on opening. In memory or on disk?
+            #Probably also need to send modifydate, based on experience in snose
             if status == 0:
                 print "Update successful."
+                self.note_data[note_id] = note["version"]
+                if 'content' in note:
+                    buffer = vim.current.buffer
+                    buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                    print "Merged local content for %s" % note_id
                 vim.command("setlocal nomodified")
             else:
                 print "Update failed.: %s" % note
+            #Merging content. 
+
         elif note.code == 404:
             # API returns 404 if note doesn't exist, so create new
             self.create_new_note_from_current_buffer()
@@ -578,6 +595,7 @@ class SimplenoteVimInterface(object):
         else:
             note, status = self.simplenote.update_note({"content": content})
         if status == 0:
+            self.note_data[note["key"]] = note["version"]
             self.transform_to_scratchbuffer()
             self.set_current_note(note["key"])
             vim.command("doautocmd BufReadPost")
