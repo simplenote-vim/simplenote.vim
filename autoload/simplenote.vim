@@ -127,17 +127,17 @@ function! s:ScratchBufferOpen(name)
             if (g:simplenote_note_winnr <= winnr('$')) && exists("g:SimplenoteSingleWindow")
                 exe g:simplenote_note_winnr . "wincmd w"
                 exe "buffer " . scr_bufnum
-			else
+            else
                 "The window must have been closed so open a new window again
-				"If buffer exists, but that isn't displayed, bring to front
-				exe  exe_split . "+buffer" . scr_bufnum
-				"If note index make the only window
-				if (a:name == g:simplenote_scratch_buffer) && NoModifiedBuffers()
-					exe 'only'
-				endif
-				"set this again since original must have been closed
-				let g:simplenote_note_winnr = winnr()
-			endif
+                "If buffer exists, but that isn't displayed, bring to front
+                exe  exe_split . "+buffer" . scr_bufnum
+                "If note index make the only window
+                if (a:name == g:simplenote_scratch_buffer) && NoModifiedBuffers()
+                    exe 'only'
+                endif
+                "set this again since original must have been closed
+                let g:simplenote_note_winnr = winnr()
+            endif
         endif
     endif
     call s:ScratchBuffer()
