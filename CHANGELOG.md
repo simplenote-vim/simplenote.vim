@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.10.1 (11/05/2015)
+- Remove errant tabs from code
+
 ## 0.10.0 (09/27/2015)
 - Minor fix/improvement to regex in script for generating release
 - Add "single window" mode to emulate behaviour of website
