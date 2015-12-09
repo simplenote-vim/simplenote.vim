@@ -585,6 +585,28 @@ class SimplenoteVimInterface(object):
         else:
             print "Error fetching note data."
 
+    def version_of_current_note(self, version=None):
+        """ retrieve a specific version of current note """
+        note_id = self.get_current_note()
+        try:
+            current_version = self.note_data[note_id]
+            buffer = vim.current.buffer
+            if (buffer.options["modified"] == False):
+                if version is None:
+                    #If no args then just print version of note
+                    print "Current version of note is %s" % current_version
+                else:
+                    note, status = self.simplenote.get_note(note_id, version)
+                    if status == 0:
+                        buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                        print "Displaying version %s. To restore this version, :Simplenote -u, to get most recent version, :Simplenote -V" % version
+                    else:
+                        print "Error fetching note data. Perhaps that version isn't available."
+            else:
+                print "Save changes before trying to show a previous version"
+        except KeyError:
+            print "This isn't a Simplenote"
+
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
         content = "\n".join(str(line) for line in vim.current.buffer[:])
@@ -838,6 +860,19 @@ def Simplenote_cmd():
 
     elif param == "-P":
         interface.unpin_current_note()
+
+    elif param == "-v":
+        if optionsexist:
+            interface.version_of_current_note(vim.eval("a:1"))
+        else:
+            interface.version_of_current_note()
+
+    elif param == "-V":
+        try:
+            interface.display_note_in_scratch_buffer(interface.get_current_note())
+        except TypeError:
+            #Just incase it is tried on a note that isn't a simplenote
+            print "This isn't a Simplenote"
 
     elif param == "-o":
         if optionsexist:

@@ -22,16 +22,23 @@ Now you can take simple notes directly from your favourite editor.
 ==============================================================================
 2. Commands                                              *simplenote-commands*
 
-:Simplenote -l {num|tags}                                    *:SimplenoteList*
-    List {num} notes or all notes with {tags} where {tags} is a comma separated
-    list of tags. When the parameter is omitted, all notes are fetched. This
-    command opens a split window to list notes. In the appearing split window,
-    notes can be selected with the cursor line and are opened in a new split
-    window with {CR}.
+:Simplenote -l {date|tags}                                   *:SimplenoteList*
+    List notes since {date} or all notes with {tags} where {tags} is a comma
+    separated list of tags. When the parameter is omitted, all notes are
+    fetched. This command opens a split window to list notes. In the appearing
+    split window, notes can be selected with the cursor line and are opened in
+    a new split window with {CR}.
 
 :Simplenote -u                                             *:SimplenoteUpdate*
     Update the currently opened note in the online service. The note is also
-    automatically updated when the buffer is written.
+    automatically updated when the buffer is written. This will also merge in
+    any changes that have occurred to the remote note.
+
+:Simplenote -v {version} / :Simplenote -V                 *:SimplenoteVersion*
+    Without any argument this displays the current version of a note. When
+    {version} is supplied this retrieves {version} of a note. When using -v to
+    browse through previous versions of a note you can use -V to restore the
+    most recent version of the note.
 
 :Simplenote -d                                              *:SimplenoteTrash*
     Move the currently open note into the trash. The open buffer is
@@ -88,6 +95,12 @@ If set, the split windows will be opened vertical instead of horizontal. >
     g:SimplenoteVertical=1
 <
 
+                                                  *'simplenote_single_window'*
+Default: 0
+If set, simplenote.vim will try to emulate the behaviout of the Simplenote
+website and display the list index and only one note open at a time. >
+    g:SimplenoteSingleWindow=1
+<
                                                     *'simplenote_note_format'*
 Default: "%N%>[%T] [%D]"
 Sets the format of the title strings for notes in the list. >

@@ -74,8 +74,26 @@ content of the note, you can interact with this specific note:
     :Simplenote -u
 
 updates the content of the current note with the content of the current buffer.
-The buffer write command `:w` is also mapped to update the current note.  If you
-want to delete the note, execute
+It will use Simplenote's merge functionality to merge in any remote changes that
+have been made as well. The buffer write command `:w` is also mapped to update
+the current note.
+
+To display the current version of a note use:
+
+    :Simplenote -v
+
+If you want to retrieve a specific version of a note use:
+
+    :Simplenote -v X
+
+where X is an integer. To restore that version of a note you would just use
+`:Simplenote -u`. To get back to the most recent version of a note use:
+
+    :Simplenote -V
+
+Therefore you can also use `:Simplenote -V` when no local changes have been made
+to pull in the most recent changes from the remote note. To delete the note,
+execute
 
     :Simplenote -d
 
