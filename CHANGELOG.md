@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0 (12/20/2015)
+- Merge content when local and remote have been updated
+- Add commands to allow previous versions of notes to be retrieved.
+- Add tests related to retrieving versions of notes
+- Update simplenote.py submodule to v1.0.0
+
 ## 0.10.1 (11/05/2015)
 - Remove errant tabs from code
 
