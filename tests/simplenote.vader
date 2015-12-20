@@ -168,12 +168,65 @@ Expect:
   unpinned
 
 
+# Retrieve a version of a note
+Given:
+  An initial verision of a note
+
+Execute (Retrieve a version of a note):
+  :Simplenote -n
+  call setline(1, "A second version of a note")
+  :Simplenote -u
+  call setline(1, "A third version of a note")
+  :Simplenote -u
+  :Simplenote -v 2
+
+Expect:
+  A second version of a note
+
+
+# Reset versioning of a note
+Given:
+  An initial verision of a note
+
+Execute (Reset a version of a note):
+  :Simplenote -n
+  call setline(1, "A second version of a note")
+  :Simplenote -u
+  call setline(1, "A third version of a note")
+  :Simplenote -V
+
+Expect:
+  A second version of a note
+
+# Merge a note
+Given:
+  An initial version of a note
+
+Execute:
+  :Simplenote -n
+
+Execute python:
+  snkey = vim.current.buffer.name.split("/")[-1]
+  note_original, status = sn.get_note(snkey)
+  note_original["content"] += "\nA second version of a note"
+  sn.update_note(note_original)
+
+Execute (Merge a note):
+  call setline(2, "A third version of a note")
+  :Simplenote -u
+
+Expect:
+  An initial version of a note
+  A second version of a note
+  A third version of a note
+
+
 # Get a list of notes
 Execute (Get a list of notes):
   :Simplenote -l
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 7, line('$')
+  AssertEqual 10, line('$')
   "and clear it
   :1,$d
 
