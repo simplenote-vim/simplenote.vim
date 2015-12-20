@@ -193,8 +193,9 @@ class SimplenoteVimInterface(object):
     def __init__(self, username, password):
         self.simplenote = simplenote.Simplenote(username, password)
         self.note_index = []
-        #No idea what to call the below. Cache? Data? It's another index.
-        #Perhaps should rework the above index so have one thing.
+        # TODO: Perhaps should rework the above index so have one store for all information?
+        # note_data is used for storing version information. Called note_data instead of note_versions
+        # for future expansion
         self.note_data = {}
 
     def get_current_note(self):
@@ -440,7 +441,7 @@ class SimplenoteVimInterface(object):
 
         # get note and open it in scratch buffer
         note, status = self.simplenote.get_note(note_id)
-        #Update the version
+        # Update the version
         self.note_data[note_id] = note["version"]
         if int(vim.eval("exists('g:vader_file')")) == 0:
             vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
@@ -479,17 +480,15 @@ class SimplenoteVimInterface(object):
                 if note.has_key("systemtags"):
                     if ("markdown" in note["systemtags"]):
                         note["systemtags"].remove("markdown")
+            # To merge in we need to send version.
             note, status = self.simplenote.update_note({"content": content,
                                                       "key": note_id,
                                                       "version": self.note_data[note_id],
                                                       "systemtags": note["systemtags"]})
-            #To merge in do we need to send other info? Need to send version.
-            #Ah! but we don't store that anywhere. Drat! Could we perhaps get it when we check for markdown?
-            #Need to have stored it somewhere, on opening. In memory or on disk?
-            #Probably also need to send modifydate, based on experience in snose
             if status == 0:
                 print "Update successful."
                 self.note_data[note_id] = note["version"]
+                # Merging content. 
                 if 'content' in note:
                     buffer = vim.current.buffer
                     buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
@@ -497,7 +496,6 @@ class SimplenoteVimInterface(object):
                 vim.command("setlocal nomodified")
             else:
                 print "Update failed.: %s" % note
-            #Merging content. 
 
         elif note.code == 404:
             # API returns 404 if note doesn't exist, so create new
@@ -593,7 +591,7 @@ class SimplenoteVimInterface(object):
             buffer = vim.current.buffer
             if (buffer.options["modified"] == False):
                 if version is None:
-                    #If no args then just print version of note
+                    # If no args then just print version of note
                     print "Current version of note is %s" % current_version
                 else:
                     note, status = self.simplenote.get_note(note_id, version)
@@ -624,7 +622,7 @@ class SimplenoteVimInterface(object):
             # BufReadPost can cause auto-selection of filetype based on file content so reset filetype after this
             if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
                 vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
-            #But let simplenote markdown flag override the above
+            # But let simplenote markdown flag override the above
             if markdown:
                 vim.command("setlocal filetype=markdown")
             print "New note created."
@@ -634,17 +632,17 @@ class SimplenoteVimInterface(object):
     def remove_note_from_index(self, note_id):
         try:
             position = self.note_index.index(note_id)
-            #switch to note index buffer so can make modifiable temporarily in order to delete line
+            # switch to note index buffer so can make modifiable temporarily in order to delete line
             vim.command("buffer Simplenote")
             vim.command("setlocal modifiable")
             del vim.current.buffer[position]
             vim.command("setlocal nomodifiable")
-            #Switch back to note buffer so it can be deleted from function calling this one
+            # Switch back to note buffer so it can be deleted from function calling this one
             vim.command("buffer "+note_id)
-            #Also delete from note_index so opening notes works as expected
+            # Also delete from note_index so opening notes works as expected
             del self.note_index[position]
         except ValueError:
-            #Handle improbable situation of trying to remove a note that wasn't there
+            # Handle improbable situation of trying to remove a note that wasn't there
             print "Unable to remove deleted note from list index"
 
     def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
@@ -815,7 +813,7 @@ def Simplenote_cmd():
         except KeyboardInterrupt:
             reset_user_pass('KeyboardInterrupt')
             return
-    #If a logon error has occurred, user may have corrected their globals since reset
+    # If a logon error has occurred, user may have corrected their globals since reset
     else:
         if vim.eval("exists('g:SimplenoteUsername')") == 1:
             vim.command("let s:user=g:SimplenoteUsername")
@@ -871,7 +869,7 @@ def Simplenote_cmd():
         try:
             interface.display_note_in_scratch_buffer(interface.get_current_note())
         except TypeError:
-            #Just incase it is tried on a note that isn't a simplenote
+            # Just incase it is tried on a note that isn't a simplenote
             print "This isn't a Simplenote"
 
     elif param == "-o":
@@ -885,7 +883,7 @@ def Simplenote_cmd():
 try:
     Simplenote_cmd()
 except simplenote.SimplenoteLoginFailed:
-    #Note: error has to be caught here and not in __init__
+    # Note: error has to be caught here and not in __init__
     reset_user_pass('Login Failed')
 EOF
 endfunction
