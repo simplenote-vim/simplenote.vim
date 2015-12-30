@@ -200,12 +200,24 @@ class SimplenoteVimInterface(object):
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
-        key = vim.eval("expand('%:t')")
-        return key
+        title = vim.eval("expand('%:t')")
+        # Use regex get _key$$
+        regex = "_-([a-zA-Z0-9])$"
+        match = re.search(regex, title)
+        if match == None:
+            # This shouldn't be possible though?
+            print "Unable to figure out note key from buffer name. Please open an issue on github.com/mrtazz/simplenote.vim"
+            # If updating a note and this occurs, this will create a new one, which is probably the safest thing to do
+            return
+        else:
+            key = match.group(1)
+            return key
 
-    def set_current_note(self, key):
+    def set_current_note(self, firstline, key):
         """ sets the key of the currently edited note """
-        vim.command(""" silent exe "file %s" """ % key)
+        # Set to SN_<first line>_<key>
+        buffertitle = "SN_%s_%s" % (firstline, key)
+        vim.command(""" silent exe "file %s" """ % buffertitle)
 
     def transform_to_scratchbuffer(self):
         """ transforms the current buffer into a scratchbuffer """
@@ -443,9 +455,14 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.get_note(note_id)
         # Update the version
         self.note_data[note_id] = note["version"]
+        # Replace any non alphanumeric characters to play safe with valid vim buffer names
+        # otherwise vim will happily add them, but will fail to switch to them
+        regex = re.compile("[^a-zA-Z0-9]")
+        firstline = regex.sub("_", note["content"].split("\n")[0])
+        buffertitle = "SN_%s_%s" % (firstline, note_id)
         if int(vim.eval("exists('g:vader_file')")) == 0:
-            vim.command("""call s:ScratchBufferOpen("%s")""" % note_id)
-        self.set_current_note(note_id)
+            vim.command("""call s:ScratchBufferOpen("%s")""" % buffertitle)
+        self.set_current_note(firstline, note_id)
         buffer = vim.current.buffer
         # remove cursorline
         vim.command("setlocal nocursorline")
@@ -585,7 +602,7 @@ class SimplenoteVimInterface(object):
 
     def version_of_current_note(self, version=None):
         """ retrieve a specific version of current note """
-        note_id = self.get_current_note()
+        note_id = self.Get_current_note()
         try:
             current_version = self.note_data[note_id]
             buffer = vim.current.buffer
@@ -617,7 +634,11 @@ class SimplenoteVimInterface(object):
         if status == 0:
             self.note_data[note["key"]] = note["version"]
             self.transform_to_scratchbuffer()
-            self.set_current_note(note["key"])
+            # Replace any non alphanumeric characters to play safe with valid vim buffer names
+            # otherwise vim will happily add them, but will fail to switch to them
+            regex = re.compile("[^a-zA-Z0-9]")
+            firstline = regex.sub("_", vim.current.buffer[0])
+            self.set_current_note(firstline, note["key"])
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so reset filetype after this
             if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
