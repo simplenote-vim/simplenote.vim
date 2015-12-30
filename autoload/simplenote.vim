@@ -887,4 +887,4 @@ except simplenote.SimplenoteLoginFailed:
     reset_user_pass('Login Failed')
 EOF
 endfunction
-
+" vim: expandtab
