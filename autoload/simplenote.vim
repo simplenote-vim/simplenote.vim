@@ -202,7 +202,7 @@ class SimplenoteVimInterface(object):
         """ returns the key of the currently edited note """
         title = vim.eval("expand('%:t')")
         # Use regex get _key$$
-        regex = "_-([a-zA-Z0-9])$"
+        regex = "_([a-zA-Z0-9]+)$"
         match = re.search(regex, title)
         if match == None:
             # This shouldn't be possible though?
@@ -557,7 +557,7 @@ class SimplenoteVimInterface(object):
             print "Note deleted."
             """ when running tests don't want to manipulate or close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
-                self.remove_note_from_index(note_id)
+                self.remove_note_from_index(note_id, vim.current.buffer.number)
                 vim.command("bdelete!")
         else:
             print "Deleting note failed.: %s" % note
@@ -650,7 +650,7 @@ class SimplenoteVimInterface(object):
         else:
             print "Update failed.: %s" % note["key"]
 
-    def remove_note_from_index(self, note_id):
+    def remove_note_from_index(self, note_id, buffrom):
         try:
             position = self.note_index.index(note_id)
             # switch to note index buffer so can make modifiable temporarily in order to delete line
@@ -659,7 +659,7 @@ class SimplenoteVimInterface(object):
             del vim.current.buffer[position]
             vim.command("setlocal nomodifiable")
             # Switch back to note buffer so it can be deleted from function calling this one
-            vim.command("buffer "+note_id)
+            vim.command("buffer "+str(buffrom))
             # Also delete from note_index so opening notes works as expected
             del self.note_index[position]
         except ValueError:
