@@ -78,20 +78,21 @@ It will use Simplenote's merge functionality to merge in any remote changes that
 have been made as well. The buffer write command `:w` is also mapped to update
 the current note.
 
-To display the current version of a note use:
+To display the current version and note key/ID of a note use:
 
-    :Simplenote -v
+    :Simplenote -V
 
 If you want to retrieve a specific version of a note use:
 
     :Simplenote -v X
 
-where X is an integer. To restore that version of a note you would just use
-`:Simplenote -u`. To get back to the most recent version of a note use:
+where X is an integer version number. To restore that version of a note you
+would just use `:Simplenote -u`. To get back to the most recent version of a
+note use:
 
-    :Simplenote -V
+    :Simplenote -v
 
-Therefore you can also use `:Simplenote -V` when no local changes have been made
+Therefore you can also use `:Simplenote -v` when no local changes have been made
 to pull in the most recent changes from the remote note. To delete the note,
 execute
 

@@ -606,19 +606,25 @@ class SimplenoteVimInterface(object):
         try:
             current_version = self.note_version[note_id]
             buffer = vim.current.buffer
-            if (buffer.options["modified"] == False):
-                if version is None:
-                    # If no args then just print version of note
-                    print "Current version of note is %s" % current_version
-                else:
+            if version is None:
+                # If no args then just print version of note
+                print "Displaying note ID %s version %s" % (note_id, current_version)
+            elif version == "0":
+                note, status = self.simplenote.get_note(note_id)
+                if status == 0:
+                    buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                    print "Displaying most recent version of note ID %s" % note_id
+            else:
+                if (buffer.options["modified"] == False):
                     note, status = self.simplenote.get_note(note_id, version)
                     if status == 0:
                         buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-                        print "Displaying version %s. To restore this version, :Simplenote -u, to get most recent version, :Simplenote -V" % version
+                        print "Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version)
                     else:
                         print "Error fetching note data. Perhaps that version isn't available."
-            else:
-                print "Save changes before trying to show a previous version"
+                else:
+                    # TODO: Not sure how required this is because could rely on Vim's undo. Will see if this is annoying.
+                    print "Save changes before trying to show a previous version"
         except KeyError:
             print "This isn't a Simplenote"
 
@@ -892,15 +898,19 @@ def Simplenote_cmd():
         interface.unpin_current_note()
 
     elif param == "-v":
-        if optionsexist:
-            interface.version_of_current_note(vim.eval("a:1"))
-        else:
-            interface.version_of_current_note()
+        try:
+            if optionsexist:
+                interface.version_of_current_note(vim.eval("a:1"))
+            else:
+                interface.version_of_current_note("0")
+        except KeyError:
+            # Just incase it is tried on a note that isn't a simplenote
+            print "This isn't a Simplenote"
 
     elif param == "-V":
         try:
-            interface.display_note_in_scratch_buffer(interface.get_current_note())
-        except TypeError:
+            interface.version_of_current_note()
+        except KeyError:
             # Just incase it is tried on a note that isn't a simplenote
             print "This isn't a Simplenote"
 

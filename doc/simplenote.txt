@@ -34,11 +34,12 @@ Now you can take simple notes directly from your favourite editor.
     automatically updated when the buffer is written. This will also merge in
     any changes that have occurred to the remote note.
 
-:Simplenote -v {version} / :Simplenote -V                 *:SimplenoteVersion*
-    Without any argument this displays the current version of a note. When
-    {version} is supplied this retrieves {version} of a note. When using -v to
-    browse through previous versions of a note you can use -V to restore the
-    most recent version of the note.
+:Simplenote -V                                        *:SimplenoteVersionInfo*
+    Displays the note key/id and version number of the current note.
+
+:Simplenote -v {version}                                  *:SimplenoteVersion*
+    Without any argument retrieves the most current version of a note. When
+    {version} is supplied this retrieves {version} of a note.
 
 :Simplenote -d                                              *:SimplenoteTrash*
     Move the currently open note into the trash. The open buffer is

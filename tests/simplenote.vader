@@ -193,7 +193,7 @@ Execute (Reset a version of a note):
   call setline(1, "A second version of a note")
   :Simplenote -u
   call setline(1, "A third version of a note")
-  :Simplenote -V
+  :Simplenote -v
 
 Expect:
   A second version of a note
