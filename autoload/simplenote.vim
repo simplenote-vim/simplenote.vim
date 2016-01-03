@@ -77,7 +77,8 @@ let g:simplenote_note_winnr = 0
 
 " Function that opens or navigates to the scratch buffer.
 " TODO: This is a complicated mess and it would be nice to improve it, but I'm really not sure how.
-function! s:ScratchBufferOpen(name)
+function! s:ScratchBufferOpen(name, number)
+    " Need someway of updating python since buffer could have been closed.
     let exe_new = "new "
     let exe_split = "split "
 
@@ -86,8 +87,12 @@ function! s:ScratchBufferOpen(name)
         let exe_split = "vert " . exe_split
     endif
 
-    "Find buffer number
-    let scr_bufnum = bufnr(a:name)
+    let scr_bufnum = a:number
+    " But, buffer could have been closed anyway so still need to check if it still exists.
+    if !bufexists(a:number)
+        let scr_bufnum = -1
+        " -1 is no buffer
+    endif
     "If buffer doesn't exist, create new window or buffer
     if scr_bufnum == -1
         "If no notes open or single window mode isn't set
@@ -197,26 +202,15 @@ class SimplenoteVimInterface(object):
         # note_data is used for storing version information. Called note_data instead of note_versions
         # for future expansion
         self.note_data = {}
+        self.bufnum_to_noteid = {}
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
-        title = vim.eval("expand('%:t')")
-        # Use regex get _key$$
-        regex = "_([a-zA-Z0-9]+)$"
-        match = re.search(regex, title)
-        if match == None:
-            # This shouldn't be possible though?
-            print "Unable to figure out note key from buffer name. Please open an issue on github.com/mrtazz/simplenote.vim"
-            # If updating a note and this occurs, this will create a new one, which is probably the safest thing to do
-            return
-        else:
-            key = match.group(1)
-            return key
+        buffer = vim.current.buffer
+        return self.bufnum_to_noteid[buffer.number]
 
-    def set_current_note(self, firstline, key):
-        """ sets the key of the currently edited note """
-        # Set to SN_<first line>_<key>
-        buffertitle = "SN_%s_%s" % (firstline, key)
+    def set_current_note(self, buffertitle):
+        """ sets the title of the currently edited note """
         vim.command(""" silent exe "file %s" """ % buffertitle)
 
     def transform_to_scratchbuffer(self):
@@ -433,13 +427,14 @@ class SimplenoteVimInterface(object):
         queue.join()
         return note_list
 
-    def scratch_buffer(self, sb_name = DEFAULT_SCRATCH_NAME):
+    def scratch_buffer(self, sb_name = DEFAULT_SCRATCH_NAME, sb_number = -1):
         """ Opens a scratch buffer from python
 
         Arguments:
         sb_name - name of the scratch buffer
+        sb_number - number of the buffer (if potentially existing)
         """
-        vim.command("call s:ScratchBufferOpen('%s')" % sb_name)
+        vim.command("call s:ScratchBufferOpen('%s', %s)" % (sb_name, sb_number))
 
     def display_note_in_scratch_buffer(self, note_id=None):
         """ displays the note corresponding to the given key in the scratch
@@ -453,17 +448,24 @@ class SimplenoteVimInterface(object):
 
         # get note and open it in scratch buffer
         note, status = self.simplenote.get_note(note_id)
-        # Update the version
-        self.note_data[note_id] = note["version"]
         # Replace any non alphanumeric characters to play safe with valid vim buffer names
         # otherwise vim will happily add them, but will fail to switch to them
         regex = re.compile("[^a-zA-Z0-9]")
         firstline = regex.sub("_", note["content"].split("\n")[0])
-        buffertitle = "SN_%s_%s" % (firstline, note_id)
+        buffertitle = "SN_%s" % firstline
+        # Check to see if already mapped to a buffer
+        try:
+            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == note_id ][0]
+        except IndexError:
+            buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
-            vim.command("""call s:ScratchBufferOpen("%s")""" % buffertitle)
-        self.set_current_note(firstline, note_id)
+            vim.command("""call s:ScratchBufferOpen("%s", %s)""" % (buffertitle, buffernumber))
+        self.set_current_note(buffertitle)
         buffer = vim.current.buffer
+        # Update the version and buffer number
+        # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
+        self.note_data[note_id] = note["version"]
+        self.bufnum_to_noteid[buffer.number] = note_id
         # remove cursorline
         vim.command("setlocal nocursorline")
         vim.command("setlocal modifiable")
@@ -559,6 +561,7 @@ class SimplenoteVimInterface(object):
             if int(vim.eval("exists('g:vader_file')")) == 0:
                 self.remove_note_from_index(note_id, vim.current.buffer.number)
                 vim.command("bdelete!")
+                # TODO: bdelete doesn't actually seem to remove the buffer completely so no need to update the bufnum_to_noteid dictionary?
         else:
             print "Deleting note failed.: %s" % note
 
@@ -638,7 +641,9 @@ class SimplenoteVimInterface(object):
             # otherwise vim will happily add them, but will fail to switch to them
             regex = re.compile("[^a-zA-Z0-9]")
             firstline = regex.sub("_", vim.current.buffer[0])
-            self.set_current_note(firstline, note["key"])
+            buffertitle = "SN_%s" % firstline
+            self.set_current_note(buffertitle)
+            self.bufnum_to_noteid[vim.current.buffer.number] = note["key"]
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so reset filetype after this
             if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
@@ -659,7 +664,9 @@ class SimplenoteVimInterface(object):
             del vim.current.buffer[position]
             vim.command("setlocal nomodifiable")
             # Switch back to note buffer so it can be deleted from function calling this one
-            vim.command("buffer "+str(buffrom))
+            #Need reverse look up again
+            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == note_id ][0]
+            vim.command("buffer "+str(buffernumber))
             # Also delete from note_index so opening notes works as expected
             del self.note_index[position]
         except ValueError:
@@ -669,11 +676,18 @@ class SimplenoteVimInterface(object):
     def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
+        # Check to see if already mapped to a buffer
+        try:
+            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == DEFAULT_SCRATCH_NAME ][0]
+        except IndexError:
+            buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
             self.scratch_buffer()
         vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
+        # Need to also keep track of the list index in the bufnum dictionary
+        self.bufnum_to_noteid[buffer.number] = DEFAULT_SCRATCH_NAME
         note_list, status = self.simplenote.get_note_list(since)
         if (len(tags) > 0):
             note_list = [n for n in note_list if (n["deleted"] != 1 and
