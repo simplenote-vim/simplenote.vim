@@ -605,7 +605,7 @@ class SimplenoteVimInterface(object):
 
     def version_of_current_note(self, version=None):
         """ retrieve a specific version of current note """
-        note_id = self.Get_current_note()
+        note_id = self.get_current_note()
         try:
             current_version = self.note_data[note_id]
             buffer = vim.current.buffer
