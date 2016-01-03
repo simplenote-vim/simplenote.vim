@@ -198,10 +198,7 @@ class SimplenoteVimInterface(object):
     def __init__(self, username, password):
         self.simplenote = simplenote.Simplenote(username, password)
         self.note_index = []
-        # TODO: Perhaps should rework the above index so have one store for all information?
-        # note_data is used for storing version information. Called note_data instead of note_versions
-        # for future expansion
-        self.note_data = {}
+        self.note_version = {}
         self.bufnum_to_noteid = {}
 
     def get_current_note(self):
@@ -464,7 +461,7 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # Update the version and buffer number
         # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
-        self.note_data[note_id] = note["version"]
+        self.note_version[note_id] = note["version"]
         self.bufnum_to_noteid[buffer.number] = note_id
         # remove cursorline
         vim.command("setlocal nocursorline")
@@ -502,11 +499,11 @@ class SimplenoteVimInterface(object):
             # To merge in we need to send version.
             note, status = self.simplenote.update_note({"content": content,
                                                       "key": note_id,
-                                                      "version": self.note_data[note_id],
+                                                      "version": self.note_version[note_id],
                                                       "systemtags": note["systemtags"]})
             if status == 0:
                 print "Update successful."
-                self.note_data[note_id] = note["version"]
+                self.note_version[note_id] = note["version"]
                 # Merging content. 
                 if 'content' in note:
                     buffer = vim.current.buffer
@@ -607,7 +604,7 @@ class SimplenoteVimInterface(object):
         """ retrieve a specific version of current note """
         note_id = self.get_current_note()
         try:
-            current_version = self.note_data[note_id]
+            current_version = self.note_version[note_id]
             buffer = vim.current.buffer
             if (buffer.options["modified"] == False):
                 if version is None:
@@ -635,7 +632,7 @@ class SimplenoteVimInterface(object):
         else:
             note, status = self.simplenote.update_note({"content": content})
         if status == 0:
-            self.note_data[note["key"]] = note["version"]
+            self.note_version[note["key"]] = note["version"]
             self.transform_to_scratchbuffer()
             # Replace any non alphanumeric characters to play safe with valid vim buffer names
             # otherwise vim will happily add them, but will fail to switch to them
