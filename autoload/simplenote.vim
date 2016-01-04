@@ -206,9 +206,13 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         return self.bufnum_to_noteid[buffer.number]
 
-    def set_current_note(self, buffertitle):
+    def set_current_note(self, buffertitle, note_id):
         """ sets the title of the currently edited note """
-        vim.command(""" silent exe "file %s" """ % buffertitle)
+        if int(vim.eval("exists('g:vader_file')")) == 0:
+            vim.command(""" silent exe "file %s" """ % buffertitle)
+        else:
+            #For vader we still need the note key as a title
+            vim.command(""" silent exe "file %s" """ % note_id)
 
     def transform_to_scratchbuffer(self):
         """ transforms the current buffer into a scratchbuffer """
@@ -457,7 +461,7 @@ class SimplenoteVimInterface(object):
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
             self.scratch_buffer(buffertitle, buffernumber)
-        self.set_current_note(buffertitle)
+        self.set_current_note(buffertitle,note_id)
         buffer = vim.current.buffer
         # Update the version and buffer number
         # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
@@ -609,22 +613,26 @@ class SimplenoteVimInterface(object):
             if version is None:
                 # If no args then just print version of note
                 print "Displaying note ID %s version %s" % (note_id, current_version)
-            elif version == "0":
-                note, status = self.simplenote.get_note(note_id)
-                if status == 0:
-                    buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-                    print "Displaying most recent version of note ID %s" % note_id
             else:
                 if (buffer.options["modified"] == False):
-                    note, status = self.simplenote.get_note(note_id, version)
-                    if status == 0:
-                        buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-                        print "Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version)
+                    if version == "0":
+                        note, status = self.simplenote.get_note(note_id)
+                        if status == 0:
+                            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                            # Need to set as unmodified so can continue to browse through versions
+                            vim.command("setlocal nomodified")
+                            print "Displaying most recent version of note ID %s" % note_id
                     else:
-                        print "Error fetching note data. Perhaps that version isn't available."
+                        note, status = self.simplenote.get_note(note_id, version)
+                        if status == 0:
+                            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                            # Need to set as unmodified so can continue to browse through versions
+                            vim.command("setlocal nomodified")
+                            print "Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version)
+                        else:
+                            print "Error fetching note data. Perhaps that version isn't available."
                 else:
-                    # TODO: Not sure how required this is because could rely on Vim's undo. Will see if this is annoying.
-                    print "Save changes before trying to show a previous version"
+                    print "Save changes before trying to show another version"
         except KeyError:
             print "This isn't a Simplenote"
 
@@ -645,7 +653,7 @@ class SimplenoteVimInterface(object):
             regex = re.compile("[^a-zA-Z0-9]")
             firstline = regex.sub("_", vim.current.buffer[0])
             buffertitle = "SN_%s" % firstline
-            self.set_current_note(buffertitle)
+            self.set_current_note(buffertitle, note["key"])
             self.bufnum_to_noteid[vim.current.buffer.number] = note["key"]
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so reset filetype after this

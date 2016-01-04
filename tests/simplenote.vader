@@ -11,9 +11,9 @@ Execute (Create a new note):
   :Simplenote -n
 
 Execute python:
-  from simplenote import Simplenote
+  import simplenote
   import vim
-  sn = Simplenote("simplenote-test@lordofhosts.de", "foobar")
+  sn = simplenote.Simplenote("simplenote-test@lordofhosts.de", "foobar")
   snkey = vim.current.buffer.name.split("/")[-1]
   note, status = sn.get_note(snkey)
   vim.current.buffer.append(note["content"])
@@ -184,7 +184,7 @@ Expect:
   A second version of a note
 
 
-# Reset versioning of a note
+# Reset versioning of a note, but, but no longer works with modified buffers
 Given:
   An initial verision of a note
 
@@ -192,7 +192,7 @@ Execute (Reset a version of a note):
   :Simplenote -n
   call setline(1, "A second version of a note")
   :Simplenote -u
-  call setline(1, "A third version of a note")
+  :Simplenote -v 1
   :Simplenote -v
 
 Expect:
