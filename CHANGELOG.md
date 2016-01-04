@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 (01/04/2016)
+- Use first line of note as note title, note keys are now stored internally and mapped to buffer numbers
+- Change how commands for previous versions work (`-V` for info, `-v` no args is now latest version), also display note id
+- Make updating a list index target the existing list index window
+
 ## 1.0.0 (12/20/2015)
 - Merge content when local and remote have been updated
 - Add commands to allow previous versions of notes to be retrieved.
