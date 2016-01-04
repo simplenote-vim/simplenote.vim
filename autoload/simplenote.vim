@@ -456,7 +456,7 @@ class SimplenoteVimInterface(object):
         except IndexError:
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
-            vim.command("""call s:ScratchBufferOpen("%s", %s)""" % (buffertitle, buffernumber))
+            self.scratch_buffer(buffertitle, buffernumber)
         self.set_current_note(buffertitle)
         buffer = vim.current.buffer
         # Update the version and buffer number
@@ -685,7 +685,7 @@ class SimplenoteVimInterface(object):
         except IndexError:
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
-            self.scratch_buffer()
+            self.scratch_buffer(DEFAULT_SCRATCH_NAME, buffernumber)
         vim.command("setlocal modifiable")
         # clear global note id storage
         buffer = vim.current.buffer
