@@ -561,8 +561,9 @@ class SimplenoteVimInterface(object):
             """ when running tests don't want to manipulate or close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
                 self.remove_note_from_index(note_id, vim.current.buffer.number)
+                # Vim doesn't actually complete remove the buffer, but it does undo mappings, etc so we should forget this buffer.
+                del self.bufnum_to_noteid[vim.current.buffer.number]
                 vim.command("bdelete!")
-                # TODO: bdelete doesn't actually seem to remove the buffer completely so no need to update the bufnum_to_noteid dictionary?
         else:
             print "Deleting note failed.: %s" % note
 
