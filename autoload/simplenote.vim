@@ -514,6 +514,12 @@ class SimplenoteVimInterface(object):
                     buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
                     print "Merged local content for %s" % note_id
                 vim.command("setlocal nomodified")
+                #Need to (potentially) update buffer title, but we will just update anyway
+                regex = re.compile("[^a-zA-Z0-9]")
+                firstline = regex.sub("_", vim.current.buffer[0])
+                buffertitle = "SN_%s" % firstline
+                self.set_current_note(buffertitle, note["key"])
+                # But bufnum_to_noteid is ok so no need to change
             else:
                 print "Update failed.: %s" % note
 
