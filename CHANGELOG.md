@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2 (01/13/2016)
+- Update simplenote.py submodule for rewritten commit.
+
 ## 1.1.1 (01/06/2016)
 - Bug fix - Update buffer title when updating the note.
 
