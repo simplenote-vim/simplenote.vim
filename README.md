@@ -228,10 +228,6 @@ exploiting `proxychains` to ease the invoking of simplenote.vim
 ## Development
 - [Bugs and issue tracker](https://github.com/mrtazz/simplenote.vim/issues)
 
-## Contribute
-- Fork the project
-- Make your additions/fixes/improvements
-- Send a pull request
 
 ## Thanks
 [mattn][6], [Tim Pope][7] and [Scrooloose][8] who write awesome vim
