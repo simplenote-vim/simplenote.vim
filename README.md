@@ -1,3 +1,5 @@
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+
 # simplenote.vim
 A vim plugin to interact with the [simplenote][1] API. You can create an account
 [here][2] if you don't already have one.
