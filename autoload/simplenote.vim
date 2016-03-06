@@ -208,11 +208,8 @@ class SimplenoteVimInterface(object):
 
     def set_current_note(self, buffertitle, note_id):
         """ sets the title of the currently edited note """
-        if int(vim.eval("exists('g:vader_file')")) == 0:
-            vim.command(""" silent exe "file %s" """ % buffertitle)
-        else:
-            #For vader we still need the note key as a title
-            vim.command(""" silent exe "file %s" """ % note_id)
+        # As much as it was clever not having the note key in the title, we need it there to ensure unique note titles
+        vim.command(""" silent exe "file %s [%s]" """ % (buffertitle,note_id))
 
     def transform_to_scratchbuffer(self):
         """ transforms the current buffer into a scratchbuffer """
