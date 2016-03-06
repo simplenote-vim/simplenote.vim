@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.3 (03/06/2016)
+- Add note key back into title to ensure unique buffer names
+- Update CONTRIBUTING to be more friendly
+- Add license badge to README
+- Split out CONTRIBUTING from README
+
 ## 1.1.2 (01/13/2016)
 - Update simplenote.py submodule for rewritten commit.
 
