@@ -458,27 +458,32 @@ class SimplenoteVimInterface(object):
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
             self.scratch_buffer(buffertitle, buffernumber)
-        self.set_current_note(buffertitle,note_id)
-        buffer = vim.current.buffer
-        # Update the version and buffer number
-        # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
-        self.note_version[note_id] = note["version"]
-        self.bufnum_to_noteid[buffer.number] = note_id
-        # remove cursorline
-        vim.command("setlocal nocursorline")
-        vim.command("setlocal modifiable")
-        vim.command("setlocal buftype=acwrite")
-        vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
-        buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-        vim.command("setlocal nomodified")
-        vim.command("doautocmd BufReadPost")
-        # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
-        if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
-            vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
-        # But let simplenote markdown flag override the above
-        if note.has_key("systemtags"):
-            if ("markdown" in note["systemtags"]):
-                vim.command("setlocal filetype=markdown")
+        #And then, if it does already exist we don't need to do the below again
+        if buffernumber == -1:
+            self.set_current_note(buffertitle,note_id)
+            buffer = vim.current.buffer
+            # Update the version and buffer number
+            # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
+            self.note_version[note_id] = note["version"]
+            self.bufnum_to_noteid[buffer.number] = note_id
+            # remove cursorline
+            #Ooh, be careful here, note could already be open and we've just switched to the buffer
+            #Need to get modified state
+            #Not as simple as the below
+            vim.command("setlocal nocursorline")
+            vim.command("setlocal modifiable")
+            vim.command("setlocal buftype=acwrite")
+            vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
+            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+            vim.command("setlocal nomodified")
+            vim.command("doautocmd BufReadPost")
+            # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
+            if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
+                vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
+            # But let simplenote markdown flag override the above
+            if note.has_key("systemtags"):
+                if ("markdown" in note["systemtags"]):
+                    vim.command("setlocal filetype=markdown")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new"""
