@@ -5,6 +5,7 @@
 Given:
   A test note
 
+
 Execute (Create a new note):
   let g:SimplenoteUsername = "simplenote-test@lordofhosts.de"
   let g:SimplenotePassword = "foobar"
@@ -241,6 +242,23 @@ Execute (Get a list of notes):
   "and clear it
   :1,$d
 
+# Create a new note, make local modifications and re-open. Re-opening should not overwrite local mods.
+# This also effectively tests re-opening from the note index as it also goes through `display_note_in_scratch_buffer`
+Given:
+  A note we want to modify
+
+Execute (Don't overwrite modified, but unsaved notes):
+  :Simplenote -n
+  let s:sntitle = expand('%:t')
+  let s:snstart = strridx(s:sntitle, "[")+1
+  let s:snend = strridx(s:sntitle, "]")
+  let s:snkey = strpart(s:sntitle, s:snstart, s:snend-s:snstart)
+  call setline(2, "Some text")
+  execute "Simplenote -o " . s:snkey
+
+Expect:
+  A note we want to modify
+  Some text
 
 # Cleanup Remote
 Execute python (Cleanup remote):
