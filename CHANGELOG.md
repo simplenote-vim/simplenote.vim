@@ -1,7 +1,11 @@
 # Changelog
 
+## 1.1.5 (03/26/2016)
+- Bug fix - :w was not working for updating the note
+
 ## 1.1.4 (03/23/2016)
 - Bug fix - Don't overwrite unsaved local changes if re-opening from the list index (or using -o)
+- Update simplenote.py submodule to v1.0.2
 
 ## 1.1.3 (03/06/2016)
 - Add note key back into title to ensure unique buffer names
