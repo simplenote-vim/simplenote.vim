@@ -458,6 +458,10 @@ class SimplenoteVimInterface(object):
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
             self.scratch_buffer(buffertitle, buffernumber)
+        # TODO: Review this. Why are we setting this? Should be up to the user to set cursorline
+        # remove cursorline
+        vim.command("setlocal nocursorline")
+        vim.command("setlocal buftype=acwrite")
         #And then, if it does already exist we don't need to do the below again
         if buffernumber == -1:
             self.set_current_note(buffertitle,note_id)
@@ -466,13 +470,7 @@ class SimplenoteVimInterface(object):
             # TODO: Is there potential for the same key to be in more than one buffer? Does that matter?
             self.note_version[note_id] = note["version"]
             self.bufnum_to_noteid[buffer.number] = note_id
-            # remove cursorline
-            #Ooh, be careful here, note could already be open and we've just switched to the buffer
-            #Need to get modified state
-            #Not as simple as the below
-            vim.command("setlocal nocursorline")
             vim.command("setlocal modifiable")
-            vim.command("setlocal buftype=acwrite")
             vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
             buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
             vim.command("setlocal nomodified")
