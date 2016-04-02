@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.6 (04/03/2016)
+- Update simplenote.py to v1.0.3
+
 ## 1.1.5 (03/26/2016)
 - Bug fix - :w was not working for updating the note
 
