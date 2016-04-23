@@ -15,8 +15,8 @@ Execute python:
   import simplenote
   import vim
   sn = simplenote.Simplenote("simplenote-test@lordofhosts.de", "foobar")
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   note, status = sn.get_note(snkey)
   vim.current.buffer.append(note["content"])
 
@@ -36,8 +36,8 @@ Execute (Update a note):
   :Simplenote -u
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   note_original, status = sn.get_note(snkey,1)
   vim.current.buffer.append(note_original["content"])
   note_updated, status = sn.get_note(snkey)
@@ -57,8 +57,8 @@ Execute:
   :Simplenote -n
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
 
 Execute (Trash a note):
   :Simplenote -d
@@ -80,8 +80,8 @@ Execute:
   :Simplenote -n
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
 
 Execute (Delete a note):
   :Simplenote -D
@@ -102,9 +102,8 @@ Given:
 Execute:
   :Simplenote -n
   let s:sntitle = expand('%:t')
-  let s:snstart = strridx(s:sntitle, "[")+1
-  let s:snend = strridx(s:sntitle, "]")
-  let s:snkey = strpart(s:sntitle, s:snstart, s:snend-s:snstart)
+  let s:snstart = strridx(s:sntitle, "_")+1
+  let s:snkey = strpart(s:sntitle, s:snstart)
 
 Given:
   A sixth test note
@@ -126,8 +125,8 @@ Do (Tag a new note):
   :Simplenote -t\<CR>tag\<CR>
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   note, status = sn.get_note(snkey)
   vim.current.buffer.append(str(note["tags"][0]))
 
@@ -146,8 +145,8 @@ Execute (Pin a note):
 
 Execute python:
   import time
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   time.sleep(2)
   note, status = sn.get_note(snkey)
   vim.current.buffer.append("pinned") if ("pinned" in note["systemtags"]) else vim.current.buffer.append(str(note))
@@ -168,8 +167,8 @@ Execute (Unpin a note):
   :Simplenote -P
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   time.sleep(5)
   note, status = sn.get_note(snkey)
   if (not ("pinned" in note["systemtags"])): vim.current.buffer.append("unpinned")
@@ -217,8 +216,8 @@ Execute:
   :Simplenote -n
 
 Execute python:
-  start = vim.current.buffer.name.rfind("[")+1
-  snkey = vim.current.buffer.name[start:-1]
+  start = vim.current.buffer.name.rfind("_")+1
+  snkey = vim.current.buffer.name[start:]
   note_original, status = sn.get_note(snkey)
   note_original["content"] += "\nA second version of a note"
   sn.update_note(note_original)
