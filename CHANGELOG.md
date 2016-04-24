@@ -1,7 +1,10 @@
 # Changelog
 
+## 1.1.7 (04/24/2016)
+- Attempt to avoid E16: Invalid range errors some people are seeing (Bug fix)
+
 ## 1.1.6 (04/03/2016)
-- Update simplenote.py to v1.0.3
+- Update simplenote.py to v1.0.3 (Bug fix)
 
 ## 1.1.5 (03/26/2016)
 - Bug fix - :w was not working for updating the note
