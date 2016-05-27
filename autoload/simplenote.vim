@@ -325,7 +325,7 @@ class SimplenoteVimInterface(object):
         width = vim.current.window.width
 
         # get note flags
-        if note.has_key("systemtags"):
+        if "systemtags" in note:
             flags = ""
             if ("pinned" in note["systemtags"]):   flags = flags + "*"
             else:                                  flags = flags + " "
@@ -481,7 +481,7 @@ class SimplenoteVimInterface(object):
             if int(vim.eval("exists('g:SimplenoteFiletype')")) == 1:
                 vim.command("setlocal filetype="+vim.eval("g:SimplenoteFiletype"))
             # But let simplenote markdown flag override the above
-            if note.has_key("systemtags"):
+            if "systemtags" in note:
                 if ("markdown" in note["systemtags"]):
                     vim.command("setlocal filetype=markdown")
 
@@ -493,13 +493,13 @@ class SimplenoteVimInterface(object):
         note, status = self.simplenote.get_note(note_id)
         if status == 0:
             if (vim.eval("&filetype") == "markdown"):
-                if note.has_key("systemtags"):
+                if "systemtags" in note:
                     if ("markdown" not in note["systemtags"]):
                         note["systemtags"].append("markdown")
                 else:
                     note["systemtags"] = ["markdown"]
             else:
-                if note.has_key("systemtags"):
+                if "systemtags" in note:
                     if ("markdown" in note["systemtags"]):
                         note["systemtags"].remove("markdown")
             # To merge in we need to send version.
@@ -580,7 +580,7 @@ class SimplenoteVimInterface(object):
         note_id = self.get_current_note()
         note, status = self.simplenote.get_note(note_id)
         if status == 0:
-            if note.has_key("systemtags"):
+            if "systemtags" in note:
                 if ("pinned" in note["systemtags"]):
                     print("Note is already pinned.")
                     return
@@ -600,7 +600,7 @@ class SimplenoteVimInterface(object):
         note_id = self.get_current_note()
         note, status = self.simplenote.get_note(note_id)
         if status == 0:
-            if ((not note.has_key("systemtags")) or
+            if ((not "systemtags" in note) or
                 ("pinned" not in note["systemtags"])):
                 print("Note is already unpinned.")
                 return
