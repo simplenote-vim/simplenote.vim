@@ -13,7 +13,7 @@ endif
 let g:loaded_simplenote_vim = 1
 
 " check for python
-if !has("python")
+if !has("python") && !has("python3")
   echoerr "Simplenote: Plugin needs vim to be compiled with python support."
   finish
 endif
@@ -177,7 +177,7 @@ endfunction
 " python functions
 "
 
-python << ENDPYTHON
+python3 << ENDPYTHON
 
 import os
 import vim
@@ -188,7 +188,7 @@ import re
 import time
 import math as m
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 
@@ -454,7 +454,7 @@ class SimplenoteVimInterface(object):
         buffertitle = "SN_%s" % firstline
         # Check to see if already mapped to a buffer
         try:
-            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == note_id ][0]
+            buffernumber = [b for b, n in self.bufnum_to_noteid.items() if n == note_id ][0]
         except IndexError:
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
@@ -507,13 +507,13 @@ class SimplenoteVimInterface(object):
                                                       "version": self.note_version[note_id],
                                                       "systemtags": note["systemtags"]})
             if status == 0:
-                print "Update successful."
+                print("Update successful.")
                 self.note_version[note_id] = note["version"]
                 # Merging content. 
                 if 'content' in note:
                     buffer = vim.current.buffer
                     buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
-                    print "Merged local content for %s" % note_id
+                    print("Merged local content for %s" % note_id)
                 vim.command("setlocal nomodified")
                 #Need to (potentially) update buffer title, but we will just update anyway
                 regex = re.compile("[^a-zA-Z0-9]")
@@ -522,13 +522,13 @@ class SimplenoteVimInterface(object):
                 self.set_current_note(buffertitle, note["key"])
                 # But bufnum_to_noteid is ok so no need to change
             else:
-                print "Update failed.: %s" % note
+                print("Update failed.: %s" % note)
 
         elif note.code == 404:
             # API returns 404 if note doesn't exist, so create new
             self.create_new_note_from_current_buffer()
         else:
-            print "Update failed.: %s" % note
+            print("Update failed.: %s" % note)
 
     def set_tags_for_current_note(self):
         """ set tags for the current note"""
@@ -540,11 +540,11 @@ class SimplenoteVimInterface(object):
             note["tags"] = tags.split(",")
             n, st = self.simplenote.update_note(note)
             if st == 0:
-                print "Tags updated."
+                print("Tags updated.")
             else:
-                print "Tags could not be updated."
+                print("Tags could not be updated.")
         else:
-            print "Error fetching note data."
+            print("Error fetching note data.")
 
 
     def trash_current_note(self):
@@ -552,19 +552,19 @@ class SimplenoteVimInterface(object):
         note_id = self.get_current_note()
         note, status = self.simplenote.trash_note(note_id)
         if status == 0:
-            print "Note moved to trash."
+            print("Note moved to trash.")
             """ when running tests don't want to close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
                 vim.command("quit!")
         else:
-            print "Moving note to trash failed.: %s" % note
+            print("Moving note to trash failed.: %s" % note)
 
     def delete_current_note(self):
         """ trash the currently displayed note """
         note_id = self.get_current_note()
         note, status = self.simplenote.delete_note(note_id)
         if status == 0:
-            print "Note deleted."
+            print("Note deleted.")
             """ when running tests don't want to manipulate or close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
                 self.remove_note_from_index(note_id, vim.current.buffer.number)
@@ -572,7 +572,7 @@ class SimplenoteVimInterface(object):
                 del self.bufnum_to_noteid[vim.current.buffer.number]
                 vim.command("bdelete!")
         else:
-            print "Deleting note failed.: %s" % note
+            print("Deleting note failed.: %s" % note)
 
     def pin_current_note(self):
         """ pin the currently displayed note """
@@ -581,18 +581,18 @@ class SimplenoteVimInterface(object):
         if status == 0:
             if note.has_key("systemtags"):
                 if ("pinned" in note["systemtags"]):
-                    print "Note is already pinned."
+                    print("Note is already pinned.")
                     return
             else:
                 note["systemtags"] = []
             note["systemtags"].append("pinned")
             n, st = self.simplenote.update_note(note)
             if st == 0:
-                print "Note pinned."
+                print("Note pinned.")
             else:
-                print "Note could not be pinned."
+                print("Note could not be pinned.")
         else:
-            print "Error fetching note data."
+            print("Error fetching note data.")
 
     def unpin_current_note(self):
         """ unpin the currently displayed note """
@@ -601,16 +601,16 @@ class SimplenoteVimInterface(object):
         if status == 0:
             if ((not note.has_key("systemtags")) or
                 ("pinned" not in note["systemtags"])):
-                print "Note is already unpinned."
+                print("Note is already unpinned.")
                 return
             note["systemtags"].remove("pinned")
             n, st = self.simplenote.update_note(note)
             if st == 0:
-                print "Note unpinned."
+                print("Note unpinned.")
             else:
-                print "Note could not be unpinned."
+                print("Note could not be unpinned.")
         else:
-            print "Error fetching note data."
+            print("Error fetching note data.")
 
     def version_of_current_note(self, version=None):
         """ retrieve a specific version of current note """
@@ -620,7 +620,7 @@ class SimplenoteVimInterface(object):
             buffer = vim.current.buffer
             if version is None:
                 # If no args then just print version of note
-                print "Displaying note ID %s version %s" % (note_id, current_version)
+                print("Displaying note ID %s version %s" % (note_id, current_version))
             else:
                 if (buffer.options["modified"] == False):
                     if version == "0":
@@ -629,20 +629,20 @@ class SimplenoteVimInterface(object):
                             buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
-                            print "Displaying most recent version of note ID %s" % note_id
+                            print("Displaying most recent version of note ID %s" % note_id)
                     else:
                         note, status = self.simplenote.get_note(note_id, version)
                         if status == 0:
                             buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
-                            print "Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version)
+                            print("Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version))
                         else:
-                            print "Error fetching note data. Perhaps that version isn't available."
+                            print("Error fetching note data. Perhaps that version isn't available.")
                 else:
-                    print "Save changes before trying to show another version"
+                    print("Save changes before trying to show another version")
         except KeyError:
-            print "This isn't a Simplenote"
+            print("This isn't a Simplenote")
 
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
@@ -670,9 +670,9 @@ class SimplenoteVimInterface(object):
             # But let simplenote markdown flag override the above
             if markdown:
                 vim.command("setlocal filetype=markdown")
-            print "New note created."
+            print("New note created.")
         else:
-            print "Update failed.: %s" % note["key"]
+            print("Update failed.: %s" % note["key"])
 
     def remove_note_from_index(self, note_id, buffrom):
         try:
@@ -684,20 +684,20 @@ class SimplenoteVimInterface(object):
             vim.command("setlocal nomodifiable")
             # Switch back to note buffer so it can be deleted from function calling this one
             #Need reverse look up again
-            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == note_id ][0]
+            buffernumber = [b for b, n in self.bufnum_to_noteid.items() if n == note_id ][0]
             vim.command("buffer "+str(buffernumber))
             # Also delete from note_index so opening notes works as expected
             del self.note_index[position]
         except ValueError:
             # Handle improbable situation of trying to remove a note that wasn't there
-            print "Unable to remove deleted note from list index"
+            print("Unable to remove deleted note from list index")
 
     def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         # Check to see if already mapped to a buffer
         try:
-            buffernumber = [b for b, n in self.bufnum_to_noteid.iteritems() if n == DEFAULT_SCRATCH_NAME ][0]
+            buffernumber = [b for b, n in self.bufnum_to_noteid.items() if n == DEFAULT_SCRATCH_NAME ][0]
         except IndexError:
             buffernumber = -1
         if int(vim.eval("exists('g:vader_file')")) == 0:
@@ -724,7 +724,7 @@ class SimplenoteVimInterface(object):
             buffer[:] = note_titles
 
         else:
-            print "Error: Unable to connect to server."
+            print("Error: Unable to connect to server.")
 
         # map <CR> to call get_note()
         vim.command("setl nomodifiable")
@@ -834,20 +834,20 @@ ENDPYTHON
 
 " function to get a note and display in current buffer
 function! s:GetNoteToCurrentBuffer()
-python << EOF
+python3 << EOF
 interface.display_note_in_scratch_buffer()
 EOF
 endfunction
 
 " function to update note from buffer content
 function! s:UpdateNoteFromCurrentBuffer()
-python << EOF
+python3 << EOF
 interface.update_note_from_current_buffer()
 EOF
 endfunction
 
 function! simplenote#SimpleNote(param, ...)
-python << EOF
+python3 << EOF
 def reset_user_pass(warning=None):
     if int(vim.eval("exists('g:SimplenoteUsername')")) == 0:
         vim.command("let s:user=''")
@@ -921,23 +921,23 @@ def Simplenote_cmd():
                 interface.version_of_current_note("0")
         except KeyError:
             # Just incase it is tried on a note that isn't a simplenote
-            print "This isn't a Simplenote"
+            print("This isn't a Simplenote")
 
     elif param == "-V":
         try:
             interface.version_of_current_note()
         except KeyError:
             # Just incase it is tried on a note that isn't a simplenote
-            print "This isn't a Simplenote"
+            print("This isn't a Simplenote")
 
     elif param == "-o":
         if optionsexist:
             interface.display_note_in_scratch_buffer(vim.eval("a:1"))
         else:
-            print "No notekey given."
+            print("No notekey given.")
 
     else:
-        print "Unknown argument"
+        print("Unknown argument")
 try:
     Simplenote_cmd()
 except simplenote.SimplenoteLoginFailed:
