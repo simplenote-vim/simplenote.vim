@@ -474,7 +474,7 @@ class SimplenoteVimInterface(object):
             self.bufnum_to_noteid[buffer.number] = note_id
             vim.command("setlocal modifiable")
             vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
-            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
             vim.command("setlocal nomodified")
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
