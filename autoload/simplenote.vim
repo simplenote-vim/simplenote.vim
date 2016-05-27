@@ -187,6 +187,7 @@ import datetime
 import re
 import time
 import math as m
+import functools
 from threading import Thread
 from queue import Queue
 
@@ -718,7 +719,7 @@ class SimplenoteVimInterface(object):
         if status == 0:
             note_titles = []
             notes = self.get_notes_from_keys([n['key'] for n in note_list])
-            notes.sort(cmp=compare_notes)
+            notes.sort(key=functools.cmp_to_key(compare_notes))
             note_titles = [self.format_title(n) for n in notes]
             self.note_index = [n["key"] for n in notes]
             buffer[:] = note_titles
