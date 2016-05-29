@@ -334,7 +334,7 @@ class SimplenoteVimInterface(object):
                 # Merging content. 
                 if 'content' in note:
                     buffer = vim.current.buffer
-                    buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                    buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
                     print("Merged local content for %s" % note_id)
                 vim.command("setlocal nomodified")
                 #Need to (potentially) update buffer title, but we will just update anyway
@@ -448,14 +448,14 @@ class SimplenoteVimInterface(object):
                     if version == "0":
                         note, status = self.simplenote.get_note(note_id)
                         if status == 0:
-                            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
                             print("Displaying most recent version of note ID %s" % note_id)
                     else:
                         note, status = self.simplenote.get_note(note_id, version)
                         if status == 0:
-                            buffer[:] = map(lambda x: str(x), note["content"].split("\n"))
+                            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
                             print("Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version))
