@@ -1,6 +1,7 @@
 # Python classes and methods for simplenote.vim
 
 import os
+import sys
 import vim
 sys.path.append(vim.eval("expand('<sfile>:p:h')") + "/simplenote.py/simplenote/")
 import simplenote
@@ -10,7 +11,10 @@ import time
 import math as m
 import functools
 from threading import Thread
-from queue import Queue
+if sys.version_info > (3, 0):
+    from queue import Queue
+else:
+    from Queue import Queue
 
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
 

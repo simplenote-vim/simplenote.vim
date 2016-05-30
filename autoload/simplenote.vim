@@ -177,7 +177,9 @@ endfunction
 " python functions
 "
 let s:scriptpath = resolve(expand('<sfile>:p:h')) 
-if has("python3")
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteUtilities.py"
+elseif has("python3")
     execute 'py3file ' . s:scriptpath . "/SimplenoteUtilities.py"
 endif
 
@@ -188,7 +190,11 @@ endif
 
 " function to get a note and display in current buffer
 function! s:GetNoteToCurrentBuffer()
-if has("python3")
+if has("python")
+python << EOF
+interface.display_note_in_scratch_buffer()
+EOF
+elseif has("python3")
 python3 << EOF
 interface.display_note_in_scratch_buffer()
 EOF
@@ -197,7 +203,11 @@ endfunction
 
 " function to update note from buffer content
 function! s:UpdateNoteFromCurrentBuffer()
-if has("python3")
+if has("python")
+python << EOF
+interface.update_note_from_current_buffer()
+EOF
+elseif has("python3")
 python3 << EOF
 interface.update_note_from_current_buffer()
 EOF
@@ -205,7 +215,9 @@ endif
 endfunction
 
 function! simplenote#SimpleNote(param, ...)
-if has("python3")
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteCmd.py" 
+elseif has("python3")
     execute 'py3file ' . s:scriptpath . "/SimplenoteCmd.py" 
 endif
 endfunction
