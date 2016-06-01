@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 (06/01/2016)
+- Make Python 2 and 3 compatible
+- Externalise the python code instead of embedding
+
 ## 1.1.7 (04/24/2016)
 - Attempt to avoid E16: Invalid range errors some people are seeing (Bug fix)
 
