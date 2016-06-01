@@ -16,6 +16,21 @@ let g:loaded_simplenote_vim = 1
 if !has("python") && !has("python3")
   echoerr "Simplenote: Plugin needs vim to be compiled with python support."
   finish
+else
+    " check for version for functools.cmp_to_key
+    if has("python")
+        pydo import sys
+        let s:pymajor = pyeval("sys.version_info.major")
+        let s:pyminor = pyeval("sys.version_info.minor")
+    elseif has("python3")
+        py3do import sys
+        let s:pymajor = py3eval("sys.version_info.major")
+        let s:pyminor = py3eval("sys.version_info.minor")
+    endif
+    if (s:pymajor == 2 && s:pyminor < 7) || (s:pymajor == 3 && s:pyminor <2)
+        echoerr "Simplenote: Plugin needs vim to be compiled with python 2.7+ or 3.2+ support."
+        finish
+    endif
 endif
 
 " user auth settings

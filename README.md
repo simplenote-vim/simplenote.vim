@@ -204,9 +204,9 @@ notes.
 
 ## Dependencies
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
-really play nice together, basic parts of this plugin are implemented in python.
-Therefore your vim has to be compiled with python support in order to use this
-plugin.
+really play nice together, basic parts of this plugin are implemented in
+python.  Therefore your vim has to be compiled with python 2.7+ or 3.2+ support
+in order to use this plugin.
 
 ## Usage behind proxy
 Since the plugin uses Python's urllib2 for making HTTP requests, you just have
