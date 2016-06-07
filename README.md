@@ -26,8 +26,8 @@ But it's easier to use a plugin manager:
 
 ### [Vundle](https://github.com/gmarik/vundle)
 
-    Add Bundle 'mrtazz/simplenote.vim' to .vimrc
-    Run :BundleInstall
+    Add Plugin 'mrtazz/simplenote.vim' to .vimrc
+    Run :PluginInstall
 
 ### [NeoBundle](https://github.com/Shougo/neobundle.vim)
 
