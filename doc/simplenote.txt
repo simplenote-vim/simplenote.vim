@@ -132,7 +132,7 @@ The default |strftime| format to use in the note line. >
 Default: "pinned,modifydate"
 Sets the sort order by which notes should be listed. Dates are sorted from
 newest to oldest and pinned and tags from existing to non-existing. Supported
-values are {pinned}, {tags}, {modifydate}, {createdate}. >
+values are {pinned}, {tags}, {title}, {modifydate}, {createdate}. >
     g:SimplenoteSortOrder="pinned,tags"
 <
 

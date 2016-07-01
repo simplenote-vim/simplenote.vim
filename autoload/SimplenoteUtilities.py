@@ -143,8 +143,6 @@ class SimplenoteVimInterface(object):
 
         Returns the formatted title
         """
-        # fetch first line and display as title
-        note_lines = note["content"].split("\n")
 
         # get window width for proper formatting
         width = vim.current.window.width
@@ -179,15 +177,12 @@ class SimplenoteVimInterface(object):
         else:
             note_age = "a" # ancient
 
-        if len(note_lines) > 0:
-            title = str(note_lines[0])
-        else:
-            title = str(note["key"])
+        title = get_note_title(note)
 
         # get the format string to be used for the note title
         title_line = vim.eval("s:noteformat")
 
-        tleft  = title_line
+        tleft =  title_line
         tright = None
 
         # search for a right alignment format
@@ -559,6 +554,11 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal filetype=simplenote")
 
 
+def get_note_title(note):
+    """ get title of note """
+    note_lines = note["content"].split("\n")
+    return str(note_lines[0] if len(note_lines) > 0 else note["key"])
+
 
 def compare_notes(note1, note2):
     """ determine the sort order for two passed in notes
@@ -606,12 +606,19 @@ def compare_notes(note1, note2):
         else:
             return 0
 
+    def compare_alpha(note1, note2):
+        title1 = get_note_title(note1)
+        title2 = get_note_title(note2)
+        return (title1 < title2) - (title1 > title2)
+
     # dict for dynamically calling compare functions
-    sortfuncs = { "pinned": compare_pinned,
-                  "createdate": compare_created,
-                  "modifydate": compare_modified,
-                  "tags": compare_tags
-                }
+    sortfuncs = {
+        "pinned": compare_pinned,
+        "createdate": compare_created,
+        "modifydate": compare_modified,
+        "tags": compare_tags,
+        "title": compare_alpha,
+    }
 
     sortorder = vim.eval("s:sortorder").split(",")
 

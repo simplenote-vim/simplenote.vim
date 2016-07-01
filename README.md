@@ -151,7 +151,8 @@ pinned notes first followed by modified date from newest to oldest. The order
 can be changed by setting the `g:SimplenoteSortOrder` variable. It should be set
 to a comma separated list of values which represents the sort order.  Allowed
 values are `pinned` (pinned before unpinned), `tags` (notes with tags before
-untagged ones), `modifydate` and `createdate` (both newer before older).
+untagged ones), `title`, `modifydate` and `createdate` (both newer before
+older).
 
 ## Formatting
 The format of the note titles in the list are configurable using the
