@@ -24,3 +24,15 @@
 " set the simplenote command
 command! -nargs=+ Simplenote :call simplenote#SimpleNote(<f-args>)
 
+if exists('g:simplenote_prefix')
+  execute "command! -nargs=? " . g:simplenote_prefix . 'list'      . "  :call simplenote#SimpleNote('-l', <f-args>)"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'update'    . "  :call simplenote#SimpleNote('-u')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'delete'    . "  :call simplenote#SimpleNote('-d')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'new'       . "  :call simplenote#SimpleNote('-n')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'deletebuf' . "  :call simplenote#SimpleNote('-D')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'tag'       . "  :call simplenote#SimpleNote('-t')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'pin'       . "  :call simplenote#SimpleNote('-p')"
+  execute "command! -nargs=0 " . g:simplenote_prefix . 'unpin'     . "  :call simplenote#SimpleNote('-P')"
+  execute "command! -nargs=1 " . g:simplenote_prefix . 'key'       . "  :call simplenote#SimpleNote('-o')"
+endif
+

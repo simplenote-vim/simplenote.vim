@@ -98,7 +98,7 @@ If set, the split windows will be opened vertical instead of horizontal. >
 
                                                   *'simplenote_single_window'*
 Default: 0
-If set, simplenote.vim will try to emulate the behaviout of the Simplenote
+If set, simplenote.vim will try to emulate the behaviour of the Simplenote
 website and display the list index and only one note open at a time. >
     g:SimplenoteSingleWindow=1
 <
