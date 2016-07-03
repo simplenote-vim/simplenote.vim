@@ -8,6 +8,7 @@
 - Make your additions/fixes/improvements
 - Run tests if you can (see below)
 - Add new tests if you can and if appropriate
+- Please make sure any python changes are 2 and 3 compatible
 - Send a pull request
 
 ### You don't already have code, nor any ideas for code, but still want to contribute code somehow:
