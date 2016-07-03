@@ -22,7 +22,7 @@
 "
 
 if !exists('g:SimplenotePrefix')
-  g:SimplenotePrefix = "Simplenote"
+  let g:SimplenotePrefix = "Simplenote"
 endif
 
 " set the simplenote command
