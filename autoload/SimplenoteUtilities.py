@@ -3,6 +3,7 @@
 import os
 import sys
 import vim
+sys.path.append(vim.eval("expand('<sfile>:p:h')"))
 sys.path.append(vim.eval("expand('<sfile>:p:h')") + "/simplenote.py/simplenote/")
 import simplenote
 import datetime

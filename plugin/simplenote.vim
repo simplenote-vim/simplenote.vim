@@ -6,39 +6,30 @@
 " License: MIT
 " Version: 1.2.0
 " Usage:
-"   :Simplenote -l X => list X number of notes; omit X to list all
-"   :Simplenote -l tags,moretags => list notes which feature one of the tags
-"   :Simplenote -u => update a note from buffer
-"   :Simplenote -d => move note to trash
-"   :Simplenote -n => create new note from buffer
-"   :Simplenote -D => delete note in current buffer
-"   :Simplenote -t => tag note in current buffer
-"   :Simplenote -p => pin note in current buffer
-"   :Simplenote -P => unpin note in current buffer
-"   :Simplenote -o key => open note with given key directly
+"   :SimplenoteList X => list X number of notes; omit X to list all
+"   :SimplenoteList tags,moretags => list notes which feature one of the tags
+"   :SimplenoteUpdate => update a note from buffer
+"   :SimplenoteTrash => move note to trash
+"   :SimplenoteNew => create new note from buffer
+"   :SimplenoteDelete => delete note in current buffer
+"   :SimplenoteTag => tag note in current buffer
+"   :SimplenotePin => pin note in current buffer
+"   :SimplenoteUnpin => unpin note in current buffer
+"   :SimplenoteOpen key => open note with given key directly
 "
 " This is only the interface part of the script. For the actual implementation
 " see plugin/simplenote.vim
 "
 
-if !exists('g:SimplenotePrefix')
-  let g:SimplenotePrefix = "Simplenote"
-endif
-
 " set the simplenote command
-command! -nargs=+ Simplenote :call simplenote#SimpleNote(<f-args>)
-
-if g:SimplenotePrefix != ''
-  execute "command! -nargs=? " . g:SimplenotePrefix . 'List'        . "  :call simplenote#SimpleNote('-l', <f-args>)"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Update'      . "  :call simplenote#SimpleNote('-u')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'VersionInfo' . "  :call simplenote#SimpleNote('-V')"
-  execute "command! -nargs=? " . g:SimplenotePrefix . 'Version'     . "  :call simplenote#SimpleNote('-v', <f-args>)"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Trash'       . "  :call simplenote#SimpleNote('-d')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Delete'      . "  :call simplenote#SimpleNote('-D')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'New'         . "  :call simplenote#SimpleNote('-n')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Tags'        . "  :call simplenote#SimpleNote('-t')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Pin'         . "  :call simplenote#SimpleNote('-p')"
-  execute "command! -nargs=0 " . g:SimplenotePrefix . 'Unpin'       . "  :call simplenote#SimpleNote('-P')"
-  execute "command! -nargs=1 " . g:SimplenotePrefix . 'Open'        . "  :call simplenote#SimpleNote('-o')"
-endif
-
+command! -nargs=+ SimplenoteDelete :call simplenote#SimplenoteDelete()
+command! -nargs=+ SimplenoteList :call simplenote#SimplenoteList(<f-args>)
+command! -nargs=+ SimplenoteUpdate :call simplenote#SimplenoteUpdate()
+command! -nargs=+ SimplenoteVersion :call simplenote#SimplenoteVersion(<f-args>)
+command! -nargs=+ SimplenoteVersionInfo :call simplenote#SimplenoteVersionInfo()
+command! -nargs=+ SimplenoteTrash :call simplenote#SimplenoteTrash()
+command! -nargs=+ SimplenoteNew :call simplenote#SimplenoteNew()
+command! -nargs=+ SimplenoteTag :call simplenote#SimplenoteTag()
+command! -nargs=+ SimplenoteUnpin :call simplenote#SimplenoteUnpin()
+command! -nargs=+ SimplenoteOpen :call simplenote#SimplenoteOpen(<f-args>)
+command! -nargs=+ SimplenotePin :call simplenote#SimplenotePin()

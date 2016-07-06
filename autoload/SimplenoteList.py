@@ -1,0 +1,24 @@
+# Python interface functions for simplenote.vim
+
+import SimplenoteCmd
+
+def SimplenoteList():
+    optionsexist = True if (float(vim.eval("a:0"))>=1) else False
+    if optionsexist:
+        try:
+            # check for valid date string
+            datetime.datetime.strptime(vim.eval("a:1"), "%Y-%m-%d")
+            interface.list_note_index_in_scratch_buffer(since=vim.eval("a:1"))
+        except ValueError:
+            interface.list_note_index_in_scratch_buffer(tags=vim.eval("a:1").split(","))
+    else:
+        interface.list_note_index_in_scratch_buffer()
+
+try:
+    SimplenoteCmd.Cred()
+    SimplenoteList()
+except simplenote.SimplenoteLoginFailed:
+    # Note: error has to be caught here and not in __init__
+    Simplenote.Cmd.reset_user_pass('Login Failed')
+
+# vim: expandtab
