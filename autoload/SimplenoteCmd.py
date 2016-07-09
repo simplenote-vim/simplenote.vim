@@ -11,7 +11,7 @@ def reset_user_pass(warning=None):
         vim.command("echo '%s'" % warning)
         vim.command("echohl none")
 
-def SimplenoteCred():
+def set_cred():
     if vim.eval('s:user') == '' or vim.eval('s:password') == '':
         try:
             vim.command("let s:user=input('email:', '')")
