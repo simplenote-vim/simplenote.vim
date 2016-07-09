@@ -234,7 +234,7 @@ if has("python")
 elseif has("python3")
     execute 'py3file ' . s:scriptpath . "/SimplenoteCmd.py" 
 endif
-function! simplenote#SimplenoteList(param, ...)
+function! simplenote#SimplenoteList(...)
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteList.py" 
 elseif has("python3")
@@ -258,7 +258,7 @@ elseif has("python3")
 endif
 endfunction
 
-function! simplenote#SimplenoteVersion(param, ...)
+function! simplenote#SimplenoteVersion(...)
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteVersion.py" 
 elseif has("python3")
@@ -314,7 +314,7 @@ elseif has("python3")
 endif
 endfunction
 
-function! simplenote#SimplenoteOpen()
+function! simplenote#SimplenoteOpen(noteid)
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteOpen.py" 
 elseif has("python3")

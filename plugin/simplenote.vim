@@ -23,9 +23,9 @@
 
 " set the simplenote command
 command! -nargs=0 SimplenoteDelete :call simplenote#SimplenoteDelete()
-command! -nargs=+ SimplenoteList :call simplenote#SimplenoteList(<f-args>)
+command! -nargs=* SimplenoteList :call simplenote#SimplenoteList(<f-args>)
 command! -nargs=0 SimplenoteUpdate :call simplenote#SimplenoteUpdate()
-command! -nargs=+ SimplenoteVersion :call simplenote#SimplenoteVersion(<f-args>)
+command! -nargs=* SimplenoteVersion :call simplenote#SimplenoteVersion(<f-args>)
 command! -nargs=0 SimplenoteVersionInfo :call simplenote#SimplenoteVersionInfo()
 command! -nargs=0 SimplenoteTrash :call simplenote#SimplenoteTrash()
 command! -nargs=0 SimplenoteNew :call simplenote#SimplenoteNew()

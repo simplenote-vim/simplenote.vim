@@ -1,7 +1,6 @@
 def SimplenoteVersion():
-    optionsexist = True if (float(vim.eval("a:0"))>=1) else False
     try:
-        if optionsexist:
+        if (float(vim.eval("a:0"))>=1):
             interface.version_of_current_note(vim.eval("a:1"))
         else:
             interface.version_of_current_note("0")

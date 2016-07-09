@@ -1,4 +1,4 @@
-def SimplenoteversionInfo():
+def SimplenoteVersionInfo():
     try:
         interface.version_of_current_note()
     except KeyError:

@@ -1,6 +1,5 @@
 def SimplenoteList():
-    optionsexist = True if (float(vim.eval("a:0"))>=1) else False
-    if optionsexist:
+    if (float(vim.eval("a:0"))>=1):
         try:
             # check for valid date string
             datetime.datetime.strptime(vim.eval("a:1"), "%Y-%m-%d")

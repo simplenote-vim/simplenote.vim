@@ -1,9 +1,5 @@
 def SimplenoteOpen():
-    optionsexist = True if (float(vim.eval("a:0"))>=1) else False
-    if optionsexist:
-        interface.display_note_in_scratch_buffer(vim.eval("a:1"))
-    else:
-        print("No notekey given.")
+    interface.display_note_in_scratch_buffer(vim.eval("a:noteid"))
 
 try:
     set_cred()
