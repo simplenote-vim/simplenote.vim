@@ -1,4 +1,4 @@
-# Python interface functions for simplenote.vim
+# Python Credential functions for simplenote.vim
 
 def reset_user_pass(warning=None):
     if int(vim.eval("exists('g:SimplenoteUsername')")) == 0:

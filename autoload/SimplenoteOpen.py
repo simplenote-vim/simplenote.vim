@@ -1,6 +1,3 @@
-# Python interface functions for simplenote.vim
-
-
 def SimplenoteOpen():
     optionsexist = True if (float(vim.eval("a:0"))>=1) else False
     if optionsexist:
@@ -9,10 +6,10 @@ def SimplenoteOpen():
         print("No notekey given.")
 
 try:
-    SimplenoteCmd.Cred()
+    set_cred()
     SimplenoteOpen()
 except simplenote.SimplenoteLoginFailed:
     # Note: error has to be caught here and not in __init__
-    Simplenote.Cmd.reset_user_pass('Login Failed')
+    reset_user_pass('Login Failed')
 
 # vim: expandtab

@@ -1,7 +1,3 @@
-# Python interface functions for simplenote.vim
-
-import SimplenoteCmd
-
 def SimplenoteversionInfo():
     try:
         interface.version_of_current_note()
@@ -10,10 +6,10 @@ def SimplenoteversionInfo():
         print("This isn't a Simplenote")
 
 try:
-    SimplenoteCmd.Cred()
+    set_cred()
     SimplenoteVersionInfo()
 except simplenote.SimplenoteLoginFailed:
     # Note: error has to be caught here and not in __init__
-    Simplenote.Cmd.reset_user_pass('Login Failed')
+    reset_user_pass('Login Failed')
 
 # vim: expandtab

@@ -229,6 +229,11 @@ EOF
 endif
 endfunction
 
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteCmd.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteCmd.py" 
+endif
 function! simplenote#SimplenoteList(param, ...)
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteList.py" 

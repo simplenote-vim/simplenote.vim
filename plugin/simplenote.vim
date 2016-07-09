@@ -22,14 +22,14 @@
 "
 
 " set the simplenote command
-command! -nargs=+ SimplenoteDelete :call simplenote#SimplenoteDelete()
+command! -nargs=0 SimplenoteDelete :call simplenote#SimplenoteDelete()
 command! -nargs=+ SimplenoteList :call simplenote#SimplenoteList(<f-args>)
-command! -nargs=+ SimplenoteUpdate :call simplenote#SimplenoteUpdate()
+command! -nargs=0 SimplenoteUpdate :call simplenote#SimplenoteUpdate()
 command! -nargs=+ SimplenoteVersion :call simplenote#SimplenoteVersion(<f-args>)
-command! -nargs=+ SimplenoteVersionInfo :call simplenote#SimplenoteVersionInfo()
-command! -nargs=+ SimplenoteTrash :call simplenote#SimplenoteTrash()
-command! -nargs=+ SimplenoteNew :call simplenote#SimplenoteNew()
-command! -nargs=+ SimplenoteTag :call simplenote#SimplenoteTag()
-command! -nargs=+ SimplenoteUnpin :call simplenote#SimplenoteUnpin()
+command! -nargs=0 SimplenoteVersionInfo :call simplenote#SimplenoteVersionInfo()
+command! -nargs=0 SimplenoteTrash :call simplenote#SimplenoteTrash()
+command! -nargs=0 SimplenoteNew :call simplenote#SimplenoteNew()
+command! -nargs=0 SimplenoteTag :call simplenote#SimplenoteTag()
+command! -nargs=0 SimplenoteUnpin :call simplenote#SimplenoteUnpin()
 command! -nargs=+ SimplenoteOpen :call simplenote#SimplenoteOpen(<f-args>)
-command! -nargs=+ SimplenotePin :call simplenote#SimplenotePin()
+command! -nargs=0 SimplenotePin :call simplenote#SimplenotePin()
