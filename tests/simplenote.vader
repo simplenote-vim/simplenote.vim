@@ -9,7 +9,7 @@ Given:
 Execute (Create a new note):
   let g:SimplenoteUsername = "simplenote-test@lordofhosts.de"
   let g:SimplenotePassword = "foobar"
-  :Simplenote -n
+  :SimplenoteNew
 
 Execute python:
   import simplenote
@@ -31,9 +31,9 @@ Given:
   A second test note
 
 Execute (Update a note):
-  :Simplenote -n
+  :SimplenoteNew
   call setline(1, "An updated note")
-  :Simplenote -u
+  :SimplenoteUpdate
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
@@ -54,14 +54,14 @@ Given:
   A third test note
 
 Execute:
-  :Simplenote -n
+  :SimplenoteNew
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
   snkey = vim.current.buffer.name[start:]
 
 Execute (Trash a note):
-  :Simplenote -d
+  :SimplenoteTrash
 
 Execute python:
   note, status = sn.get_note(snkey)
@@ -77,14 +77,14 @@ Given:
   A fourth test note
 
 Execute:
-  :Simplenote -n
+  :SimplenoteNew
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
   snkey = vim.current.buffer.name[start:]
 
 Execute (Delete a note):
-  :Simplenote -D
+  :SimplenoteDelete
 
 Execute python:
   note, status = sn.get_note(snkey)
@@ -100,7 +100,7 @@ Given:
   A fifth test note
 
 Execute:
-  :Simplenote -n
+  :SimplenoteNew
   let s:sntitle = expand('%:t')
   let s:snstart = strridx(s:sntitle, "_")+1
   let s:snkey = strpart(s:sntitle, s:snstart)
@@ -109,8 +109,8 @@ Given:
   A sixth test note
 
 Execute (Open a note by key):
-  :Simplenote -n
-  execute "Simplenote -o " . s:snkey
+  :SimplenoteNew
+  execute "SimplenoteOpen " . s:snkey
 
 Expect:
   A fifth test note
@@ -121,8 +121,8 @@ Given:
   A seventh test note
 
 Do (Tag a new note):
-  :Simplenote -n\<CR>
-  :Simplenote -t\<CR>tag\<CR>
+  :SimplenoteNew\<CR>
+  :SimplenoteTag\<CR>tag\<CR>
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
@@ -140,8 +140,8 @@ Given:
   A note to pin
 
 Execute (Pin a note):
-  :Simplenote -n
-  :Simplenote -p
+  :SimplenoteNew
+  :SimplenotePin
 
 Execute python:
   import time
@@ -161,10 +161,10 @@ Given:
   A note to unpin
 
 Execute (Unpin a note):
-  :Simplenote -n
-  :Simplenote -p
+  :SimplenoteNew
+  :SimplenotePin
   sleep 5
-  :Simplenote -P
+  :SimplenoteUnpin
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
@@ -183,12 +183,12 @@ Given:
   An initial verision of a note
 
 Execute (Retrieve a version of a note):
-  :Simplenote -n
+  :SimplenoteNew
   call setline(1, "A second version of a note")
-  :Simplenote -u
+  :SimplenoteUpdate
   call setline(1, "A third version of a note")
-  :Simplenote -u
-  :Simplenote -v 2
+  :SimplenoteUpdate
+  :SimplenoteVersion 2
 
 Expect:
   A second version of a note
@@ -199,11 +199,11 @@ Given:
   An initial verision of a note
 
 Execute (Reset a version of a note):
-  :Simplenote -n
+  :SimplenoteNew
   call setline(1, "A second version of a note")
-  :Simplenote -u
-  :Simplenote -v 1
-  :Simplenote -v
+  :SimplenoteUpdate
+  :SimplenoteVersion 1
+  :SimplenoteVersion
 
 Expect:
   A second version of a note
@@ -213,7 +213,7 @@ Given:
   An initial version of a note
 
 Execute:
-  :Simplenote -n
+  :SimplenoteNew
 
 Execute python:
   start = vim.current.buffer.name.rfind("_")+1
@@ -224,7 +224,7 @@ Execute python:
 
 Execute (Merge a note):
   call setline(2, "A third version of a note")
-  :Simplenote -u
+  :SimplenoteUpdate
 
 Expect:
   An initial version of a note
@@ -234,7 +234,7 @@ Expect:
 
 # Get a list of notes
 Execute (Get a list of notes):
-  :Simplenote -l
+  :SimplenoteList
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
   AssertEqual 10, line('$')
@@ -247,13 +247,13 @@ Given:
   A note we want to modify
 
 Execute (Don't overwrite modified, but unsaved notes):
-  :Simplenote -n
+  :SimplenoteNew
   let s:sntitle = expand('%:t')
   let s:snstart = strridx(s:sntitle, "[")+1
   let s:snend = strridx(s:sntitle, "]")
   let s:snkey = strpart(s:sntitle, s:snstart, s:snend-s:snstart)
   call setline(2, "Some text")
-  execute "Simplenote -o " . s:snkey
+  execute "SimplenoteOpen " . s:snkey
 
 Expect:
   A note we want to modify
