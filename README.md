@@ -59,9 +59,9 @@ notes in some other format (like markdown or restructured text) you can set
 The plugin provides several commands to interact with your Simplenote account.
 In order to retrieve a list of your notes execute one of the following:
 
-    :Simplenote -l
-    :Simplenote -l YYYY-MM-DD
-    :Simplenote -l todo,shopping
+    :SimplenoteList
+    :SimplenoteList YYYY-MM-DD
+    :SimplenoteList todo,shopping
 
 The first option returns all notes, the second returns only those notes modified
 since YYYY-MM-DD, the third option shows passing a comma separated list of tags;
@@ -73,7 +73,7 @@ vertical rather than horizontal split window.  You can then navigate through the
 with the arrow keys and enter a note on hitting `Return`. Now that you see the
 content of the note, you can interact with this specific note:
 
-    :Simplenote -u
+    :SimplenoteUpdate
 
 updates the content of the current note with the content of the current buffer.
 It will use Simplenote's merge functionality to merge in any remote changes that
@@ -82,33 +82,33 @@ the current note.
 
 To display the current version and note key/ID of a note use:
 
-    :Simplenote -V
+    :SimplenoteVersionInfo
 
 If you want to retrieve a specific version of a note use:
 
-    :Simplenote -v X
+    :SimplenoteVersion X
 
 where X is an integer version number. To restore that version of a note you
 would just use `:Simplenote -u`. To get back to the most recent version of a
 note use:
 
-    :Simplenote -v
+    :SimplenoteVersion
 
 Therefore you can also use `:Simplenote -v` when no local changes have been made
 to pull in the most recent changes from the remote note. To delete the note,
 execute
 
-    :Simplenote -d
+    :SimplenoteTrash
 
 This moves the current note to the trash. If you want to completely delete a
 note, use
 
-    :Simplenote -D
+    :SimplenoteDelete
 
 as it will directly delete the note and not only move it to the trash.  There
 also exists a command to create new notes.
 
-    :Simplenote -n
+    :SimplenoteNew
 
 creates a new note with the contents of the current buffer. Once the note is
 created, `:Simplenote -u` updates the newly created note, also with the contents
@@ -116,7 +116,7 @@ of the current buffer.
 
 Tagging notes is also supported. If you enter
 
-    :Simplenote -t
+    :SimplenoteTag
 
 on a buffer containing a valid note, you get an input dialog, prefilled with
 existing comma-separated tags for the note, which you can then edit. Tags have
@@ -125,40 +125,26 @@ tag list.
 
 Notes can be pinned with
 
-    :Simplenote -p
+    :SimplenotePin
 
 on a buffer containing a valid note. Likewise a note can be unpinned with
 
-    :Simplenote -P
+    :SimplenoteUnpin
 
 on a buffer containing a valid note.
 
 There is also an option to open notes directly from a given key:
 
-    :Simplenote -o <notekey>
+    :SimplenoteOpen <notekey>
 
 While this is not very useful in everyday usage, it can be used very effectively
 to create shortcuts to notes you use often. Example:
 
     " add :Todo command
-    command Todo Simplenote -o <yourtodonotekey>
+    command Todo SimplenoteOpen <yourtodonotekey>
 
 Now you can jump to your todo note directly with `:Todo` in vim.
 
-Also, if g:SimplenotePrefix is set, it is used to define aliases for these
-commands. Example:
-
-    :let g:SimplenotePrefix = "Sn"
-
-    :Snlist          " alias for :Simplenote -l
-    :Snupdate        " alias for :Simplenote -u
-    :Sntrash         " alias for :Simplenote -d
-    :Snnew           " alias for :Simplenote -n
-    :Sndelete        " alias for :Simplenote -D
-    :Sntag           " alias for :Simplenote -t
-    :Snpin           " alias for :Simplenote -p
-    :Snunpin         " alias for :Simplenote -P
-    :Snkey           " alias for :Simplenote -o
 
 ## Note sorting
 simplenote.vim supports simple note ordering. Per default the sort order is

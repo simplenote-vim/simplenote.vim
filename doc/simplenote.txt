@@ -22,47 +22,47 @@ Now you can take simple notes directly from your favourite editor.
 ==============================================================================
 2. Commands                                              *simplenote-commands*
 
-:Simplenote -l {date|tags}                                   *:SimplenoteList*
+:SimplenoteList {date|tags}                                  *:SimplenoteList*
     List notes since {date} or all notes with {tags} where {tags} is a comma
     separated list of tags. When the parameter is omitted, all notes are
     fetched. This command opens a split window to list notes. In the appearing
     split window, notes can be selected with the cursor line and are opened in
     a new split window with {CR}.
 
-:Simplenote -u                                             *:SimplenoteUpdate*
+:SimplenoteUpdate                                          *:SimplenoteUpdate*
     Update the currently opened note in the online service. The note is also
     automatically updated when the buffer is written. This will also merge in
     any changes that have occurred to the remote note.
 
-:Simplenote -V                                        *:SimplenoteVersionInfo*
+:SimplenoteVersionInfo                                *:SimplenoteVersionInfo*
     Displays the note key/id and version number of the current note.
 
-:Simplenote -v {version}                                  *:SimplenoteVersion*
+:SimplenoteVersion {version}                              *:SimplenoteVersion*
     Without any argument retrieves the most current version of a note. When
     {version} is supplied this retrieves {version} of a note.
 
-:Simplenote -d                                              *:SimplenoteTrash*
+:SimplenoteTrash                                            *:SimplenoteTrash*
     Move the currently open note into the trash. The open buffer is
     automatically closed after success.
 
-:Simplenote -D                                             *:SimplenoteDelete*
+:SimplenoteDelete                                          *:SimplenoteDelete*
     Delete the currently open note. The open buffer is automatically closed
     after success.
 
-:Simplenote -n                                                *:SimplenoteNew*
+:SimplenoteNew                                                *:SimplenoteNew*
     Create a new note with the contents of the current buffer.
 
-:Simplenote -t                                               *:SimplenoteTags*
+:SimplenoteTag                                                *:SimplenoteTag*
     Show an input field to add tags to the note in the current buffer. The
     input field is prepopulated with existing note tags.
 
-:Simplenote -p                                                *:SimplenotePin*
+:SimplenotePin                                                *:SimplenotePin*
     Pin the note in the current buffer.
 
-:Simplenote -P                                              *:SimplenoteUnpin*
+:SimplenoteUnpin                                            *:SimplenoteUnpin*
     Unpin the note in the current buffer.
 
-:Simplenote -o {notekey}                                     *:SimplenoteOpen*
+:SimplenoteOpen {notekey}                                    *:SimplenoteOpen*
     Opens the note corresponding to the given {notekey}. This is useful for
     configuring shortcuts to specific notes, e.g. >
     " add :Todo command
@@ -149,26 +149,6 @@ If you are behind a proxy set these to the correct values. >
     let $HTTPS_PROXY = 'http://<user>:<password>@<proxyurl>:<proxyport>'
 <
 
-                                                         *'simplenote_prefix'*
-Default: "Simplenote"
-If set, aliases for main command are defined. Assign empty string to disable
-aliases. For example, if following line is present in your .vimrc: >
-    g:SimplenotePrefix="Sn"
-
-, then following aliases are available: >
-
-    :SnList          " alias for :Simplenote -l
-    :SnUpdate        " alias for :Simplenote -u
-    :SnVersionInfo   " alias for :Simplenote -V
-    :SnVersion       " alias for :Simplenote -v
-    :SnTrash         " alias for :Simplenote -d
-    :SnDelete        " alias for :Simplenote -D
-    :SnNew           " alias for :Simplenote -n
-    :SnTags          " alias for :Simplenote -t
-    :SnPin           " alias for :Simplenote -p
-    :SnUnpin         " alias for :Simplenote -P
-    :SnOpen          " alias for :Simplenote -o
-<
 
 ==============================================================================
 4. Colors                                                  *simplenote-colors*
