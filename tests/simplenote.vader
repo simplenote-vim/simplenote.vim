@@ -249,9 +249,8 @@ Given:
 Execute (Don't overwrite modified, but unsaved notes):
   :SimplenoteNew
   let s:sntitle = expand('%:t')
-  let s:snstart = strridx(s:sntitle, "[")+1
-  let s:snend = strridx(s:sntitle, "]")
-  let s:snkey = strpart(s:sntitle, s:snstart, s:snend-s:snstart)
+  let s:snstart = strridx(s:sntitle, "_")+1
+  let s:snkey = strpart(s:sntitle, s:snstart)
   call setline(2, "Some text")
   execute "SimplenoteOpen " . s:snkey
 
