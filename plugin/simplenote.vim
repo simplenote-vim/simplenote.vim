@@ -4,7 +4,7 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 1.2.0
+" Version: 1.3.0
 " Usage:
 "   :SimplenoteList X => list X number of notes; omit X to list all
 "   :SimplenoteList tags,moretags => list notes which feature one of the tags

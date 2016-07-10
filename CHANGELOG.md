@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0 (07/10/2016)
+- Switch to prefixed based commands instead of using arguments
+
 ## 1.2.0 (06/01/2016)
 - Make Python 2 and 3 compatible
 - Externalise the python code instead of embedding
