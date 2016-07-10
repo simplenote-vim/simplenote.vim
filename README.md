@@ -145,6 +145,21 @@ to create shortcuts to notes you use often. Example:
 
 Now you can jump to your todo note directly with `:Todo` in vim.
 
+Also, if g:SimplenotePrefix is set, it is used to define aliases for these
+commands. Example:
+
+    :let g:SimplenotePrefix = "Sn"
+
+    :Snlist          " alias for :Simplenote -l
+    :Snupdate        " alias for :Simplenote -u
+    :Sntrash         " alias for :Simplenote -d
+    :Snnew           " alias for :Simplenote -n
+    :Sndelete        " alias for :Simplenote -D
+    :Sntag           " alias for :Simplenote -t
+    :Snpin           " alias for :Simplenote -p
+    :Snunpin         " alias for :Simplenote -P
+    :Snkey           " alias for :Simplenote -o
+
 ## Note sorting
 simplenote.vim supports simple note ordering. Per default the sort order is
 pinned notes first followed by modified date from newest to oldest. The order

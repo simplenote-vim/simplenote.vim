@@ -98,7 +98,7 @@ If set, the split windows will be opened vertical instead of horizontal. >
 
                                                   *'simplenote_single_window'*
 Default: 0
-If set, simplenote.vim will try to emulate the behaviout of the Simplenote
+If set, simplenote.vim will try to emulate the behaviour of the Simplenote
 website and display the list index and only one note open at a time. >
     g:SimplenoteSingleWindow=1
 <
@@ -147,6 +147,27 @@ Default: Off
 If you are behind a proxy set these to the correct values. >
     let $HTTP_PROXY = 'http://<user>:<password>@<proxyurl>:<proxyport>'
     let $HTTPS_PROXY = 'http://<user>:<password>@<proxyurl>:<proxyport>'
+<
+
+                                                         *'simplenote_prefix'*
+Default: "Simplenote"
+If set, aliases for main command are defined. Assign empty string to disable
+aliases. For example, if following line is present in your .vimrc: >
+    g:SimplenotePrefix="Sn"
+
+, then following aliases are available: >
+
+    :SnList          " alias for :Simplenote -l
+    :SnUpdate        " alias for :Simplenote -u
+    :SnVersionInfo   " alias for :Simplenote -V
+    :SnVersion       " alias for :Simplenote -v
+    :SnTrash         " alias for :Simplenote -d
+    :SnDelete        " alias for :Simplenote -D
+    :SnNew           " alias for :Simplenote -n
+    :SnTags          " alias for :Simplenote -t
+    :SnPin           " alias for :Simplenote -p
+    :SnUnpin         " alias for :Simplenote -P
+    :SnOpen          " alias for :Simplenote -o
 <
 
 ==============================================================================

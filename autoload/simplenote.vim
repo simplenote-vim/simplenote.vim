@@ -229,11 +229,96 @@ EOF
 endif
 endfunction
 
-function! simplenote#SimpleNote(param, ...)
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteCmd.py" 
 elseif has("python3")
     execute 'py3file ' . s:scriptpath . "/SimplenoteCmd.py" 
+endif
+function! simplenote#SimplenoteList(...)
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteList.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteList.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteUpdate()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteUpdate.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteUpdate.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteVersionInfo()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteVersionInfo.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteVersionInfo.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteVersion(...)
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteVersion.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteVersion.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteTrash()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteTrash.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteTrash.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteNew()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteNew.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteNew.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteTag()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteTag.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteTag.py" 
+endif
+endfunction
+
+function! simplenote#SimplenotePin()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenotePin.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenotePin.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteUnpin()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteUnpin.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteUnpin.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteDelete()
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteDelete.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteDelete.py" 
+endif
+endfunction
+
+function! simplenote#SimplenoteOpen(noteid)
+if has("python")
+    execute 'pyfile ' . s:scriptpath . "/SimplenoteOpen.py" 
+elseif has("python3")
+    execute 'py3file ' . s:scriptpath . "/SimplenoteOpen.py" 
 endif
 endfunction
 " vim: expandtab
