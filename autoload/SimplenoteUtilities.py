@@ -305,6 +305,8 @@ class SimplenoteVimInterface(object):
             if "systemtags" in note:
                 if ("markdown" in note["systemtags"]):
                     vim.command("setlocal filetype=markdown")
+            # TODO: only if we are using vertical spli
+            # TODO: make vertical note list width configurable
             vim.command("wincmd p")
             vim.command("vertical resize 35")
 
