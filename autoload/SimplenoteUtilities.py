@@ -305,6 +305,8 @@ class SimplenoteVimInterface(object):
             if "systemtags" in note:
                 if ("markdown" in note["systemtags"]):
                     vim.command("setlocal filetype=markdown")
+            vim.command("wincmd p")
+            vim.command("vertical resize 35")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new"""
@@ -331,7 +333,7 @@ class SimplenoteVimInterface(object):
             if status == 0:
                 print("Update successful.")
                 self.note_version[note_id] = note["version"]
-                # Merging content. 
+                # Merging content.
                 if 'content' in note:
                     buffer = vim.current.buffer
                     buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
