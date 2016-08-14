@@ -67,14 +67,23 @@ else
   let s:vbuff = 0
 endif
 
-" line height
+" list height
 if exists("g:SimplenoteListHeight")
   let s:lineheight = g:SimplenoteListHeight
 else
   let s:lineheight = 0
 endif
 
-" line height
+
+" list width (for vertical buffer only)
+if exists("g:SimplenoteListWidth")
+  let s:listwidth = g:SimplenoteListWidth
+else
+  let s:listwidth = 0 
+endif
+
+
+" sort order
 if exists("g:SimplenoteSortOrder")
   let s:sortorder = g:SimplenoteSortOrder
 else
