@@ -96,6 +96,12 @@ If set, the split windows will be opened vertical instead of horizontal. >
     g:SimplenoteVertical=1
 <
 
+                                                    *'simplenote_list_width'*
+Default: 50% of the current buffer
+If set, the vertically split windows will be opened with the given width in lines. >
+    g:SimplenoteListWidth=30
+<
+
                                                   *'simplenote_single_window'*
 Default: 0
 If set, simplenote.vim will try to emulate the behaviour of the Simplenote
