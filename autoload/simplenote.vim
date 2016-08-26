@@ -67,19 +67,12 @@ else
   let s:vbuff = 0
 endif
 
-" list height
-if exists("g:SimplenoteListHeight")
-  let s:lineheight = g:SimplenoteListHeight
-else
-  let s:lineheight = 0
-endif
 
-
-" list width (for vertical buffer only)
-if exists("g:SimplenoteListWidth")
-  let s:listwidth = g:SimplenoteListWidth
+" list size, used for both vertical and horizontal buffer
+if exists("g:SimplenoteListSize")
+  let s:listsize = g:SimplenoteListSize
 else
-  let s:listwidth = 0 
+  let s:listsize = 0 
 endif
 
 
@@ -179,8 +172,8 @@ function! s:ScratchBuffer()
     setlocal noswapfile
     setlocal cursorline
 
-    if (s:vbuff == 0) && (s:lineheight > 0)
-        exe "resize " . s:lineheight
+    if (s:vbuff == 0) && (s:listsize > 0)
+        exe "resize " . s:listsize
     endif
 endfunction
 

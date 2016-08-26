@@ -306,13 +306,15 @@ class SimplenoteVimInterface(object):
                 if ("markdown" in note["systemtags"]):
                     vim.command("setlocal filetype=markdown")
 
-            if (vim.eval("(s:vbuff == 1) && (s:listwidth > 0)")):
+            # if vertical is on, we can try to resize the list window to the
+            # desired size
+            if vim.eval('s:vbuff == 1 && s:listsize > 0') == "1":
                 vim.command("wincmd p")
-                vim.command("vertical resize " + vim.eval("s:listwidth"))
+                vim.command("vertical resize " + vim.eval("s:listsize"))
 
 
     def update_note_from_current_buffer(self):
-        """ updates the currently displayed note to the web service or creates new"""
+        """ updates the currently displayed note to the web service or creates new """
         note_id = self.get_current_note()
         content = "\n".join(str(line) for line in vim.current.buffer[:])
         # Need to get note details first to assess remote markdown status
