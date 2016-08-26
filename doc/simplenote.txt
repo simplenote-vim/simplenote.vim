@@ -84,11 +84,6 @@ Set the Password for the Simplenote account to use. >
     g:SimplenotePassword="verysecret"
 <
 
-                                                    *'simplenote_list_height'*
-Default: 50% of the current buffer
-If set, the split windows will be opened with the given height in lines. >
-    g:SimplenoteListHeight=30
-<
 
                                                        *'simplenote_vertical'*
 Default: 0
@@ -96,10 +91,11 @@ If set, the split windows will be opened vertical instead of horizontal. >
     g:SimplenoteVertical=1
 <
 
-                                                    *'simplenote_list_width'*
+                                                      *'simplenote_list_size'*
 Default: 50% of the current buffer
-If set, the vertically split windows will be opened with the given width in lines. >
-    g:SimplenoteListWidth=30
+If set, sets the width or height of the note list (Depending on 
+the setting of 'simplenote_vertical'). >
+    g:SimplenoteListSize=30
 <
 
                                                   *'simplenote_single_window'*
