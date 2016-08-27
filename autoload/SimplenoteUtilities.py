@@ -311,6 +311,7 @@ class SimplenoteVimInterface(object):
             if vim.eval('s:vbuff == 1 && s:listsize > 0') == "1":
                 vim.command("wincmd p")
                 vim.command("vertical resize " + vim.eval("s:listsize"))
+                vim.command("wincmd p")
 
 
     def update_note_from_current_buffer(self):
