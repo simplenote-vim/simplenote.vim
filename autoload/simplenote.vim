@@ -173,7 +173,7 @@ function! s:ScratchBuffer()
     setlocal cursorline
 
     if (s:vbuff == 0) && (s:listsize > 0)
-        exe "resize " . s:listsize
+    "    exe "resize " . s:listsize
     endif
 endfunction
 

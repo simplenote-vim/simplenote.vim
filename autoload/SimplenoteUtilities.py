@@ -313,6 +313,12 @@ class SimplenoteVimInterface(object):
                 vim.command("vertical resize " + vim.eval("s:listsize"))
                 vim.command("wincmd p")
 
+            # if vertical is not on, we can try to resize the list window to the
+            # desired size
+            if vim.eval('s:vbuff == 0 && s:listsize > 0') == "1":
+                vim.command("wincmd p")
+                vim.command("resize " + vim.eval("s:listsize"))
+                vim.command("wincmd p")
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new """
