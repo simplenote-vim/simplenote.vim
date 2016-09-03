@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (09/03/2016)
+- When using vertical split try to use correct width for note list index
+- new parameter: SimplenoteListSize used both for vertical and horizontal split
+
 ## 1.3.0 (07/10/2016)
 - Switch to prefixed based commands instead of using arguments
 
