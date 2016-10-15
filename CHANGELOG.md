@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.2 (10/15/2016)
+- Python 3 compatibility for format_title
+
 ## 1.3.1 (09/03/2016)
 - When using vertical split try to use correct width for note list index
 - new parameter: SimplenoteListSize used both for vertical and horizontal split
