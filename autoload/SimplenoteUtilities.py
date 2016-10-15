@@ -232,7 +232,7 @@ class SimplenoteVimInterface(object):
         padding = ""
         max_tleft_len = width - tright_len - 1
         if (max_tleft_len >= tleft_len):
-            padding = " " * (max_tleft_len - tleft_len)
+            padding = " " * int(max_tleft_len - tleft_len)
 
         return tleft + padding + " " + tright
 
