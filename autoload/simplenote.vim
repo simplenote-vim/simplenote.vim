@@ -231,6 +231,22 @@ EOF
 endif
 endfunction
 
+
+" function to update note from buffer content
+function! s:PostRenameBuffer()
+if has("python")
+python << EOF
+interface.post_rename_buffer()
+EOF
+elseif has("python3")
+python3 << EOF
+interface.post_rename_buffer()
+EOF
+endif
+endfunction
+
+
+
 if has("python")
     execute 'pyfile ' . s:scriptpath . "/SimplenoteCmd.py" 
 elseif has("python3")

@@ -302,6 +302,8 @@ class SimplenoteVimInterface(object):
             self.bufnum_to_noteid[buffer.number] = note_id
             vim.command("setlocal modifiable")
             vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
+            vim.command("au! BufFilePre <buffer> call s:PostRenameBuffer()")
+            vim.command("let s:renaming = 0")
             buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
             vim.command("setlocal nomodified")
             vim.command("doautocmd BufReadPost")
@@ -327,51 +329,142 @@ class SimplenoteVimInterface(object):
                 vim.command("resize " + vim.eval("s:listsize"))
                 vim.command("wincmd p")
 
+    def post_rename_buffer(self):
+        vim.command("let s:renaming = 1")
+
+
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new """
-        note_id = self.get_current_note()
-        content = "\n".join(str(line) for line in vim.current.buffer[:])
-        # Need to get note details first to assess remote markdown status
-        note, status = self.simplenote.get_note(note_id)
-        if status == 0:
-            if (vim.eval("&filetype") == "markdown"):
-                if "systemtags" in note:
-                    if ("markdown" not in note["systemtags"]):
-                        note["systemtags"].append("markdown")
-                else:
-                    note["systemtags"] = ["markdown"]
-            else:
-                if "systemtags" in note:
-                    if ("markdown" in note["systemtags"]):
-                        note["systemtags"].remove("markdown")
-            # To merge in we need to send version.
-            note, status = self.simplenote.update_note({"content": content,
-                                                      "key": note_id,
-                                                      "version": self.note_version[note_id],
-                                                      "systemtags": note["systemtags"]})
+        #
+        # todo: save if given parameter
+        amatch=vim.eval('expand("<amatch>")')
+        afile=vim.eval('expand("<afile>")')
+        currentfile=vim.eval("expand('%:p')")
+        renaming=vim.eval("s:renaming")
+        print("amatch: %s" % amatch)
+        print("afile: %s" % afile)
+        print("currentfile: %s" % currentfile)
+        print("renaming: %s" % renaming)
+        #
+        if vim.current.buffer.number in self.bufnum_to_noteid:
+            is_this_still_a_note = 1
+        else:
+            is_this_still_a_note = 0
+        #
+        if renaming == "0" and currentfile == amatch and is_this_still_a_note:
+            #
+            note_id = self.get_current_note()
+            content = "\n".join(str(line) for line in vim.current.buffer[:])
+            # Need to get note details first to assess remote markdown status
+            note, status = self.simplenote.get_note(note_id)
             if status == 0:
-                print("Update successful.")
-                self.note_version[note_id] = note["version"]
-                # Merging content.
-                if 'content' in note:
-                    buffer = vim.current.buffer
-                    buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
-                    print("Merged local content for %s" % note_id)
-                vim.command("setlocal nomodified")
-                #Need to (potentially) update buffer title, but we will just update anyway
-                regex = re.compile("[^a-zA-Z0-9]")
-                firstline = regex.sub("_", vim.current.buffer[0])
-                buffertitle = "SN_%s" % firstline
-                self.set_current_note(buffertitle, note["key"])
-                # But bufnum_to_noteid is ok so no need to change
+                if (vim.eval("&filetype") == "markdown"):
+                    if "systemtags" in note:
+                        if ("markdown" not in note["systemtags"]):
+                            note["systemtags"].append("markdown")
+                    else:
+                        note["systemtags"] = ["markdown"]
+                else:
+                    if "systemtags" in note:
+                        if ("markdown" in note["systemtags"]):
+                            note["systemtags"].remove("markdown")
+                # To merge in we need to send version.
+                note, status = self.simplenote.update_note({"content": content,
+                                                        "key": note_id,
+                                                        "version": self.note_version[note_id],
+                                                        "systemtags": note["systemtags"]})
+                if status == 0:
+                    print("Update successful.")
+                    self.note_version[note_id] = note["version"]
+                    # Merging content.
+                    if 'content' in note:
+                        buffer = vim.current.buffer
+                        buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                        print("Merged local content for %s" % note_id)
+                    vim.command("setlocal nomodified")
+                    #Need to (potentially) update buffer title, but we will just update anyway
+                    regex = re.compile("[^a-zA-Z0-9]")
+                    firstline = regex.sub("_", vim.current.buffer[0])
+                    buffertitle = "SN_%s" % firstline
+                    self.set_current_note(buffertitle, note["key"])
+                    # But bufnum_to_noteid is ok so no need to change
+                else:
+                    print("Update failed.: %s" % note)
+
+            elif note.code == 404:
+                # API returns 404 if note doesn't exist, so create new
+                self.create_new_note_from_current_buffer()
             else:
                 print("Update failed.: %s" % note)
-
-        elif note.code == 404:
-            # API returns 404 if note doesn't exist, so create new
-            self.create_new_note_from_current_buffer()
         else:
-            print("Update failed.: %s" % note)
+            # user is renaming, probably executing :saveas or :w <file>
+            # vim.command("au! * <buffer> ")
+
+            abuf=int(vim.eval('expand("<abuf>")'))    #-1
+            print("abuf renaming: {0}".format(abuf))
+            amatch=vim.eval('expand("<amatch>")')
+            abang=bool(int(vim.eval('v:cmdbang')))
+            cmdarg=vim.eval('v:cmdarg')
+
+            if os.path.isdir(amatch):
+                raise ValueError('Cannot write to directory {0}'.format(amatch))
+            if not os.path.isdir(os.path.dirname(amatch)):
+                raise ValueError('Directory {0} does not exist'.format(amatch))
+
+            encoding=vim.eval('&encoding')
+
+            opts={l[0] : l[1] if len(l)>1 else True
+                for l in [s[2:].split('=')
+                            for s in cmdarg.split()]}
+            if 'ff' not in opts:
+                opts['ff']=vim.eval('getbufvar({0}, "&fileformat")'.format(abuf))
+                if not opts['ff']:
+                    opts['ff']='unix'
+            if 'enc' not in opts:
+                opts['enc']=vim.eval('getbufvar({0}, "&fileencoding")'.format(abuf))
+                if not opts['enc']:
+                    opts['enc']=encoding
+            if 'nobin' in opts:
+                opts['bin']=False
+            elif 'bin' not in opts:
+                opts['bin']=vim.eval('getbufvar({0}, "&binary")'.format(abuf))
+
+            if opts['bin']:
+                opts['ff']='unix'
+                eol=bool(int(vim.eval('getbufvar({0}, "&endofline")'.format(abuf))))
+            else:
+                eol=True
+
+            eolbytes={'unix': '\n', 'dos': '\r\n', 'mac': '\r'}[opts['ff']]
+
+            buf=vim.buffers[abuf]
+            f=open(amatch, 'wb')
+            first=True
+            for line in buf:
+                if opts['enc']!=encoding:
+                    # Does not handle invalid bytes.
+                    line=line.decode(encoding).encode(opts['enc'])
+                if not first:
+                    f.write(eolbytes)
+                else:
+                    first=False
+                f.write(line)
+            if eol:
+                f.write(eolbytes)
+            f.close()
+
+
+            vim.command("set nomodified")
+
+            # when :saveas-ing, a new buffer is created, it serves no purpose
+            # so we are going to delete it
+            if currentfile == amatch and renaming == "1":
+                newBufferIndex = len(vim.buffers)
+                vim.command("bd {0}".format(newBufferIndex))
+                del self.bufnum_to_noteid[abuf]
+
+
+        vim.command("let s:renaming = 0")
 
     def set_tags_for_current_note(self):
         """ set tags for the current note"""
