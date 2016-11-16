@@ -351,7 +351,7 @@ class SimplenoteVimInterface(object):
         else:
             is_this_still_a_note = 0
         #
-        if renaming == "0" and currentfile == amatch and is_this_still_a_note:
+        if renaming == "0" and os.path.basename(currentfile) == os.path.basename(amatch) and is_this_still_a_note:
             #
             note_id = self.get_current_note()
             content = "\n".join(str(line) for line in vim.current.buffer[:])
@@ -458,10 +458,13 @@ class SimplenoteVimInterface(object):
 
             # when :saveas-ing, a new buffer is created, it serves no purpose
             # so we are going to delete it
-            if currentfile == amatch and renaming == "1":
+            if os.path.basename(currentfile) == os.path.basename(amatch) and renaming == "1":
                 newBufferIndex = len(vim.buffers)
                 vim.command("bd {0}".format(newBufferIndex))
-                del self.bufnum_to_noteid[abuf]
+                del self.bufnum_to_noteid[vim.current.buffer.number]
+                vim.command("au! BufWriteCmd <buffer>")
+                vim.command("au! BufFilePre <buffer>")
+                vim.command("setlocal buftype=")
 
 
         vim.command("let s:renaming = 0")
