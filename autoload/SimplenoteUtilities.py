@@ -343,16 +343,29 @@ class SimplenoteVimInterface(object):
         currentfile=vim.eval("expand('%:p')") # the filename of this buffer
         renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
 
-        # based on the available information, let's try to find out what the
-        # user action is
         if os.path.basename(currentfile) != os.path.basename(amatch):
-            userAction="writingBufferToADifferentFile" # user is executing :w <newfile>
+            # user is executing :w <newfile>
+            self.save_buffer_to_file()
         elif renaming == "0":
-            userAction="updatingNote"
+            # no renaming, so user is only trying to update note with :w
+            self.update_note_to_web_service()
         else:
-            userAction="renamingBuffer"
+            # user is trying to :saveas
+            self.save_buffer_to_file()
+            # when :saveas-ing, a new buffer is created
+            # let's delete it for now
+            newBufferIndex = len(vim.buffers)
+            vim.command("bd {0}".format(newBufferIndex))
+            # this buffer is no longer a note...
+            del self.bufnum_to_noteid[vim.current.buffer.number]
+            vim.command("au! BufWriteCmd <buffer>")
+            vim.command("au! BufFilePre <buffer>")
+            vim.command("setlocal buftype=")
 
-        if userAction=="updatingNote":
+
+
+    def update_note_to_web_service(self):
+
             note_id = self.get_current_note()
             content = "\n".join(str(line) for line in vim.current.buffer[:])
             # Need to get note details first to assess remote markdown status
@@ -396,23 +409,6 @@ class SimplenoteVimInterface(object):
                 self.create_new_note_from_current_buffer()
             else:
                 print("Update failed.: %s" % note)
-        elif userAction=="renamingBuffer" or userAction=="writingBufferToADifferentFile":
-            # user is renaming, probably executing :saveas or :w <file>
-            # vim.command("au! * <buffer> ")
-            self.save_buffer_to_file()
-            if userAction=="renamingBuffer":
-                # when :saveas-ing, a new buffer is created
-                # so we are going to delete it, another option could be transforming
-                # it into a scratch buffer and associating it with the note, too
-                # much work for me now....
-                newBufferIndex = len(vim.buffers)
-                vim.command("bd {0}".format(newBufferIndex))
-                # this buffer is no longer a note...
-                del self.bufnum_to_noteid[vim.current.buffer.number]
-                vim.command("au! BufWriteCmd <buffer>")
-                vim.command("au! BufFilePre <buffer>")
-                vim.command("setlocal buftype=")
-
 
     def save_buffer_to_file(self):
         """ save current buffer to file in pure python
