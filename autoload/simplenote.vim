@@ -232,15 +232,16 @@ endif
 endfunction
 
 
-" function to update note from buffer content
-function! s:PostRenameBuffer()
+" function to detect if user is renaming the buffer (via :saveas command,
+" probably)
+function! s:PreRenameBuffer()
 if has("python")
 python << EOF
-interface.post_rename_buffer()
+interface.pre_rename_buffer()
 EOF
 elseif has("python3")
 python3 << EOF
-interface.post_rename_buffer()
+interface.pre_rename_buffer()
 EOF
 endif
 endfunction

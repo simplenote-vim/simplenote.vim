@@ -302,7 +302,7 @@ class SimplenoteVimInterface(object):
             self.bufnum_to_noteid[buffer.number] = note_id
             vim.command("setlocal modifiable")
             vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
-            vim.command("au! BufFilePre <buffer> call s:PostRenameBuffer()")
+            vim.command("au! BufFilePre <buffer> call s:PreRenameBuffer()")
             vim.command("let s:renaming = 0")
             buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
             vim.command("setlocal nomodified")
@@ -329,29 +329,32 @@ class SimplenoteVimInterface(object):
                 vim.command("resize " + vim.eval("s:listsize"))
                 vim.command("wincmd p")
 
-    def post_rename_buffer(self):
-        vim.command("let s:renaming = 1")
+    def pre_rename_buffer(self):
+        """ the only way to detect if user is saving with :saveas command.
+            this function is executed before the actual saving """
+        vim.command("let s:renaming = 1") # we just need to know if user is renaming this buffer
 
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new """
         #
-        # todo: save if given parameter
-        amatch=vim.eval('expand("<amatch>")')
-        afile=vim.eval('expand("<afile>")')
-        currentfile=vim.eval("expand('%:p')")
-        renaming=vim.eval("s:renaming")
-        print("amatch: %s" % amatch)
-        print("afile: %s" % afile)
-        print("currentfile: %s" % currentfile)
-        print("renaming: %s" % renaming)
+        # what information do we have?
+        amatch=vim.eval('expand("<amatch>")') # the desired path+file name (:w command parameter, for example)
+        currentfile=vim.eval("expand('%:p')") # the filename of this buffer
+        renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
         #
-        if vim.current.buffer.number in self.bufnum_to_noteid:
-            is_this_still_a_note = 1
+        # based on the available information, let's try to find out what the
+        # user action is
+        if os.path.basename(currentfile) != os.path.basename(amatch):
+            userAction="writingBufferToADifferentFile" # user is executing :w <newfile>
         else:
-            is_this_still_a_note = 0
-        #
-        if renaming == "0" and os.path.basename(currentfile) == os.path.basename(amatch) and is_this_still_a_note:
+            if renaming == "0":
+                userAction="updatingNote"
+            else:
+                userAction="renamingBuffer"
+
+
+        if userAction=="updatingNote":
             #
             note_id = self.get_current_note()
             content = "\n".join(str(line) for line in vim.current.buffer[:])
@@ -399,75 +402,92 @@ class SimplenoteVimInterface(object):
         else:
             # user is renaming, probably executing :saveas or :w <file>
             # vim.command("au! * <buffer> ")
-
-            abuf=int(vim.eval('expand("<abuf>")'))    #-1
-            print("abuf renaming: {0}".format(abuf))
-            amatch=vim.eval('expand("<amatch>")')
-            abang=bool(int(vim.eval('v:cmdbang')))
-            cmdarg=vim.eval('v:cmdarg')
-
-            if os.path.isdir(amatch):
-                raise ValueError('Cannot write to directory {0}'.format(amatch))
-            if not os.path.isdir(os.path.dirname(amatch)):
-                raise ValueError('Directory {0} does not exist'.format(amatch))
-
-            encoding=vim.eval('&encoding')
-
-            opts={l[0] : l[1] if len(l)>1 else True
-                for l in [s[2:].split('=')
-                            for s in cmdarg.split()]}
-            if 'ff' not in opts:
-                opts['ff']=vim.eval('getbufvar({0}, "&fileformat")'.format(abuf))
-                if not opts['ff']:
-                    opts['ff']='unix'
-            if 'enc' not in opts:
-                opts['enc']=vim.eval('getbufvar({0}, "&fileencoding")'.format(abuf))
-                if not opts['enc']:
-                    opts['enc']=encoding
-            if 'nobin' in opts:
-                opts['bin']=False
-            elif 'bin' not in opts:
-                opts['bin']=vim.eval('getbufvar({0}, "&binary")'.format(abuf))
-
-            if opts['bin']:
-                opts['ff']='unix'
-                eol=bool(int(vim.eval('getbufvar({0}, "&endofline")'.format(abuf))))
-            else:
-                eol=True
-
-            eolbytes={'unix': '\n', 'dos': '\r\n', 'mac': '\r'}[opts['ff']]
-
-            buf=vim.buffers[abuf]
-            f=open(amatch, 'wb')
-            first=True
-            for line in buf:
-                if opts['enc']!=encoding:
-                    # Does not handle invalid bytes.
-                    line=line.decode(encoding).encode(opts['enc'])
-                if not first:
-                    f.write(eolbytes)
-                else:
-                    first=False
-                f.write(line)
-            if eol:
-                f.write(eolbytes)
-            f.close()
-
-
-            vim.command("set nomodified")
-
-            # when :saveas-ing, a new buffer is created, it serves no purpose
-            # so we are going to delete it
-            if os.path.basename(currentfile) == os.path.basename(amatch) and renaming == "1":
+            if userAction=="renamingBuffer" or userAction=="writingBufferToADifferentFile":
+                self.save_buffer_to_file()
+            if userAction=="renamingBuffer":
+                # when :saveas-ing, a new buffer is created
+                # so we are going to delete it, another option could be transforming
+                # it into a scratch buffer and associating it with the note, too
+                # much work for me now....
                 newBufferIndex = len(vim.buffers)
                 vim.command("bd {0}".format(newBufferIndex))
+                # this buffer is no longer a note...
                 del self.bufnum_to_noteid[vim.current.buffer.number]
                 vim.command("au! BufWriteCmd <buffer>")
                 vim.command("au! BufFilePre <buffer>")
                 vim.command("setlocal buftype=")
 
 
-        vim.command("let s:renaming = 0")
+
+
+    def save_buffer_to_file(self):
+        """ save current buffer to file in pure python
+            we need this because we have overwritten the native save functionality
+            with our own using au! BufWriteCmd <buffer>
+            ---
+            copied shamelessly from:
+            http://stackoverflow.com/questions/12324696/bufwritecmd-handler
+            thanks ZyX!!!
+        """
+
+        abuf=int(vim.eval('expand("<abuf>")'))
+        amatch=vim.eval('expand("<amatch>")')
+        abang=bool(int(vim.eval('v:cmdbang')))
+        cmdarg=vim.eval('v:cmdarg')
+
+        if os.path.isdir(amatch):
+            raise ValueError('Cannot write to directory {0}'.format(amatch))
+        if not os.path.isdir(os.path.dirname(amatch)):
+            raise ValueError('Directory {0} does not exist'.format(amatch))
+
+        encoding=vim.eval('&encoding')
+
+        opts={l[0] : l[1] if len(l)>1 else True
+            for l in [s[2:].split('=')
+                        for s in cmdarg.split()]}
+        if 'ff' not in opts:
+            opts['ff']=vim.eval('getbufvar({0}, "&fileformat")'.format(abuf))
+            if not opts['ff']:
+                opts['ff']='unix'
+        if 'enc' not in opts:
+            opts['enc']=vim.eval('getbufvar({0}, "&fileencoding")'.format(abuf))
+            if not opts['enc']:
+                opts['enc']=encoding
+        if 'nobin' in opts:
+            opts['bin']=False
+        elif 'bin' not in opts:
+            opts['bin']=vim.eval('getbufvar({0}, "&binary")'.format(abuf))
+
+        if opts['bin']:
+            opts['ff']='unix'
+            eol=bool(int(vim.eval('getbufvar({0}, "&endofline")'.format(abuf))))
+        else:
+            eol=True
+
+        eolbytes={'unix': '\n', 'dos': '\r\n', 'mac': '\r'}[opts['ff']]
+
+        buf=vim.buffers[abuf]
+        f=open(amatch, 'wb')
+        first=True
+        for line in buf:
+            if opts['enc']!=encoding:
+                # Does not handle invalid bytes.
+                line=line.decode(encoding).encode(opts['enc'])
+            if not first:
+                f.write(eolbytes)
+            else:
+                first=False
+            f.write(line)
+        if eol:
+            f.write(eolbytes)
+        f.close()
+
+        vim.command("set nomodified")
+
+
+
+
+
 
     def set_tags_for_current_note(self):
         """ set tags for the current note"""
