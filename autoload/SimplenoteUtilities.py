@@ -337,25 +337,22 @@ class SimplenoteVimInterface(object):
 
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new """
-        #
+
         # what information do we have?
         amatch=vim.eval('expand("<amatch>")') # the desired path+file name (:w command parameter, for example)
         currentfile=vim.eval("expand('%:p')") # the filename of this buffer
         renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
-        #
+
         # based on the available information, let's try to find out what the
         # user action is
         if os.path.basename(currentfile) != os.path.basename(amatch):
             userAction="writingBufferToADifferentFile" # user is executing :w <newfile>
+        elif renaming == "0":
+            userAction="updatingNote"
         else:
-            if renaming == "0":
-                userAction="updatingNote"
-            else:
-                userAction="renamingBuffer"
-
+            userAction="renamingBuffer"
 
         if userAction=="updatingNote":
-            #
             note_id = self.get_current_note()
             content = "\n".join(str(line) for line in vim.current.buffer[:])
             # Need to get note details first to assess remote markdown status
@@ -399,11 +396,10 @@ class SimplenoteVimInterface(object):
                 self.create_new_note_from_current_buffer()
             else:
                 print("Update failed.: %s" % note)
-        else:
+        elif userAction=="renamingBuffer" or userAction=="writingBufferToADifferentFile":
             # user is renaming, probably executing :saveas or :w <file>
             # vim.command("au! * <buffer> ")
-            if userAction=="renamingBuffer" or userAction=="writingBufferToADifferentFile":
-                self.save_buffer_to_file()
+            self.save_buffer_to_file()
             if userAction=="renamingBuffer":
                 # when :saveas-ing, a new buffer is created
                 # so we are going to delete it, another option could be transforming
@@ -416,8 +412,6 @@ class SimplenoteVimInterface(object):
                 vim.command("au! BufWriteCmd <buffer>")
                 vim.command("au! BufFilePre <buffer>")
                 vim.command("setlocal buftype=")
-
-
 
 
     def save_buffer_to_file(self):
