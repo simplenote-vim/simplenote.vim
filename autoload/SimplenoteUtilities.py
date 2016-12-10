@@ -344,14 +344,6 @@ class SimplenoteVimInterface(object):
         currentfile=vim.eval("expand('%:p')") # the filename of this buffer
         renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
 
-
-        print("amatch: " + amatch)
-        print("currentfile: " + currentfile)
-        print("renaming: " + renaming)
-
-
-
-
         if os.path.basename(currentfile) != os.path.basename(amatch):
             # user is executing :w <newfile>
             self.save_buffer_to_file()

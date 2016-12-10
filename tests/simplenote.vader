@@ -232,12 +232,51 @@ Expect:
   A third version of a note
 
 
+
+
+# Save a note to a local file
+Given:
+  A note that will be saved to disk
+
+Execute (Save a note to a local file with :w {file}):
+  :SimplenoteNew
+  :w testNote.txt
+  :read testNote.txt 
+  :call delete("test.txt")
+
+Expect:
+  A note that will be saved to disk
+  A note that will be saved to disk
+
+
+# Save a note to a local file with :saveas
+Given:
+  A note that will be saved to disk and then modified locally
+
+Execute (Save a note to a local file with :saveas {file}):
+  :SimplenoteNew
+  :saveas testNote.txt
+  :call setline(2 ,"Local modification")
+  :w
+  :%d
+  :e!
+
+Expect:
+  A note that will be saved to disk and then modified locally
+  Local modification
+
+Execute (Delete test file):
+  :call delete("testNote.txt")
+
+
+
+
 # Get a list of notes
 Execute (Get a list of notes):
   :SimplenoteList
   "Below is required as Simplenote list sets buffer to unmodifiable so need to set it to modifiable... 
   :set modifiable
-  AssertEqual 10, line('$')
+  AssertEqual 12, line('$')
   "and clear it
   :1,$d
 
