@@ -101,16 +101,16 @@ Given:
 
 Execute:
   :SimplenoteNew
-  let s:sntitle = expand('%:t')
-  let s:snstart = strridx(s:sntitle, "_")+1
-  let s:snkey = strpart(s:sntitle, s:snstart)
+  let b:sntitle = expand('%:t')
+  let b:snstart = strridx(b:sntitle, "_")+1
+  let b:snkey = strpart(b:sntitle, b:snstart)
 
 Given:
   A sixth test note
 
 Execute (Open a note by key):
   :SimplenoteNew
-  execute "SimplenoteOpen " . s:snkey
+  execute "SimplenoteOpen " . b:snkey
 
 Expect:
   A fifth test note

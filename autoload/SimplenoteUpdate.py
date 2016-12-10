@@ -1,5 +1,5 @@
 def SimplenoteUpdate():
-    interface.update_note_from_current_buffer()
+    interface.update_note_to_web_service()
 
 try:
     set_cred()

@@ -91,6 +91,8 @@ endif
 let g:simplenote_scratch_buffer = 'Simplenote'
 " Initialise the window number that notes will be displayed in. This needs to start as 0.
 let g:simplenote_note_winnr = 0
+" Initialise the variable that lets us know if user is renaming current buffer
+let s:renaming = "0"
 
 " Function that opens or navigates to the scratch buffer.
 " TODO: This is a complicated mess and it would be nice to improve it, but I'm really not sure how.

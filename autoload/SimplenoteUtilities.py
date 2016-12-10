@@ -46,6 +46,7 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal buftype=acwrite")
         vim.command("setlocal nomodified")
         vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
+        vim.command("au! BufFilePre <buffer> call s:PreRenameBuffer()")
 
     def format_title_build(self, title, fmt_char, value_str, conceal_str):
         """ function to replace a format tag in the title
@@ -342,6 +343,14 @@ class SimplenoteVimInterface(object):
         amatch=vim.eval('expand("<amatch>")') # the desired path+file name (:w command parameter, for example)
         currentfile=vim.eval("expand('%:p')") # the filename of this buffer
         renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
+
+
+        print("amatch: " + amatch)
+        print("currentfile: " + currentfile)
+        print("renaming: " + renaming)
+
+
+
 
         if os.path.basename(currentfile) != os.path.basename(amatch):
             # user is executing :w <newfile>
