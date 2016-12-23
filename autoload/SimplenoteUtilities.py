@@ -343,7 +343,7 @@ class SimplenoteVimInterface(object):
         amatch=vim.eval('expand("<amatch>")') # the desired path+file name (:w command parameter, for example)
         currentfile=vim.eval("expand('%:p')") # the filename of this buffer
         renaming=vim.eval("s:renaming")       # is the user changing THIS buffer's file name? (:saveas)
-
+        
         if os.path.basename(currentfile) != os.path.basename(amatch):
             # user is executing :w <newfile>
             self.save_buffer_to_file()
@@ -410,6 +410,7 @@ class SimplenoteVimInterface(object):
                 self.create_new_note_from_current_buffer()
             else:
                 print("Update failed.: %s" % note)
+            vim.command("let s:renaming = 0")
 
     def save_buffer_to_file(self):
         """ save current buffer to file in pure python
