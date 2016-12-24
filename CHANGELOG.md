@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.1 (12/24/2016)
+- No code changes, I just forgot to update the CHANGELOG and README to suit 1.4.0
+
 ## 1.4.0 (12/24/2016)
 - support for :saveas and :w <file> thanks to @sanchon
 
