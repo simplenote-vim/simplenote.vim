@@ -78,7 +78,8 @@ content of the note, you can interact with this specific note:
 updates the content of the current note with the content of the current buffer.
 It will use Simplenote's merge functionality to merge in any remote changes that
 have been made as well. The buffer write command `:w` is also mapped to update
-the current note.
+the current note, but you can still use `:w <file>` and `:saveas <file>` to
+write out a not locally.
 
 To display the current version and note key/ID of a note use:
 
