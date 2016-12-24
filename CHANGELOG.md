@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.0 (12/24/2016)
+- Need to reset s:renaming after :SimpleUpdate
+- two new tests, for :w {file} and :saveas {file}
+- Fixed: SimplenoteUpdate didn't work, tests fixed
+- refactoring
+- better code style
+- cleanup
+- everything works now, we need to cleanup
+- Merge branch 'master' of https://github.com/sanchon/simplenote.vim
+- support for :saveas and :w <file>, works but needs cleanup
+
 ## 1.3.2 (10/15/2016)
 - Python 3 compatibility for format_title
 
