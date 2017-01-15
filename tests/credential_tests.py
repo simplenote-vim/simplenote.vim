@@ -82,6 +82,22 @@ class CredentialsTests(unittest.TestCase):
         pwd_cred_assigns = self.received_commands_starting_with('let s:password=')
         self.assertTrue('inputsecret' in pwd_cred_assigns[0])
 
+    def test_asks_for_username_if_only_password_is_specified(self):
+        self.mock_vim.eval = lambda c: '<value>' if c == 's:password' else ''
+
+        set_cred()
+
+        user_cred_assigns = self.received_commands_starting_with('let s:user=')
+        self.assertEqual(user_cred_assigns, self.mock_vim.received_commands)
+
+    def test_asks_for_password_if_only_username_is_specified(self):
+        self.mock_vim.eval = lambda c: '<value>' if c == 's:user' else ''
+
+        set_cred()
+
+        pwd_cred_assigns = self.received_commands_starting_with('let s:password=')
+        self.assertEqual(pwd_cred_assigns, self.mock_vim.received_commands)
+
 
 if __name__ == '__main__':
     unittest.main()
