@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.2 (01/21/2017)
+- Fix for where :w wouldn't work after SimplenoteNew
+
 ## 1.4.1 (12/24/2016)
 - No code changes, I just forgot to update the CHANGELOG and README to suit 1.4.0
 
