@@ -740,7 +740,7 @@ def compare_notes(note1, note2):
     def compare_alpha(note1, note2):
         title1 = get_note_title(note1)
         title2 = get_note_title(note2)
-        return (title1 < title2) - (title1 > title2)
+        return (title1 > title2) - (title1 < title2)
 
     # dict for dynamically calling compare functions
     sortfuncs = {
