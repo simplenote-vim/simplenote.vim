@@ -14,8 +14,12 @@ def reset_user_pass(warning=None):
 def set_cred():
     if vim.eval('s:user') == '' or vim.eval('s:password') == '':
         try:
-            vim.command("let s:user=input('email:', '')")
-            vim.command("let s:password=inputsecret('password:', '')")
+            for variable, prompt in (
+                ("s:user", "input('email:', '')"),
+                ("s:password", "inputsecret('password:', '')")
+            ):
+                if vim.eval(variable) == '':
+                    vim.command("let %s=%s" % (variable, prompt))
         except KeyboardInterrupt:
             reset_user_pass('KeyboardInterrupt')
             return
