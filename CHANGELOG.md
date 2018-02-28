@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.3 (02/28/2018)
+- Update simplenote.py to 1.0.4
+- Merge branch 'issue94'
+- Remove test files for the credential tests
+- Fix sort order of note titles
+- Allow asking the user for username and password separately
+- Provide unit tests for the `if` clause of `set_cred`
+- Add .gitignore
+
 ## 1.4.2 (01/21/2017)
 - Fix for where :w wouldn't work after SimplenoteNew
 
