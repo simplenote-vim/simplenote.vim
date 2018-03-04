@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.4 (03/04/2018)
+- Re-work sorting of notes in list index
+
 ## 1.4.3 (02/28/2018)
 - Update simplenote.py to 1.0.4
 - Merge branch 'issue94'
