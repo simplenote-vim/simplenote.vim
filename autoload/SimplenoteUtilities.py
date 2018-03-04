@@ -670,7 +670,24 @@ class SimplenoteVimInterface(object):
         if status == 0:
             note_titles = []
             notes = self.get_notes_from_keys([n['key'] for n in note_list])
-            notes.sort(key=functools.cmp_to_key(compare_notes))
+            # Iterate through sorts here, need to reverse this because we finish with the primary sort
+            sortorder = list(reversed(vim.eval("s:sortorder").split(",")))
+            sorted_notes = notes
+            for compare_type in sortorder:
+                compare_type = compare_type.strip()
+                if compare_type == "pinned":
+                    sorted_notes = sorted(sorted_notes, key=lambda n: "pinned" in n["systemtags"], reverse=True)
+                elif compare_type == "modifydate":
+                    sorted_notes = sorted(sorted_notes, key=lambda n: float(n["modifydate"]), reverse=True)
+                elif compare_type == "createdate":
+                    sorted_notes = sorted(sorted_notes, key=lambda n: float(n["createdate"]), reverse=True)
+                elif compare_type == "tags":
+                    # existence of a tag only
+                    sorted_notes = sorted(sorted_notes, key=lambda n: len(n["tags"]) == 0)
+                elif compare_type == "title":
+                    # Ignore case
+                    sorted_notes = sorted(sorted_notes, key=lambda n: str.lower(get_note_title(n)))
+            notes = sorted_notes
             note_titles = [self.format_title(n) for n in notes]
             self.note_index = [n["key"] for n in notes]
             buffer[:] = note_titles
@@ -691,79 +708,6 @@ def get_note_title(note):
     return str(note_lines[0] if len(note_lines) > 0 else note["key"])
 
 
-def compare_notes(note1, note2):
-    """ determine the sort order for two passed in notes
-
-        Parameters:
-          note1 - first note object
-          note2 - second note object
-
-        Returns -1 if the first note is considered smaller, 0 for equal
-        notes and 1 if the first note is considered larger
-    """
-    # setup compare functions
-    def compare_pinned(note1, note2):
-        if ("pinned" in note1["systemtags"] and
-            "pinned" not in note2["systemtags"]):
-            return -1
-        elif ("pinned" in note2["systemtags"] and
-            "pinned" not in note1["systemtags"]):
-            return 1
-        else:
-            return 0
-
-
-    def compare_modified(note1, note2):
-        if float(note1["modifydate"]) < float(note2["modifydate"]):
-            return 1
-        elif float(note1["modifydate"]) > float(note2["modifydate"]):
-            return -1
-        else:
-            return 0
-
-    def compare_created(note1, note2):
-        if float(note1["createdate"]) < float(note2["createdate"]):
-            return 1
-        elif float(note1["createdate"]) > float(note2["createdate"]):
-            return -1
-        else:
-            return 0
-
-    def compare_tags(note1, note2):
-        if note1["tags"] < note2["tags"]:
-            return 1
-        if note1["tags"] > note2["tags"]:
-            return -1
-        else:
-            return 0
-
-    def compare_alpha(note1, note2):
-        title1 = get_note_title(note1)
-        title2 = get_note_title(note2)
-        return (title1 > title2) - (title1 < title2)
-
-    # dict for dynamically calling compare functions
-    sortfuncs = {
-        "pinned": compare_pinned,
-        "createdate": compare_created,
-        "modifydate": compare_modified,
-        "tags": compare_tags,
-        "title": compare_alpha,
-    }
-
-    sortorder = vim.eval("s:sortorder").split(",")
-
-    for key in sortorder:
-        res = sortfuncs.get(key.strip(),lambda x,y: 0)(note1, note2)
-        if res != 0:
-            return res
-
-    # return equal if no comparison hit
-    return 0
-
-
-
-
 class NoteFetcher(Thread):
     """ class to fetch a note running in a thread
 
@@ -780,6 +724,9 @@ class NoteFetcher(Thread):
     def run(self):
         key = self.queue.get()
         note, status = self.simplenote.get_note(key)
+        # Sort tags alphabetically
+        # TODO: Move this to simplenote.py
+        note["tags"] = sorted(note["tags"])
         if status != -1:
           self.note_list.append(note)
 
