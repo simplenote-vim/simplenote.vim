@@ -724,9 +724,6 @@ class NoteFetcher(Thread):
     def run(self):
         key = self.queue.get()
         note, status = self.simplenote.get_note(key)
-        # Sort tags alphabetically
-        # TODO: Move this to simplenote.py
-        note["tags"] = sorted(note["tags"])
         if status != -1:
           self.note_list.append(note)
 
