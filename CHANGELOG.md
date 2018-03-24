@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.5 (03/24/2018)
+- Update simplenote.py so we can move tag sorting there.
+
 ## 1.4.4 (03/04/2018)
 - Re-work sorting of notes in list index
 
