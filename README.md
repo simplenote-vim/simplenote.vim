@@ -67,9 +67,9 @@ The first option returns all notes, the second returns only those notes modified
 since YYYY-MM-DD, the third option shows passing a comma separated list of tags;
 this will only list notes which have at least one of those tags.  This opens a
 new scratch buffer with a line-wise listing of your notes. With `let
-g:SimplenoteListHeight=X` set, the scratch buffer will come up X lines tall.
+g:SimplenoteListSize=X` set, the scratch buffer will come up X lines tall.
 Alternatively when `let g:SimplenoteVertical=1` is set, it is opened as a
-vertical rather than horizontal split window.  You can then navigate through the
+vertical rather than horizontal split window and `g:SimplenoteListSize=X` sets the width of the list index.  You can then navigate through the
 with the arrow keys and enter a note on hitting `Return`. Now that you see the
 content of the note, you can interact with this specific note:
 
