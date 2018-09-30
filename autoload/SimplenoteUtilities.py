@@ -705,7 +705,10 @@ class SimplenoteVimInterface(object):
 def get_note_title(note):
     """ get title of note """
     note_lines = note["content"].split("\n")
-    return str(note_lines[0] if len(note_lines) > 0 else note["key"])
+    try:
+        return str(note_lines[0] if len(note_lines) > 0 else note["key"])
+    except UnicodeEncodeError:
+        return unicode(note_lines[0] if len(note_lines) > 0 else note["key"])
 
 
 class NoteFetcher(Thread):

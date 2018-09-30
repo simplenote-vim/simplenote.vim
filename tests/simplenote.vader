@@ -69,7 +69,7 @@ Execute python:
 
 Expect:
   A third test note
-  1
+  True
 
 
 # Deletes a note
