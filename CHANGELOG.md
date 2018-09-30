@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0 (09/30/2018)
+- Quick Simperium fixes
+- Use simplenote.py v2.0.0 - uses the Simperium API
+- Breaking change: No longer supports `since` in SimpleNoteList
+
 ## 1.4.5 (03/24/2018)
 - Update simplenote.py so we can move tag sorting there.
 
