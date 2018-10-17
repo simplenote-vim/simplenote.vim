@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 (10/17/2018)
+- More unicode fixes as a result of Simperium
+- Pull in simplenote.py v2.0.2
+
 ## 2.0.0 (09/30/2018)
 - Quick Simperium fixes
 - Use simplenote.py v2.0.0 - uses the Simperium API
