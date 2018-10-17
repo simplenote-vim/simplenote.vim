@@ -305,7 +305,10 @@ class SimplenoteVimInterface(object):
             vim.command("au! BufWriteCmd <buffer> call s:UpdateNoteFromCurrentBuffer()")
             vim.command("au! BufFilePre <buffer> call s:PreRenameBuffer()")
             vim.command("let s:renaming = 0")
-            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+            try:
+                buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+            except UnicodeEncodeError:
+                buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
             vim.command("setlocal nomodified")
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
@@ -368,7 +371,10 @@ class SimplenoteVimInterface(object):
     def update_note_to_web_service(self):
 
             note_id = self.get_current_note()
-            content = "\n".join(str(line) for line in vim.current.buffer[:])
+            try:
+                content = "\n".join(str(line) for line in vim.current.buffer[:])
+            except UnicodeEncodeError:
+                content = "\n".join(unicode(line) for line in vim.current.buffer[:])
             # Need to get note details first to assess remote markdown status
             note, status = self.simplenote.get_note(note_id)
             if status == 0:
@@ -393,7 +399,10 @@ class SimplenoteVimInterface(object):
                     # Merging content.
                     if 'content' in note:
                         buffer = vim.current.buffer
-                        buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                        try:
+                            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                        except UnicodeEncodeError:
+                            buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
                         print("Merged local content for %s" % note_id)
                     vim.command("setlocal nomodified")
                     #Need to (potentially) update buffer title, but we will just update anyway
@@ -577,14 +586,20 @@ class SimplenoteVimInterface(object):
                     if version == "0":
                         note, status = self.simplenote.get_note(note_id)
                         if status == 0:
-                            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                            try:
+                                buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                            except UnicodeEncodeError:
+                                buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
                             print("Displaying most recent version of note ID %s" % note_id)
                     else:
                         note, status = self.simplenote.get_note(note_id, version)
                         if status == 0:
-                            buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                            try:
+                                buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
+                            except UnicodeEncodeError:
+                                buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
                             print("Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version))
@@ -597,7 +612,11 @@ class SimplenoteVimInterface(object):
 
     def create_new_note_from_current_buffer(self):
         """ get content of the current buffer and create new note """
-        content = "\n".join(str(line) for line in vim.current.buffer[:])
+        try:
+            content = "\n".join(str(line) for line in vim.current.buffer[:])
+        except UnicodeEncodeError:
+            content = "\n".join(unicode(line) for line in vim.current.buffer[:])
+
         markdown = (vim.eval("&filetype") == "markdown")
         if markdown:
             note, status = self.simplenote.update_note({"content": content,
@@ -637,7 +656,10 @@ class SimplenoteVimInterface(object):
             # Switch back to note buffer so it can be deleted from function calling this one
             #Need reverse look up again
             buffernumber = [b for b, n in self.bufnum_to_noteid.items() if n == note_id ][0]
-            vim.command("buffer "+str(buffernumber))
+            try:
+                vim.command("buffer "+str(buffernumber))
+            except UnicodeEncodeError:
+                vim.command("buffer "+unicode(buffernumber))
             # Also delete from note_index so opening notes works as expected
             del self.note_index[position]
         except ValueError:
