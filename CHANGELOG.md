@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2 (10/20/2018)
+- Remove references to since in get_note_list, pull in sn.py 2.0.3
+
 ## 2.0.1 (10/17/2018)
 - More unicode fixes as a result of Simperium
 - Pull in simplenote.py v2.0.2
