@@ -666,7 +666,7 @@ class SimplenoteVimInterface(object):
             # Handle improbable situation of trying to remove a note that wasn't there
             print("Unable to remove deleted note from list index")
 
-    def list_note_index_in_scratch_buffer(self, since=None, tags=[]):
+    def list_note_index_in_scratch_buffer(self, tags=[]):
         """ get all available notes and display them in a scratchbuffer """
         # Initialize the scratch buffer
         # Check to see if already mapped to a buffer
@@ -681,7 +681,7 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # Need to also keep track of the list index in the bufnum dictionary
         self.bufnum_to_noteid[buffer.number] = DEFAULT_SCRATCH_NAME
-        note_list, status = self.simplenote.get_note_list(since)
+        note_list, status = self.simplenote.get_note_list()
         if (len(tags) > 0):
             note_list = [n for n in note_list if (n["deleted"] != 1 and
                             len(set(n["tags"]).intersection(tags)) > 0)]
