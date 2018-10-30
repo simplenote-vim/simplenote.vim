@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.3 (10/30/2018)
+- Need to send tags by default with Simperium
+
 ## 2.0.2 (10/20/2018)
 - Remove references to since in get_note_list, pull in sn.py 2.0.3
 
