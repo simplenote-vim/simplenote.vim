@@ -392,7 +392,8 @@ class SimplenoteVimInterface(object):
                 note, status = self.simplenote.update_note({"content": content,
                                                         "key": note_id,
                                                         "version": self.note_version[note_id],
-                                                        "systemtags": note["systemtags"]})
+                                                        "systemtags": note["systemtags"],
+                                                        "tags" : note["tags"]})
                 if status == 0:
                     print("Update successful.")
                     self.note_version[note_id] = note["version"]
