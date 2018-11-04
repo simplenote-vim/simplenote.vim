@@ -1,12 +1,14 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 
 # simplenote.vim
+
 A vim plugin to interact with the [simplenote][1] API. You can create an account
 [here][2] if you don't already have one.
 
 Now you can take simple notes directly from your favourite editor.
 
 ## Installation
+
 Install manually by copying `simplenote.vim` into your plugin folder or use the
 included `mk_vimball.sh` to generate a vimball to install.
 
@@ -56,6 +58,7 @@ notes in some other format (like markdown or restructured text) you can set
 `g:SimplenoteFiletype` to the preferred vim filetype.
 
 ## Usage
+
 The plugin provides several commands to interact with your Simplenote account.
 In order to retrieve a list of your notes execute one of the following:
 
@@ -70,6 +73,12 @@ lines tall.  Alternatively when `let g:SimplenoteVertical=1` is set, it is
 opened as a vertical rather than horizontal split window and
 `g:SimplenoteListSize=X` sets the width of the list index.  You can then
 navigate through the with the arrow keys and enter a note on hitting `Return`.
+
+If you want to refresh the list index just run `:SimplenoteList` again. With
+version 2.1 an in-memory cache is used to speed up subsequent updates of the
+list index (the first load can still be slow if you have a lot of notes). Also
+see [Single Window Mode](#single-window-mode).
+
 Now that you see the content of the note, you can interact with this specific
 note:
 
@@ -148,6 +157,7 @@ Now you can jump to your todo note directly with `:Todo` in vim.
 
 
 ## Note sorting
+
 simplenote.vim supports simple note ordering. Per default the sort order is
 pinned notes first followed by modified date from newest to oldest. The order
 can be changed by setting the `g:SimplenoteSortOrder` variable. It should be set
@@ -157,6 +167,7 @@ untagged ones), `title`, `modifydate` and `createdate` (both newer before
 older).
 
 ## Formatting
+
 The format of the note titles in the list are configurable using the
 `g:SimplenoteNoteFormat` option.
 
@@ -183,6 +194,7 @@ The format of the date string is also configurable using the
 `"%a, %d %b %Y %H:%M:%S"`.
 
 ### Colors
+
 If the `+conceal` feature is enabled in vim then syntax highlighting is
 supported for the Simplenote note list. The highlight groups supported are:
 
@@ -196,6 +208,7 @@ supported for the Simplenote note list. The highlight groups supported are:
     SN_NoteAgeAncient  note title - ancient ('%N' format)
 
 ## Single Window Mode
+
 By default simplenote.vim will open notes in new windows. If you would prefer
 simplenote.vim to emulate the behaviour of the Simplenote website and native
 applications then set `g:SimplenoteSingleWindow` (to anything) in your `.vimrc`
@@ -206,12 +219,14 @@ index and the first note opened then this new window will be targetted for
 notes.
 
 ## Dependencies
+
 Version 2 of the SimpleNote API relies heavily on JSON. As JSON and VimL don't
 really play nice together, basic parts of this plugin are implemented in
 python.  Therefore your vim has to be compiled with python 2.7+ or 3.2+ support
 in order to use this plugin.
 
 ## Usage behind proxy
+
 Since the plugin uses Python's urllib2 for making HTTP requests, you just have
 to add these lines (with the correct values) to your `.vimrc`:
 
@@ -221,6 +236,7 @@ to add these lines (with the correct values) to your `.vimrc`:
 
 
 ## Special issue concerning GFW
+
 For Chinese mainland users, since the authentication service of [simplenote][1] is hosted
 on [appspot](http://appspot.com), a VPN connection has to be configured to use
 simplenote.vim. The configurations of a VPN connection is surely beyond the scope of
@@ -231,10 +247,12 @@ exploiting `proxychains` to ease the invoking of simplenote.vim
     alias simplenote="proxychains -q vim -c 'Simplenote -l'"
 
 ## Development
+
 - [Bugs and issue tracker](https://github.com/mrtazz/simplenote.vim/issues)
 
 
 ## Thanks
+
 [mattn][6], [Tim Pope][7] and [Scrooloose][8] who write awesome vim
 plugins which I took as a basis to learn how to write vim plugins.
 

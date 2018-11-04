@@ -24,8 +24,13 @@ class SimplenoteVimInterface(object):
 
     def __init__(self, username, password):
         self.simplenote = simplenote.Simplenote(username, password)
+        # Storing keys/ids for the note list
         self.note_index = []
+        # Lightweight "cache" of note data for note index
+        self.note_cache = {}
+        # TODO: Maybe possible to merge the following with note_cache now?
         self.note_version = {}
+        # Map bufnums to noteids
         self.bufnum_to_noteid = {}
 
     def get_current_note(self):
@@ -247,14 +252,14 @@ class SimplenoteVimInterface(object):
         Returns list of fetched notes
         """
         queue = Queue()
-        note_list = []
+        note_cache = {}
         for key in key_list:
             queue.put(key)
-            t = NoteFetcher(queue, note_list, self.simplenote)
+            t = NoteFetcher(queue, note_cache, self.simplenote)
             t.start()
 
         queue.join()
-        return note_list
+        return note_cache
 
     def scratch_buffer(self, sb_name = DEFAULT_SCRATCH_NAME, sb_number = -1):
         """ Opens a scratch buffer from python
@@ -338,7 +343,6 @@ class SimplenoteVimInterface(object):
             this function is executed before the actual saving """
         vim.command("let s:renaming = 1") # we just need to know if user is renaming this buffer
 
-
     def update_note_from_current_buffer(self):
         """ updates the currently displayed note to the web service or creates new """
 
@@ -365,8 +369,6 @@ class SimplenoteVimInterface(object):
             vim.command("au! BufWriteCmd <buffer>")
             vim.command("au! BufFilePre <buffer>")
             vim.command("setlocal buftype=")
-
-
 
     def update_note_to_web_service(self):
 
@@ -486,11 +488,6 @@ class SimplenoteVimInterface(object):
 
         vim.command("set nomodified")
 
-
-
-
-
-
     def set_tags_for_current_note(self):
         """ set tags for the current note"""
         note_id = self.get_current_note()
@@ -507,7 +504,6 @@ class SimplenoteVimInterface(object):
         else:
             print("Error fetching note data.")
 
-
     def trash_current_note(self):
         """ trash the currently displayed note """
         note_id = self.get_current_note()
@@ -521,7 +517,7 @@ class SimplenoteVimInterface(object):
             print("Moving note to trash failed.: %s" % note)
 
     def delete_current_note(self):
-        """ trash the currently displayed note """
+        """ delete the currently displayed note """
         note_id = self.get_current_note()
         note, status = self.simplenote.delete_note(note_id)
         if status == 0:
@@ -529,8 +525,10 @@ class SimplenoteVimInterface(object):
             """ when running tests don't want to manipulate or close buffer """
             if int(vim.eval("exists('g:vader_file')")) == 0:
                 self.remove_note_from_index(note_id, vim.current.buffer.number)
-                # Vim doesn't actually complete remove the buffer, but it does undo mappings, etc so we should forget this buffer.
+                # Vim doesn't actually completely remove the buffer, but it does undo mappings, etc so we should forget this buffer.
                 del self.bufnum_to_noteid[vim.current.buffer.number]
+                # Also need to remove from our cache
+                del self.note_cache[note_id]
                 vim.command("bdelete!")
         else:
             print("Deleting note failed.: %s" % note)
@@ -682,7 +680,16 @@ class SimplenoteVimInterface(object):
         buffer = vim.current.buffer
         # Need to also keep track of the list index in the bufnum dictionary
         self.bufnum_to_noteid[buffer.number] = DEFAULT_SCRATCH_NAME
-        note_list, status = self.simplenote.get_note_list()
+        if self.simplenote.current:
+            note_keys, status = self.simplenote.get_note_list(data=False, since=self.simplenote.current)
+            note_cache = self.get_notes_from_keys([n['key'] for n in note_keys])
+            # Merge with existing
+            self.note_cache.update(note_cache)
+        else:
+            note_keys, status = self.simplenote.get_note_list(data=False)
+            self.note_cache = self.get_notes_from_keys([n['key'] for n in note_keys])
+        note_list = list(self.note_cache.values())
+
         if (len(tags) > 0):
             note_list = [n for n in note_list if (n["deleted"] != 1 and
                             len(set(n["tags"]).intersection(tags)) > 0)]
@@ -692,10 +699,9 @@ class SimplenoteVimInterface(object):
         # set global notes index object to notes
         if status == 0:
             note_titles = []
-            notes = self.get_notes_from_keys([n['key'] for n in note_list])
             # Iterate through sorts here, need to reverse this because we finish with the primary sort
             sortorder = list(reversed(vim.eval("s:sortorder").split(",")))
-            sorted_notes = notes
+            sorted_notes = note_list
             for compare_type in sortorder:
                 compare_type = compare_type.strip()
                 if compare_type == "pinned":
@@ -727,11 +733,10 @@ class SimplenoteVimInterface(object):
 
 def get_note_title(note):
     """ get title of note """
-    note_lines = note["content"].split("\n")
     try:
-        return str(note_lines[0] if len(note_lines) > 0 else note["key"])
+        return str(note["title"])
     except UnicodeEncodeError:
-        return unicode(note_lines[0] if len(note_lines) > 0 else note["key"])
+        return unicode(note["title"])
 
 
 class NoteFetcher(Thread):
@@ -750,8 +755,21 @@ class NoteFetcher(Thread):
     def run(self):
         key = self.queue.get()
         note, status = self.simplenote.get_note(key)
+        # Strip down and store a lightweight version
+        # Storing key "twice" as makes easier to convert to list later
+        note_lines = note["content"].split("\n")
+        note_title = note_lines[0] if len(note_lines) > 0 else note["key"]
+        notelight = {
+            "key": note["key"],
+            "modifydate": note["modifydate"],
+            "createdate": note["createdate"],
+            "tags": note["tags"],
+            "systemtags": note["systemtags"],
+            "deleted": note["deleted"],
+            "title": note_title
+        }
         if status != -1:
-          self.note_list.append(note)
+            self.note_list[note["key"]] = notelight
 
         self.queue.task_done()
 
