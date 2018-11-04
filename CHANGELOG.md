@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.0 (11/04/2018)
+- Keep in memory cache of notes to speed up list index updates
+
 ## 2.0.3 (10/30/2018)
 - Need to send tags by default with Simperium
 
