@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 (11/05/2018)
+- Save index list to disk for faster start
+- Don't used the disk cache when testing
+- Try to keep list index width when vertical and using default width
+
 ## 2.1.0 (11/04/2018)
 - Keep in memory cache of notes to speed up list index updates
 
