@@ -43,6 +43,8 @@ class SimplenoteVimInterface(object):
         self.note_version = {}
         # Map bufnums to noteids
         self.bufnum_to_noteid = {}
+        # Default Window width for single window mode - other things override this
+        self.vertical_window_width = 0
 
     def get_current_note(self):
         """ returns the key of the currently edited note """
@@ -170,7 +172,12 @@ class SimplenoteVimInterface(object):
             if vim.eval('s:listsize > 0') == "1":
                 width = int(vim.eval('s:listsize'))
             else:
-                width = width/2
+                # If no existing list index then store, otherwise use stored value
+                if self.vertical_window_width == 0:
+                    width = width/2
+                    self.vertical_window_width = width
+                else:
+                    width = self.vertical_window_width
 
         # get note flags
         if "systemtags" in note:
