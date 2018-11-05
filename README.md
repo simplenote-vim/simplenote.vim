@@ -76,7 +76,9 @@ navigate through the with the arrow keys and enter a note on hitting `Return`.
 
 If you want to refresh the list index just run `:SimplenoteList` again. With
 version 2.1 an in-memory cache is used to speed up subsequent updates of the
-list index (the first load can still be slow if you have a lot of notes). Also
+list index. With 2.2 this is extended so any call to `:SimplenoteList` also
+updates an on-disk cache so startup is also fast (the very first load before
+you have a cache can still be slow if you have a lot of notes). Also
 see [Single Window Mode](#single-window-mode).
 
 Now that you see the content of the note, you can interact with this specific

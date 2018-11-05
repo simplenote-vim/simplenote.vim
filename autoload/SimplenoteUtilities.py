@@ -1,5 +1,6 @@
 # Python classes and methods for simplenote.vim
 
+import json
 import os
 import sys
 import vim
@@ -16,8 +17,10 @@ if sys.version_info > (3, 0):
     from queue import Queue
 else:
     from Queue import Queue
+import os.path
 
 DEFAULT_SCRATCH_NAME = vim.eval("g:simplenote_scratch_buffer")
+INDEX_CACHE_FILE = os.path.join(os.path.expanduser("~"),".snvim")
 
 class SimplenoteVimInterface(object):
     """ Interface class to provide functions for interacting with VIM """
@@ -28,6 +31,14 @@ class SimplenoteVimInterface(object):
         self.note_index = []
         # Lightweight "cache" of note data for note index
         self.note_cache = {}
+        if os.path.isfile(INDEX_CACHE_FILE):
+            try:
+                with open(INDEX_CACHE_FILE, 'r') as f:
+                    cache_file = json.load(f)
+                    self.note_cache = cache_file["cache"]
+                    self.simplenote.current = cache_file["current"]
+            except IOError as e:
+                print("Error: Unable to read index cache to file - %s" % e)
         # TODO: Maybe possible to merge the following with note_cache now?
         self.note_version = {}
         # Map bufnums to noteids
@@ -529,6 +540,7 @@ class SimplenoteVimInterface(object):
                 del self.bufnum_to_noteid[vim.current.buffer.number]
                 # Also need to remove from our cache
                 del self.note_cache[note_id]
+                self.write_index_cache()
                 vim.command("bdelete!")
         else:
             print("Deleting note failed.: %s" % note)
@@ -688,6 +700,8 @@ class SimplenoteVimInterface(object):
         else:
             note_keys, status = self.simplenote.get_note_list(data=False)
             self.note_cache = self.get_notes_from_keys([n['key'] for n in note_keys])
+        # Write out cache
+        self.write_index_cache()
         note_list = list(self.note_cache.values())
 
         if (len(tags) > 0):
@@ -695,6 +709,7 @@ class SimplenoteVimInterface(object):
                             len(set(n["tags"]).intersection(tags)) > 0)]
         else:
             note_list = [n for n in note_list if n["deleted"] != 1]
+
 
         # set global notes index object to notes
         if status == 0:
@@ -730,6 +745,12 @@ class SimplenoteVimInterface(object):
         vim.command("nnoremap <buffer><silent> <CR> <Esc>:call <SID>GetNoteToCurrentBuffer()<CR>")
         vim.command("setlocal filetype=simplenote")
 
+    def write_index_cache(self):
+        try:
+            with open(INDEX_CACHE_FILE, 'w') as f:
+                json.dump({ "current": self.simplenote.current, "cache": self.note_cache}, f, indent=2)
+        except IOError as e:
+            print("Error: Unable to write index cache to file - %s" % e)
 
 def get_note_title(note):
     """ get title of note """
