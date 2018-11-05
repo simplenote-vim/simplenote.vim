@@ -31,14 +31,15 @@ class SimplenoteVimInterface(object):
         self.note_index = []
         # Lightweight "cache" of note data for note index
         self.note_cache = {}
-        if os.path.isfile(INDEX_CACHE_FILE):
-            try:
-                with open(INDEX_CACHE_FILE, 'r') as f:
-                    cache_file = json.load(f)
-                    self.note_cache = cache_file["cache"]
-                    self.simplenote.current = cache_file["current"]
-            except IOError as e:
-                print("Error: Unable to read index cache to file - %s" % e)
+        if int(vim.eval("exists('g:vader_file')")) == 0:
+            if os.path.isfile(INDEX_CACHE_FILE):
+                try:
+                    with open(INDEX_CACHE_FILE, 'r') as f:
+                        cache_file = json.load(f)
+                        self.note_cache = cache_file["cache"]
+                        self.simplenote.current = cache_file["current"]
+                except IOError as e:
+                    print("Error: Unable to read index cache to file - %s" % e)
         # TODO: Maybe possible to merge the following with note_cache now?
         self.note_version = {}
         # Map bufnums to noteids
@@ -753,11 +754,12 @@ class SimplenoteVimInterface(object):
         vim.command("setlocal filetype=simplenote")
 
     def write_index_cache(self):
-        try:
-            with open(INDEX_CACHE_FILE, 'w') as f:
-                json.dump({ "current": self.simplenote.current, "cache": self.note_cache}, f, indent=2)
-        except IOError as e:
-            print("Error: Unable to write index cache to file - %s" % e)
+        if int(vim.eval("exists('g:vader_file')")) == 0:
+            try:
+                with open(INDEX_CACHE_FILE, 'w') as f:
+                    json.dump({ "current": self.simplenote.current, "cache": self.note_cache}, f, indent=2)
+            except IOError as e:
+                print("Error: Unable to write index cache to file - %s" % e)
 
 def get_note_title(note):
     """ get title of note """
