@@ -5,6 +5,8 @@ def reset_user_pass(warning=None):
         vim.command("let s:user=''")
     if int(vim.eval("exists('g:SimplenotePassword')")) == 0:
         vim.command("let s:password=''")
+    if int(vim.eval("exists('g:SimplenoteToken')")) == 0:
+        vim.command("let s:token=''")
     if warning:
         vim.command("redraw!")
         vim.command("echohl WarningMsg")
@@ -12,7 +14,7 @@ def reset_user_pass(warning=None):
         vim.command("echohl none")
 
 def set_cred():
-    if vim.eval('s:user') == '' or vim.eval('s:password') == '':
+    if ((vim.eval('s:user') == '' or vim.eval('s:password') == '') and vim.eval('s:token') == ''):
         try:
             for variable, prompt in (
                 ("s:user", "input('email:', '')"),
@@ -29,10 +31,14 @@ def set_cred():
             vim.command("let s:user=g:SimplenoteUsername")
         if vim.eval("exists('g:SimplenotePassword')") == 1:
             vim.command("let s:password=g:SimplenotePassword")
+        if vim.eval("exists('g:SimplenoteToken')") == 1:
+            vim.command("let s:token=g:SimplenoteToken")
 
     SN_USER = vim.eval("s:user")
     SN_PASSWORD = vim.eval("s:password")
+    SN_TOKEN = vim.eval("s:token")
     interface.simplenote.username = SN_USER
     interface.simplenote.password = SN_PASSWORD
+    interface.simplenote.password = SN_TOKEN
 
 # vim: expandtab

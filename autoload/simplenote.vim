@@ -46,6 +46,12 @@ else
   let s:password = ""
 endif
 
+if exists("g:SimplenoteToken")
+  let s:token = g:SimplenoteToken
+else
+  let s:token = ""
+endif
+
 " note format
 if exists("g:SimplenoteNoteFormat")
   let s:noteformat = g:SimplenoteNoteFormat

@@ -25,8 +25,11 @@ INDEX_CACHE_FILE = os.path.join(os.path.expanduser("~"),".snvim")
 class SimplenoteVimInterface(object):
     """ Interface class to provide functions for interacting with VIM """
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, token):
         self.simplenote = simplenote.Simplenote(username, password)
+        # Use auth token if provided instead of requesting new
+        if not token == "":
+            self.simplenote.token = token
         # Storing keys/ids for the note list
         self.note_index = []
         # Lightweight "cache" of note data for note index
@@ -805,5 +808,6 @@ class NoteFetcher(Thread):
 
 SN_USER = vim.eval("s:user")
 SN_PASSWORD = vim.eval("s:password")
-interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD)
+SN_TOKEN = vim.eval("s:token")
+interface = SimplenoteVimInterface(SN_USER, SN_PASSWORD, SN_TOKEN)
 # vim: expandtab
