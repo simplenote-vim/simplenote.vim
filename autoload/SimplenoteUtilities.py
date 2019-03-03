@@ -38,6 +38,9 @@ class SimplenoteVimInterface(object):
                         cache_file = json.load(f)
                         self.note_cache = cache_file["cache"]
                         self.simplenote.current = cache_file["current"]
+                        # Because a token might legitimately not exist in the cache, plus gives us a way to clear token manually
+                        if "token" in cache_file:
+                            self.simplenote.token = cache_file["token"]
                 except IOError as e:
                     print("Error: Unable to read index cache to file - %s" % e)
         # TODO: Maybe possible to merge the following with note_cache now?
@@ -757,7 +760,8 @@ class SimplenoteVimInterface(object):
         if int(vim.eval("exists('g:vader_file')")) == 0:
             try:
                 with open(INDEX_CACHE_FILE, 'w') as f:
-                    json.dump({ "current": self.simplenote.current, "cache": self.note_cache}, f, indent=2)
+                    json.dump({ "token": self.simplenote.token, "current": self.simplenote.current, "cache": self.note_cache}, f, indent=2)
+                os.chmod(INDEX_CACHE_FILE, 0o600)
             except IOError as e:
                 print("Error: Unable to write index cache to file - %s" % e)
 
