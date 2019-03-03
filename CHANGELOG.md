@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.0 (03/03/2019)
+- Cache authorisation token
+
 ## 2.2.0 (11/05/2018)
 - Save index list to disk for faster start
 - Don't used the disk cache when testing
