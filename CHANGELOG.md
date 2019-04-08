@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 (04/08/2019)
+- Pull in simplenote.py 1.2.1
+- Allows us to detect invalid auth token and report failed login
+
 ## 2.3.0 (03/03/2019)
 - Cache authorisation token
 
