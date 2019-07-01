@@ -1,7 +1,11 @@
 # Changelog
 
+## 2.3.2 (07/01/2019)
+- Add error handling for SimplenoteOpen on invalid keys/ids
+- Update simplenote.py to 2.1.4
+
 ## 2.3.1 (04/08/2019)
-- Pull in simplenote.py 1.2.1
+- Pull in simplenote.py 2.1.2
 - Allows us to detect invalid auth token and report failed login
 
 ## 2.3.0 (03/03/2019)
