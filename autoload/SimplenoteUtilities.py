@@ -171,7 +171,6 @@ class SimplenoteVimInterface(object):
         # get window width for proper formatting
         width = vim.current.window.width
         # But if vertical, then we want to adjust this
-        # Doesn't take into account numberwidth vim setting, but I think that is a Vim issue/bug.
         if vim.eval('s:vbuff == 1') == "1":
             if vim.eval('s:listsize > 0') == "1":
                 width = int(vim.eval('s:listsize'))
@@ -182,6 +181,12 @@ class SimplenoteVimInterface(object):
                     self.vertical_window_width = width
                 else:
                     width = self.vertical_window_width
+        # Adjust for numberwidth, plus extra 1 padding incase of using setlist, etc
+        if vim.eval("&number") == "1":
+            adjust = int(vim.eval("&numberwidth")) + 1
+        else:
+            adjust = 1
+        width = width - adjust
 
         # get note flags
         if "systemtags" in note:
