@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.3 (10/18/2019)
+- Account for numberwidth when calculating title widths
+
 ## 2.3.2 (07/01/2019)
 - Add error handling for SimplenoteOpen on invalid keys/ids
 - Update simplenote.py to 2.1.4
