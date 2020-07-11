@@ -14,7 +14,7 @@ included `mk_vimball.sh` to generate a vimball to install.
 
 if using [Pathogen][3]:
 
-    git clone https://github.com/mrtazz/simplenote.vim.git
+    git clone https://github.com/simplenote-vim/simplenote.vim.git
     ~/.vim/bundle/simplenote.vim
 
 **Note** for both manual and Pathogen installs you will then need to run
@@ -28,17 +28,17 @@ But it's easier to use a plugin manager:
 
 ### [Vundle](https://github.com/gmarik/vundle)
 
-    Add Plugin 'mrtazz/simplenote.vim' to .vimrc
+    Add Plugin 'simplenote-vim/simplenote.vim' to .vimrc
     Run :PluginInstall
 
 ### [NeoBundle](https://github.com/Shougo/neobundle.vim)
 
-    Add NeoBundle 'mrtazz/simplenote.vim' to .vimrc
+    Add NeoBundle 'simplenote-vim/simplenote.vim' to .vimrc
     Run :NeoBundleInstall
 
 ### [vim-plug](https://github.com/junegunn/vim-plug)
 
-    Add Plug 'mrtazz/simplenote.vim' to .vimrc
+    Add Plug 'simplenote-vim/simplenote.vim' to .vimrc
     Run :PlugInstall
 
 Your credentials can be stored in your `vimrc`:
