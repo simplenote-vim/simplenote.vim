@@ -22,6 +22,7 @@
 "
 
 " set the simplenote command
+command! -nargs=0 SimplenoteGo :call simplenote#SimplenoteGo()
 command! -nargs=0 SimplenoteDelete :call simplenote#SimplenoteDelete()
 command! -nargs=* SimplenoteList :call simplenote#SimplenoteList(<f-args>)
 command! -nargs=0 SimplenoteUpdate :call simplenote#SimplenoteUpdate()
