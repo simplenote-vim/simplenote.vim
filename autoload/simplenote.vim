@@ -342,4 +342,13 @@ elseif has("python3")
     execute 'py3file ' . s:scriptpath . "/SimplenoteOpen.py" 
 endif
 endfunction
+
+function! simplenote#SimplenoteGo()
+	let temp = @"
+	norm /simplenote://t)yiw
+	let noteid = @"
+	let @"=temp
+	echo noteid
+	call simplenote#SimplenoteOpen(noteid)
+endfunction
 " vim: expandtab
