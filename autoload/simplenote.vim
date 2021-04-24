@@ -344,9 +344,7 @@ endif
 endfunction
 
 function! simplenote#SimplenoteGo()
-    " 1. Run loclist with matches
-    lvimgrep /simplenote:\/\/note\/[a-zA-Z0-9]\+/g %
-    " 2. If there is a match under the cursor then open that
+    " 1. If there is a match under the cursor then open that
     "    0 is a match. -1 is no match
     if match(expand("<cWORD>"), '.*simplenote://note/[a-zA-Z0-9]\+)') == 0
         " Strip off front
@@ -354,20 +352,21 @@ function! simplenote#SimplenoteGo()
         " Strip of trailing bracket
         let noteid = substitute(noteid, ')', '', '')
         call simplenote#SimplenoteOpen(noteid)
+    " 2. Otherwise run loclist with matches
+    else
+        lvimgrep /simplenote:\/\/note\/[a-zA-Z0-9]\+/g %
     " 3. If there is one match in the location list then open that
     "    This relies on lvimgrep moving the cursor to the first match
-    "    This means this is probably redundant/wrong
-    "    Since we call lvimgrep and so will jump straight away. Whoops
-    "    TODO: Fix that logic
-    elseif len(getloclist(0)) == 1
-        let noteid = substitute(expand("<cWORD>"), '.*simplenote://note/', '', '')
-        let noteid = substitute(noteid, ')', '', '')
-        call simplenote#SimplenoteOpen(noteid)
+        if len(getloclist(0)) == 1
+            let noteid = substitute(expand("<cWORD>"), '.*simplenote://note/', '', '')
+            let noteid = substitute(noteid, ')', '', '')
+            call simplenote#SimplenoteOpen(noteid)
     " 4. If there is more than one we can open the location list
     "    That can be used to navigate
     "    Call this command again to go to the one under the cursor?
-    elseif len(getloclist(0)) > 1
-        lopen
+        elseif len(getloclist(0)) > 1
+            lopen
+        endif
     endif
 endfunction
 " vim: expandtab
