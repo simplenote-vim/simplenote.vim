@@ -349,7 +349,7 @@ function! simplenote#SimplenoteGo()
     if match(expand("<cWORD>"), '.*simplenote://note/[a-zA-Z0-9]\+)') == 0
         " Strip off front
         let noteid = substitute(expand("<cWORD>"), '.*simplenote://note/', '', '')
-        " Strip of trailing bracket
+        " Strip off trailing bracket
         let noteid = substitute(noteid, ')', '', '')
         call simplenote#SimplenoteOpen(noteid)
     " 2. Otherwise run loclist with matches
@@ -363,7 +363,7 @@ function! simplenote#SimplenoteGo()
             call simplenote#SimplenoteOpen(noteid)
     " 4. If there is more than one we can open the location list
     "    That can be used to navigate
-    "    Call this command again to go to the one under the cursor?
+    "    Call this command again to go to the one under the cursor
         elseif len(getloclist(0)) > 1
             lopen
         endif
