@@ -157,6 +157,17 @@ to create shortcuts to notes you use often. Example:
 
 Now you can jump to your todo note directly with `:Todo` in vim.
 
+And since Simplenote introduced support for internal links there is now a command:
+
+    :SimplenoteGo
+
+This will open the internally linked note if the link is under the cursor.
+Otherwise it searches the whole note for internal links and populates the
+Location List with them. If there is just one internal link in the note then it
+will also immediately open that. If there are multiple internal links it opens
+the Location List so you can use it to navigate to the internal link you want.
+By selecting that link and then running `:SimplenoteGo` again it will open that
+note.
 
 ## Note sorting
 

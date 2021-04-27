@@ -4,7 +4,7 @@
 " Author: Daniel Schauenberg <d@unwiredcouch.com>
 " WebPage: http://github.com/mrtazz/simplenote.vim
 " License: MIT
-" Version: 2.3.3
+" Version: 2.4.0
 " Usage:
 "   :SimplenoteList X => list X number of notes; omit X to list all
 "   :SimplenoteList tags,moretags => list notes which feature one of the tags
@@ -16,12 +16,14 @@
 "   :SimplenotePin => pin note in current buffer
 "   :SimplenoteUnpin => unpin note in current buffer
 "   :SimplenoteOpen key => open note with given key directly
+"   :SimplenoteGo => Open internal links
 "
 " This is only the interface part of the script. For the actual implementation
 " see plugin/simplenote.vim
 "
 
 " set the simplenote command
+command! -nargs=0 SimplenoteGo :call simplenote#SimplenoteGo()
 command! -nargs=0 SimplenoteDelete :call simplenote#SimplenoteDelete()
 command! -nargs=* SimplenoteList :call simplenote#SimplenoteList(<f-args>)
 command! -nargs=0 SimplenoteUpdate :call simplenote#SimplenoteUpdate()

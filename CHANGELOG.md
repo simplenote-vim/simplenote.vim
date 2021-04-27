@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.0 (04/25/2021)
+- Added SimplenoteGo function
+- Replace GitHub username
+
 ## 2.3.3 (10/18/2019)
 - Account for numberwidth when calculating title widths
 
