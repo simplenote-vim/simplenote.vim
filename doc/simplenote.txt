@@ -66,7 +66,7 @@ Now you can take simple notes directly from your favourite editor.
     Opens the note corresponding to the given {notekey}. This is useful for
     configuring shortcuts to specific notes, e.g. >
     " add :Todo command
-    command Todo Simplenote -o <yourtodonotekey>
+    command Todo SimplenoteOpen <yourtodonotekey>
 <
 
 ==============================================================================
