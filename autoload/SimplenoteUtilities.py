@@ -629,7 +629,7 @@ class SimplenoteVimInterface(object):
                                 buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
                             # Need to set as unmodified so can continue to browse through versions
                             vim.command("setlocal nomodified")
-                            print("Displaying note ID %s version %s. To restore, :Simplenote -u, to revert to most recent, :Simplenote -v" % (note_id, version))
+                            print("Displaying note ID %s version %s. To restore, :SimplenoteUpdate, to revert to most recent, :SimplenoteVersion" % (note_id, version))
                         else:
                             print("Error fetching note data. Perhaps that version isn't available.")
                 else:

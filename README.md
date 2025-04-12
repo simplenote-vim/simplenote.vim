@@ -101,14 +101,14 @@ If you want to retrieve a specific version of a note use:
     :SimplenoteVersion X
 
 where X is an integer version number. To restore that version of a note you
-would just use `:Simplenote -u`. To get back to the most recent version of a
+would just use `:SimplenoteUpdate`. To get back to the most recent version of a
 note use:
 
     :SimplenoteVersion
 
-Therefore you can also use `:Simplenote -v` when no local changes have been made
-to pull in the most recent changes from the remote note. To delete the note,
-execute
+Therefore you can also use `:SimplenoteVersion` when no local changes have been
+made to pull in the most recent changes from the remote note. To delete the
+note, execute
 
     :SimplenoteTrash
 
@@ -123,8 +123,8 @@ also exists a command to create new notes.
     :SimplenoteNew
 
 creates a new note with the contents of the current buffer. Once the note is
-created, `:Simplenote -u` updates the newly created note, also with the contents
-of the current buffer.
+created, `:SimplenoteUpdate` (or `:w`) updates the newly created note, also
+with the contents of the current buffer.
 
 Tagging notes is also supported. If you enter
 
@@ -257,7 +257,7 @@ this doc. But if you have done that, you can add a shell alias or script
 exploiting `proxychains` to ease the invoking of simplenote.vim
 
     # as for zsh
-    alias simplenote="proxychains -q vim -c 'Simplenote -l'"
+    alias simplenote="proxychains -q vim -c SimplenoteList"
 
 ## Development
 
