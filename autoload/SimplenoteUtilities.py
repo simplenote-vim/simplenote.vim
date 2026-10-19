@@ -341,13 +341,14 @@ class SimplenoteVimInterface(object):
                 buffer[:] = list(map(lambda x: str(x), note["content"].split("\n")))
             except UnicodeEncodeError:
                 buffer[:] = list(map(lambda x: unicode(x), note["content"].split("\n")))
-            vim.command("setlocal nomodified")
 
             # Fix for #105 (recipe from `:h clear-undo`)
             old_undolevels = vim.eval('&l:undolevels')
             vim.command('setlocal undolevels=-1')
             vim.command('normal! a \x08\x1b')
             vim.command(f'let &l:undolevels = {old_undolevels}')
+            # The dummy insert/delete above sets 'modified', so clear it afterwards
+            vim.command("setlocal nomodified")
 
             vim.command("doautocmd BufReadPost")
             # BufReadPost can cause auto-selection of filetype based on file content so set filetype after this
